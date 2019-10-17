@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_extra_fields.fields import Base64FileField
 
 from ..models import Contato, Imovel
 
@@ -11,12 +12,11 @@ class ContatoSerializer(serializers.ModelSerializer):
 
 
 class ImovelSerializer(serializers.ModelSerializer):
-
     contato = ContatoSerializer()
 
     class Meta:
         model = Imovel
-        exclude = ('id',)
+        exclude = ('id',"planta")
 
     def create(self, validated_data):
         contato = ContatoSerializer().create(
