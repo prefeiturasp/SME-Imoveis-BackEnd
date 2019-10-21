@@ -1,0 +1,11 @@
+Prezado COGED,
+Você recebeu uma oferta de imovel que no momento existe demanda de crianças.
+
+Dados da Oferta
+Nome Proponente: {{ oferta.proponente.nome }} - Documento: {{ oferta.proponente.cpf_cnpj }}
+Nome do Proprietario: {{ oferta.contato.nome }} - Documento: {{ oferta.contato.cpf_cnpj }}
+
+Endereço: {{ oferta.endereco }} - {{ oferta.bairro }} CEP: {{oferta.cep}}
+<a target="blank" href="{{ oferta.planta.url }}">{{ oferta.planta }}</a>
+
+Demanda em {% now "d/M/Y H:i" %}

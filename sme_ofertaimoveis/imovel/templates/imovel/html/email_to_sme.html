@@ -1,0 +1,39 @@
+{% extends "base/page.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-12 p-2">
+        Prezado COGED,
+        <br/> <br/>
+        Você recebeu uma oferta de imovel que no momento existe demanda de crianças.
+
+        <br/> <br/>
+        <h5>Dados da Oferta</h5>
+        <table class="table">
+            <tbody>
+                <tr>
+                    <td><b>Nome Proponente:</b> {{ oferta.proponente.nome }}</td>
+                    <td><b>Documento:</b> {{ oferta.proponente.cpf_cnpj }}</td>
+                </tr>
+                <tr>
+                    <td><b>Nome do Proprietario:</b> {{ oferta.contato.nome }}</td>
+                    <td><b>Documento:</b> {{ oferta.contato.cpf_cnpj }}</td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <b>Endereço:</b> {{ oferta.endereco }} - {{ oferta.bairro }} <b>CEP:</b> {{oferta.cep}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <b>Anexo:</b> <a target="blank" href="{{ oferta.planta.url }}">{{ oferta.planta }}</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br/>
+        Demanda em {% now "d/M/Y H:i" %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,16 +1,25 @@
 from rest_framework import serializers
 
-from ..models import Contato, Imovel
+from ..models import ContatoImovel, Imovel, Proponente
 
 
 class ContatoSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Contato
+        model = ContatoImovel
+        exclude = ('id',)
+
+
+class ProponenteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Proponente
         exclude = ('id',)
 
 
 class ImovelSerializer(serializers.ModelSerializer):
+
+    proponente = ProponenteSerializer()
     contato = ContatoSerializer()
 
     class Meta:
@@ -21,5 +30,12 @@ class ImovelSerializer(serializers.ModelSerializer):
         contato = ContatoSerializer().create(
             validated_data.pop('contato', {})
         )
+        proponente = ProponenteSerializer().create(
+            validated_data.pop('proponente', {})
+        )
 
-        return Imovel.objects.create(contato=contato, **validated_data)
+        return Imovel.objects.create(
+            contato=contato, 
+            proponente=proponente, 
+            **validated_data
+        )

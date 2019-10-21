@@ -18,7 +18,7 @@ schema_view = get_swagger_view(title='API de Oferta Imoveis', url=env.str('DJANG
 urlpatterns = [path('docs/', schema_view, name='docs'),
                path('django-des/', include(des_urls)),
                path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-               path(settings.ADMIN_URL, admin.site.urls),
+               path('admin/', admin.site.urls),
                path('api-token-auth/', obtain_jwt_token),
                path('api-token-refresh/', refresh_jwt_token)] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
