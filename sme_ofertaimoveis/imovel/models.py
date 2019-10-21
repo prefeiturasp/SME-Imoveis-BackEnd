@@ -14,7 +14,7 @@ class SME_Contatos(models.Model):
     objects = SME_ContatosManager()
 
     def __str__(self):
-        return (f'{self.name} => {self.email}')
+        return (f'{self.nome} => {self.email}')
 
     class Meta:
         verbose_name = 'Contato Prefeitura'
