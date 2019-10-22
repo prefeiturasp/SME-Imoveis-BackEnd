@@ -6,6 +6,8 @@ Nome Proponente: {{ oferta.proponente.nome }} - Documento: {{ oferta.proponente.
 Nome do Proprietario: {{ oferta.contato.nome }} - Documento: {{ oferta.contato.cpf_cnpj }}
 
 Endereço: {{ oferta.endereco }} - {{ oferta.bairro }} CEP: {{oferta.cep}}
-<a target="blank" href="{{ oferta.planta.url }}">{{ oferta.planta }}</a>
+{% if oferta.planta %}
+    <a target="blank" href="{{ oferta.planta.url }}">{{ oferta.planta }}</a>
+{% endif %}
 
 Demanda em {% now "d/M/Y H:i" %}
