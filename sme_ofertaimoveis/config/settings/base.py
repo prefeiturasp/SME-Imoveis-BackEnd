@@ -84,10 +84,9 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     'rest_framework',
-    'notifications',
     'rest_framework_swagger',
     'des',  # for email configuration in database
-    'django_xworkflows'
+    'django_celery_results', # Celery integration for Django
 ]
 LOCAL_APPS = [
     'sme_ofertaimoveis.imovel.apps.ImovelConfig',
@@ -219,9 +218,11 @@ X_FRAME_OPTIONS = 'DENY'
 # EMAIL
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', default='des.backends.ConfiguredEmailBackend')
+EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND',
+                    default='des.backends.ConfiguredEmailBackend')
 DES_TEST_SUBJECT = 'TESTE'
-DES_TEST_TEXT_TEMPLATE = os.path.join(APPS_DIR, 'templates', 'email', 'test_email.txt')
+DES_TEST_TEXT_TEMPLATE = os.path.join(
+    APPS_DIR, 'templates', 'email', 'test_email.txt')
 
 # ADMIN
 # ------------------------------------------------------------------------------
@@ -271,3 +272,22 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=100),
     'JWT_ALLOW_REFRESH': True,
 }
+
+FILA_CRECHE_URL = "https://filadacreche.sme.prefeitura.sp.gov.br"
+FILA_CRECHE_GRUPOS = (
+    ("1", "Bercario I"),
+    ("2", "Bercario II"),
+    ("27", "Mini Grupo I"),
+    ("28", "Mini grupo II"),
+)
+
+# CELERY SETTINGS
+CELERY_REDIS_URL = env('CELERY_REDIS_URL')
+CELERY_BROKER_URL = f'{CELERY_REDIS_URL}/0'
+CELERY_BACKEND = f'{CELERY_REDIS_URL}/1'
+CELERY_RESULT_BACKEND = "django-db"
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ENABLE_UTC = True

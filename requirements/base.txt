@@ -2,8 +2,8 @@ pytz==2018.9  # https://github.com/stub42/pytz
 python-slugify==2.0.1  # https://github.com/un33k/python-slugify
 Pillow==5.4.1  # https://github.com/python-pillow/Pillow
 argon2-cffi==19.1.0  # https://github.com/hynek/argon2_cffi
-redis>=2.10.6, < 3  # pyup: < 3 # https://github.com/antirez/redis
-django-xworkflows==0.12.3 # https://github.com/rbarrois/django_xworkflows
+celery[redis]==4.3.0
+django-celery-results
 
 # Django
 # ------------------------------------------------------------------------------
@@ -18,6 +18,4 @@ django-cors-headers==3.0.2   # https://pypi.org/project/django-cors-headers/
 djangorestframework==3.9.1  # https://github.com/encode/django-rest-framework
 coreapi==2.3.3  # https://github.com/core-api/python-client
 djangorestframework-jwt==1.11.0 # https://getblimp.github.io/django-rest-framework-jwt/
-django-notifications-hq==1.5.0 # https://github.com/django-notifications/django-notifications
-workalendar==4.3.1 # https://github.com/peopledoc/workalendar
 django-rest-swagger==2.2.0 # https://github.com/marcgibbons/django-rest-swagger

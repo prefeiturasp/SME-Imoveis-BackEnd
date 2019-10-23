@@ -8,8 +8,8 @@ from rest_framework import status
 from rest_framework import mixins
 
 from .serializers import ImovelSerializer
-from ..models import SME_Contatos, Imovel
 from ...dados_comuns.utils import send_email
+from ..tasks import task_send_email_to_sme
 
 
 class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
@@ -30,25 +30,14 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
             )
             instance.save()
         
-        # Envia E-mail SME
-        self.send_email_to_sme(instance)
-
         # Envia E-mail Usuario
         self.send_email_to_usuario(instance.proponente.email)
 
+        # Task do E-mail do SES
+        task_send_email_to_sme.delay(instance.pk)
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def send_email_to_sme(self, instance):
-        emails = list((
-            c.email for c in SME_Contatos.objects.get_contatos_ativos()
-        ))
-        send_email(
-            subject="Novo Cadastro de Oferta de Imovel", 
-            template="email_to_sme",
-            data={"oferta": instance},
-            to_email=emails
-        )
 
     def send_email_to_usuario(self, email):
         send_email(

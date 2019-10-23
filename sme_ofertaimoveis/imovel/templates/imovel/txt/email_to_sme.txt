@@ -10,4 +10,8 @@ Endereço: {{ oferta.endereco }} - {{ oferta.bairro }} CEP: {{oferta.cep}}
     <a target="blank" href="{{ oferta.planta.url }}">{{ oferta.planta }}</a>
 {% endif %}
 
+{% for d in demanda %}
+    {{ d.nome }} - {{ d.quantidade }}
+{% endfor %}
+
 Demanda em {% now "d/M/Y H:i" %}

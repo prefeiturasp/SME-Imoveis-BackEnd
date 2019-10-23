@@ -33,10 +33,29 @@
                 </tr>
             </tbody>
         </table>
-        
+        <br/> <br/>
+        <h5>Demanda</h5>
+        <div class="mr-5 ml-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                    <th scope="col">Grupo</th>
+                    <th scope="col">Fila</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in demanda %}
+                        <tr>
+                            <td>{{ d.nome }}</td>
+                            <td>{{ d.quantidade }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+       
         <br/>
         Demanda em {% now "d/M/Y H:i" %}
-
     </div>
 </div>
 {% endblock %}

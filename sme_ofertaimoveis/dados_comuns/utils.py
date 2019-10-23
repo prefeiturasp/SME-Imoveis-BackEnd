@@ -1,7 +1,10 @@
+import requests
+
 from des.models import DynamicEmailConfiguration
 
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.conf import settings
 
 from django.template.loader import get_template
 from django.template import Context
@@ -26,3 +29,17 @@ def send_email(subject, template, data, to_email):
         to_email,
         html_message=msg_html
     )
+
+
+def consult_api_fila_creche(latitude, longitude, grupo):
+
+    headers = {
+        'Content-Type': "application/json"
+    }
+    url = f"{settings.FILA_CRECHE_URL}" \
+        f"/api/v1/schools/radius/wait" \
+        f"/{longitude}/{latitude}/{grupo}"
+    
+    response = requests.request("GET", url, headers=headers)
+    response.raise_for_status()
+    return response.json()["results"]
