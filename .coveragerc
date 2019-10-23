@@ -1,0 +1,7 @@
+[run]
+include = sme_ofertaimoveis/*
+omit = *migrations*, *config*
+
+[report]
+include = sme_ofertaimoveis/*
+omit = *migrations*, *tests*, *config*

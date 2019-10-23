@@ -40,6 +40,7 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 JUnit.xml
 htmlcov/
+cover/
 .tox/
 .coverage
 .coverage.*

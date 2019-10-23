@@ -17,29 +17,23 @@ def send_email(subject, template, data, to_email):
     if not isinstance(to_email, list):
         to_email = [to_email]
 
-    msg_plain = render_to_string(
-        f'imovel/txt/{template}.txt', data)
-    msg_html = render_to_string(
-        f'imovel/html/{template}.html', data)
+    msg_plain = render_to_string(f"imovel/txt/{template}.txt", data)
+    msg_html = render_to_string(f"imovel/html/{template}.html", data)
 
     send_mail(
-        subject,
-        msg_plain,
-        config.from_email or None,
-        to_email,
-        html_message=msg_html
+        subject, msg_plain, config.from_email or None, to_email, html_message=msg_html
     )
 
 
 def consult_api_fila_creche(latitude, longitude, grupo):
 
-    headers = {
-        'Content-Type': "application/json"
-    }
-    url = f"{settings.FILA_CRECHE_URL}" \
-        f"/api/v1/schools/radius/wait" \
+    headers = {"Content-Type": "application/json"}
+    url = (
+        f"{settings.FILA_CRECHE_URL}"
+        f"/api/v1/schools/radius/wait"
         f"/{longitude}/{latitude}/{grupo}"
-    
+    )
+
     response = requests.request("GET", url, headers=headers)
     response.raise_for_status()
     return response.json()["results"]

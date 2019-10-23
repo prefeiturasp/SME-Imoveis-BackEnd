@@ -15,21 +15,20 @@ from ..tasks import task_send_email_to_sme
 class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
     permission_classes = (AllowAny,)
     get_serializer = ImovelSerializer
-    
+
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         serializer.save()
         instance = serializer.instance
-        planta =  request.data.get("planta", {})
+        planta = request.data.get("planta", {})
         if planta:
             instance.planta = ContentFile(
-                base64.b64decode(planta.get("base64")),
-                name=planta.get("filename")
+                base64.b64decode(planta.get("base64")), name=planta.get("filename")
             )
             instance.save()
-        
+
         # Envia E-mail Usuario
         self.send_email_to_usuario(instance.proponente.email)
 
@@ -37,12 +36,14 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
         task_send_email_to_sme.delay(instance.pk)
 
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     def send_email_to_usuario(self, email):
         send_email(
-            subject="Obrigado pelo envio do seu imovel", 
+            subject="Obrigado pelo envio do seu imovel",
             template="email_to_usuario",
             data={},
-            to_email=email
+            to_email=email,
         )

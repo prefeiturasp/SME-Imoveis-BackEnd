@@ -1,0 +1,4 @@
+-r ./base.txt
+
+model-bakery==1.0.1 # https://model-bakery.readthedocs.io/
+coverage==4.5.2     # https://github.com/nedbat/coveragepy
