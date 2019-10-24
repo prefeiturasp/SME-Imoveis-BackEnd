@@ -33,7 +33,7 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
         self.send_email_to_usuario(instance.proponente.email)
 
         # Task do E-mail do SES
-        task_send_email_to_sme.delay(instance.pk)
+        task_send_email_to_sme.apply_async((instance.pk,), countdown=15)
 
         headers = self.get_success_headers(serializer.data)
         return Response(
