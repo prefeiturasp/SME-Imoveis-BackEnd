@@ -30,7 +30,7 @@ def task_send_email_to_sme(imovel_id):
 
     # Envia E-mail SME
     send_email(
-        subject="Novo Cadastro de Oferta de Imovel",
+        subject="Novo Cadastro de Oferta de Imóvel",
         template="email_to_sme",
         data=data,
         to_email=emails,
