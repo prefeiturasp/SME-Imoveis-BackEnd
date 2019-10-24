@@ -17,6 +17,8 @@ def send_email(subject, template, data, to_email):
     if not isinstance(to_email, list):
         to_email = [to_email]
 
+    data["URL_HOSTNAME"] = settings.URL_HOSTNAME
+
     msg_plain = render_to_string(f"imovel/txt/{template}.txt", data)
     msg_html = render_to_string(f"imovel/html/{template}.html", data)
 

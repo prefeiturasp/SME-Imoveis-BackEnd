@@ -48,6 +48,7 @@ STATIC_ROOT = "/code/static"
 MEDIA_ROOT = "/code/media"
 STATICFILES_DIRS = []
 
+URL_HOSTNAME = "http://hom.imoveis.sme.prefeitura.sp.gov.br/api"
 
 # LOGGING
 # ------------------------------------------------------------------------------

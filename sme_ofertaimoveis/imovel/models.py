@@ -65,13 +65,13 @@ class Imovel(models.Model):
     contato = models.ForeignKey(ContatoImovel, on_delete=models.DO_NOTHING)
 
     cep = models.CharField("CEP", max_length=20, validators=[cep_validation])
-    endereco = models.CharField("Logradouro", max_length=255, default="")
-    bairro = models.CharField("Bairro", max_length=255, default="")
-    numero = models.CharField("Numero", max_length=255, default="")
+    endereco = models.CharField("Logradouro", max_length=255)
+    bairro = models.CharField("Bairro", max_length=255)
+    numero = models.CharField("Numero", max_length=255)
     complemento = models.CharField("Complemento", max_length=255, null=True, blank=True)
 
-    latitude = models.CharField("Latitude", max_length=255, default="")
-    longitude = models.CharField("longitude", max_length=255, default="")
+    latitude = models.CharField("Latitude", max_length=255)
+    longitude = models.CharField("longitude", max_length=255)
 
     planta = models.FileField(blank=True, null=True)
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)

@@ -256,7 +256,7 @@ JWT_AUTH = {
 FILA_CRECHE_URL = "https://filadacreche.sme.prefeitura.sp.gov.br"
 FILA_CRECHE_GRUPOS = (
     ("1", "Bercario I"),
-    ("2", "Bercario II"),
+    ("4", "Bercario II"),
     ("27", "Mini Grupo I"),
     ("28", "Mini grupo II"),
 )
@@ -271,3 +271,5 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_ENABLE_UTC = True
+
+URL_HOSTNAME = ""
