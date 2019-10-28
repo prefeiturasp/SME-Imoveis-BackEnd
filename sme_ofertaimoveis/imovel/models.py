@@ -25,15 +25,18 @@ class SME_Contatos(models.Model):
 
 class Proponente(models.Model):
 
-    nome = models.CharField("Nome", max_length=255)
+    nome = models.CharField("Nome", max_length=255, blank=True, null=True)
     cpf_cnpj = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation]
+        , blank=True, null=True, default=""
     )
     email = models.CharField(
         "E-mail", max_length=255, validators=[validators.EmailValidator()]
+        , blank=True, null=True, default=""
     )
     telefone = models.CharField(
         "Telefone", max_length=20, validators=[phone_validation]
+        , blank=True, null=True, default=""
     )
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 

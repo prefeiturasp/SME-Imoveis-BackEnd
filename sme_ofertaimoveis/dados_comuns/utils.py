@@ -3,7 +3,7 @@ import requests
 from des.models import DynamicEmailConfiguration
 
 from django.template.loader import render_to_string
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 
 from django.template.loader import get_template
@@ -19,13 +19,15 @@ def send_email(subject, template, data, to_email):
 
     data["URL_HOSTNAME"] = settings.URL_HOSTNAME
 
-    msg_plain = render_to_string(f"imovel/txt/{template}.txt", data)
     msg_html = render_to_string(f"imovel/html/{template}.html", data)
-
-    send_mail(
-        subject, msg_plain, config.from_email or None, to_email, html_message=msg_html
+    msg = EmailMessage(
+        subject=subject, body=msg_html, 
+        from_email=config.from_email or None,
+        bcc=to_email,
     )
-
+    msg.content_subtype = "html"  # Main content is now text/html
+    return msg.send()
+    
 
 def consult_api_fila_creche(latitude, longitude, grupo):
 
