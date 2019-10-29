@@ -52,6 +52,14 @@ class ContatoImovel(models.Model):
 
     nome = models.CharField("Nome", max_length=255)
     cpf_cnpj = models.CharField("CPF / CNPJ", max_length=20)
+    email = models.CharField(
+        "E-mail", max_length=255, validators=[validators.EmailValidator()]
+        , blank=True, null=True, default=""
+    )
+    telefone = models.CharField(
+        "Telefone", max_length=20, validators=[phone_validation]
+        , blank=True, null=True, default=""
+    )
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     def __str__(self):
@@ -76,8 +84,11 @@ class Imovel(models.Model):
     latitude = models.CharField("Latitude", max_length=255)
     longitude = models.CharField("longitude", max_length=255)
 
-    planta = models.FileField(blank=True, null=True)
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+
+    @property
+    def planta_fotos(self):
+        return self.plantafoto_set.all()
 
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
@@ -85,3 +96,10 @@ class Imovel(models.Model):
     class Meta:
         verbose_name = "Imovel"
         verbose_name_plural = "Imoveis"
+
+
+class PlantaFoto(models.Model):
+
+    imovel = models.ForeignKey(Imovel, on_delete=models.DO_NOTHING)
+    planta = models.FileField()
+    criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)

@@ -32,10 +32,10 @@ class TestProponente(TestCase):
         self.proponente = baker.make(Proponente, make_m2m=True)
 
     def test_validade_type_of_fields(self):
-        self.assertIsInstance(self.proponente.nome, str)
-        self.assertIsInstance(self.proponente.cpf_cnpj, str)
-        self.assertIsInstance(self.proponente.email, str)
-        self.assertIsInstance(self.proponente.telefone, str)
+        self.assertEqual(self.proponente.nome, None)
+        self.assertEqual(self.proponente.cpf_cnpj, "")
+        self.assertEqual(self.proponente.email, "")
+        self.assertEqual(self.proponente.telefone, "")
         self.assertIsInstance(self.proponente.criado_em, datetime)
 
     def test_str(self):

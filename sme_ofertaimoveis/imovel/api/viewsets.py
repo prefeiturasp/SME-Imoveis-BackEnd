@@ -1,6 +1,5 @@
 import base64
 
-from django.core.files.base import ContentFile
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -22,12 +21,6 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
 
         serializer.save()
         instance = serializer.instance
-        planta = request.data.get("planta", {})
-        if planta:
-            instance.planta = ContentFile(
-                base64.b64decode(planta.get("base64")), name=planta.get("filename")
-            )
-            instance.save()
 
         # Envia E-mail Usuario
         self.send_email_to_usuario(instance.proponente.email)

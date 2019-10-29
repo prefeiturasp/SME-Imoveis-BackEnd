@@ -9,8 +9,8 @@ from ..utils import send_email, consult_api_fila_creche
 
 class TestSendEmail(TestCase):
     @patch("sme_ofertaimoveis.dados_comuns.utils.render_to_string")
-    @patch("sme_ofertaimoveis.dados_comuns.utils.send_mail")
-    def test_send_email_call(self, mk_send_mail, mk_render_to_string):
+    @patch("sme_ofertaimoveis.dados_comuns.utils.EmailMessage")
+    def test_send_email_call(self, mk_EmailMessage, mk_render_to_string):
         experienced = {
             "subject": "Obrigado pelo envio do seu imovel",
             "template": "email_to_usuario",
@@ -21,12 +21,11 @@ class TestSendEmail(TestCase):
         mk_render_to_string.side_effect = ["msg_plain", "msg_html"]
 
         send_email(**experienced)
-        mk_send_mail.assert_called_with(
-            experienced["subject"],
-            "msg_plain",
-            ANY,
-            [experienced["to_email"]],
-            html_message="msg_html",
+        mk_EmailMessage.assert_called_with(
+            subject=experienced["subject"],
+            body="msg_plain",
+            from_email=ANY,
+            bcc=[experienced["to_email"]],
         )
 
 

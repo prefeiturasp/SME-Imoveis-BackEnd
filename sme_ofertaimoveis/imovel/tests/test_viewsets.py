@@ -22,6 +22,8 @@ class TestCadastroImoveisViewSet(TestCase):
             subject="Obrigado pelo envio do seu imovel",
             template="email_to_usuario",
             data={},
-            to_email="maria@gmail.com",
+            to_email="viniciuseliascarvalho@righettorosa.com.br",
         )
-        mk_task_send_email_to_sme.delay.assert_called_with(ANY)
+        mk_task_send_email_to_sme.apply_async.assert_called_with(
+            (ANY,), countdown=15
+        )
