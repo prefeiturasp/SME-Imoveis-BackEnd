@@ -25,10 +25,10 @@
                 </tr>
                 <tr>
                     <td colspan="2">
-                        <b>Anexo:</b> 
-                        {% if oferta.planta %}
-                            <a target="blank" href="{{ URL_HOSTNAME }}{{ oferta.planta.url }}">{{ oferta.planta }}</a>
-                        {% endif %}
+                        <b>Anexos:</b><br />
+                        {% for planta_foto in oferta.planta_fotos %} 
+                            <a target="blank" href="{{ URL_HOSTNAME }}{{ planta_foto.planta.url }}">{{ planta_foto.planta }}</a><br />
+                        {% endfor %}
                     </td>
                 </tr>
             </tbody>

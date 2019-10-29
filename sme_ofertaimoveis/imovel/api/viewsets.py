@@ -23,7 +23,10 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
         instance = serializer.instance
 
         # Envia E-mail Usuario
-        self.send_email_to_usuario(instance.proponente.email)
+        if instance.proponente.email:
+            self.send_email_to_usuario(instance.proponente.email)
+        
+        self.send_email_to_usuario(instance.contato.email)
 
         # Task do E-mail do SES
         task_send_email_to_sme.apply_async((instance.pk,), countdown=15)
