@@ -25,6 +25,20 @@ class SME_Contatos(models.Model):
 
 class Proponente(models.Model):
 
+    IMOBILIARIA = 1
+    PROCURADOR = 2
+    ONG = 3
+    OUTRO = 4
+
+    TYPES = (
+        (0, "----SELECIONE-----"),
+        (IMOBILIARIA, "Imobiliária"),
+        (PROCURADOR , "Procurador"),
+        (ONG , "Ong"),
+        (OUTRO , "Outro"),
+    )
+
+    tipo = models.CharField("Tipo", choices=TYPES, default=OUTRO, max_length=2)
     nome = models.CharField("Nome", max_length=255, blank=True, null=True)
     cpf_cnpj = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation]
@@ -83,6 +97,7 @@ class Imovel(models.Model):
 
     latitude = models.CharField("Latitude", max_length=255)
     longitude = models.CharField("longitude", max_length=255)
+    numero_iptu = models.CharField("Numero IPTU", max_length=20, blank=True, default="")
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
