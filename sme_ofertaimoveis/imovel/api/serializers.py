@@ -17,11 +17,10 @@ class ProponenteSerializer(serializers.ModelSerializer):
 
 
 class PlantaFotoSerializer(ModelSerializer):
-    
     class Meta:
         model = PlantaFoto
-        exclude = ("id", "imovel") 
-        
+        exclude = ("id", "imovel")
+
 
 class EnderecoSerializer(serializers.ModelSerializer):
     def get_attribute(self, obj):
@@ -33,22 +32,27 @@ class EnderecoSerializer(serializers.ModelSerializer):
 
 
 class ImovelSerializer(serializers.ModelSerializer):
-
-    proponente = ProponenteSerializer()
+    proponente = ProponenteSerializer(required=False)
     contato = ContatoSerializer()
     endereco = EnderecoSerializer()
     planta_fotos = serializers.ListField(
         child=PlantaFotoSerializer()
     )
+    protocolo = serializers.SerializerMethodField()
+
+    def get_protocolo(self, obj):
+        return obj.protocolo
 
     class Meta:
         model = Imovel
-        fields = ["proponente", "contato", "endereco", "planta_fotos", "criado_em"]
+        fields = ["proponente", "contato", "endereco", "planta_fotos", "criado_em", "protocolo"]
 
     def create(self, validated_data):
         contato = ContatoSerializer().create(validated_data.pop("contato", {}))
-        proponente = ProponenteSerializer().create(validated_data.pop("proponente", {}))
-        
+        proponente = None
+        if 'proponente' in validated_data:
+            proponente = ProponenteSerializer().create(validated_data.pop("proponente", {}))
+
         endereco = validated_data.pop("endereco")
         validated_data.update(endereco)
 

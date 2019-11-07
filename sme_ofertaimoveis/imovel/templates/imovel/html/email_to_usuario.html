@@ -1,15 +1,16 @@
 {% extends "base/page.html" %}
 {% block content %}
-<div class="row">
-    <div class="col-12 p-2">
-        
-        Olá,<br/>
-        Em Breve você receberá um contato da prefeitura.<br/>
-        Atenciosamente<br/>
-        
-        <br/>
-        <br/>
-        Prefeitura de São Paulo
+    <div class="row">
+        <div class="col-12 p-2">
+
+            Caro munícipe,<br/><br/>
+            Recebemos o cadastro do imóvel sob número de protocolo {{ protocolo }}. A área técnica da Secretaria
+            Municipal de
+            Educação analisará as condições do imóvel e demanda cadastrada na região e enviará parecer neste mesmo
+            email. Favor aguardar nosso contato.
+            <br/>
+            <br/>
+            Prefeitura de São Paulo
+        </div>
     </div>
-</div>
 {% endblock %}

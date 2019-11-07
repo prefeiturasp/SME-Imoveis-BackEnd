@@ -11,7 +11,6 @@ from .models import Imovel, SME_Contatos
 
 @shared_task
 def task_send_email_to_sme(imovel_id):
-
     emails = list((c.email for c in SME_Contatos.objects.get_contatos_ativos()))
     instance = Imovel.objects.get(pk=imovel_id)
 
@@ -36,3 +35,13 @@ def task_send_email_to_sme(imovel_id):
         to_email=emails,
     )
     return "Email para A SME enviado com sucesso"
+
+
+@shared_task
+def task_send_email_to_usuario(email, protocolo=None):
+    send_email(
+        subject="Obrigado pelo envio do seu imóvel",
+        template="email_to_usuario",
+        data={'protocolo': protocolo},
+        to_email=email,
+    )

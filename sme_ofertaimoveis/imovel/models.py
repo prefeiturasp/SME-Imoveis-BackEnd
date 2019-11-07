@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from django.core import validators
 
@@ -86,7 +87,7 @@ class ContatoImovel(models.Model):
 
 class Imovel(models.Model):
 
-    proponente = models.ForeignKey(Proponente, on_delete=models.DO_NOTHING)
+    proponente = models.ForeignKey(Proponente, on_delete=models.DO_NOTHING, blank=True, null=True)
     contato = models.ForeignKey(ContatoImovel, on_delete=models.DO_NOTHING)
 
     cep = models.CharField("CEP", max_length=20, validators=[cep_validation])
@@ -104,6 +105,10 @@ class Imovel(models.Model):
     @property
     def planta_fotos(self):
         return self.plantafoto_set.all()
+
+    @property
+    def protocolo(self):
+        return "{:03d}".format(self.id) + "/" + str(datetime.date.today().year)
 
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
