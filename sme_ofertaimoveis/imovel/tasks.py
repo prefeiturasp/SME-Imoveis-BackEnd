@@ -5,7 +5,7 @@ from celery import shared_task
 
 from requests.exceptions import HTTPError
 
-from ..dados_comuns.utils import send_email, consult_api_fila_creche
+from ..dados_comuns.utils import send_email, consult_api_sciedu
 from .models import Imovel, SME_Contatos
 
 
@@ -16,15 +16,13 @@ def task_send_email_to_sme(imovel_id):
 
     data = {"oferta": instance}
     demanda = []
-    for grupo_id, grupo_name in settings.FILA_CRECHE_GRUPOS:
-        try:
-            result = consult_api_fila_creche(
-                instance.latitude, instance.longitude, grupo_id
-            )
-            demanda.append({"nome": grupo_name, "quantidade": result["wait"]})
-
-        except (HTTPError, KeyError) as ex:
-            demanda.append({"nome": grupo_name, "quantidade": 0})
+    try:
+        result = consult_api_sciedu(instance.latitude, instance.longitude)
+        for grupo_id, grupo_name in settings.FILA_CRECHE_GRUPOS:
+            faixa = next((x for x in result if x['cd_serie_ensino'] == grupo_id), None)
+            demanda.append({"nome": grupo_name, "quantidade": faixa['total'] if faixa else 0})
+    except HTTPError:
+        pass
     data["demanda"] = demanda
 
     # Envia E-mail SME

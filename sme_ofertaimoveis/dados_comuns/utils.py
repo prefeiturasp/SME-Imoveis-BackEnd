@@ -41,3 +41,17 @@ def consult_api_fila_creche(latitude, longitude, grupo):
     response = requests.request("GET", url, headers=headers)
     response.raise_for_status()
     return response.json()["results"]
+
+
+def consult_api_sciedu(latitude, longitude):
+
+    headers = {"Content-Type": "application/json", "Authorization": "Token 4fcce3bb12805893514061555474d867adc85329"}
+    url = (
+        f"{settings.SCIEDU_URL}"
+        f"/imoveis/demanda"
+        f"/{latitude}/{longitude}"
+    )
+
+    response = requests.request("GET", url, headers=headers)
+    response.raise_for_status()
+    return response.json()["results"]

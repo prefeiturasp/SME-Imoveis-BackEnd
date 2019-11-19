@@ -254,11 +254,12 @@ JWT_AUTH = {
 }
 
 FILA_CRECHE_URL = "https://filadacreche.sme.prefeitura.sp.gov.br"
+SCIEDU_URL = "https://hom-smecieduapi.sme.prefeitura.sp.gov.br"
 FILA_CRECHE_GRUPOS = (
-    ("1", "Bercario I"),
-    ("4", "Bercario II"),
-    ("27", "Mini Grupo I"),
-    ("28", "Mini grupo II"),
+    (1, "Bercario I"),
+    (4, "Bercario II"),
+    (27, "Mini Grupo I"),
+    (28, "Mini grupo II"),
 )
 
 # CELERY SETTINGS
