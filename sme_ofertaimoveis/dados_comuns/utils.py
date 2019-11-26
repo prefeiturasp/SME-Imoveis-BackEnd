@@ -1,3 +1,4 @@
+import environ
 import requests
 
 from des.models import DynamicEmailConfiguration
@@ -10,6 +11,8 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.mail import EmailMultiAlternatives
 
+env = environ.Env()
+
 
 def send_email(subject, template, data, to_email):
     config = DynamicEmailConfiguration.get_solo()
@@ -18,7 +21,7 @@ def send_email(subject, template, data, to_email):
         to_email = [to_email]
 
     data["URL_HOSTNAME"] = settings.URL_HOSTNAME
-    data["URL_HOSTNAME_WITHOUT_SLASH_API"] = settings.URL_HOSTNAME_WITHOUT_SLASH_API
+    data["URL_HOSTNAME_WITHOUT_SLASH_API"] = env('URL_HOSTNAME_WITHOUT_SLASH_API')
 
     msg_html = render_to_string(f"imovel/html/{template}.html", data)
     msg = EmailMessage(

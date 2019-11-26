@@ -45,4 +45,3 @@ JWT_AUTH = {
 }
 
 URL_HOSTNAME = "http://localhost:8000"
-URL_HOSTNAME_WITHOUT_SLASH_API = "http://localhost:8000"
