@@ -49,6 +49,7 @@ MEDIA_ROOT = "/code/media"
 STATICFILES_DIRS = []
 
 URL_HOSTNAME = "http://hom.imoveis.sme.prefeitura.sp.gov.br/api"
+URL_HOSTNAME_WITHOUT_SLASH_API = "http://hom.imoveis.sme.prefeitura.sp.gov.br"
 
 # LOGGING
 # ------------------------------------------------------------------------------

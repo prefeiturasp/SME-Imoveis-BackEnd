@@ -29,7 +29,7 @@
                     <td colspan="2">
                         <b>Anexos:</b><br />
                         {% for planta_foto in oferta.planta_fotos %} 
-                            <a target="blank" href="{{ URL_HOSTNAME }}{{ planta_foto.planta.url }}">{{ planta_foto.planta }}</a><br />
+                            <a target="blank" href="{{ URL_HOSTNAME_WITHOUT_SLASH_API }}{{ planta_foto.planta.url }}">{{ planta_foto.planta }}</a><br />
                         {% endfor %}
                     </td>
                 </tr>

@@ -18,6 +18,7 @@ def send_email(subject, template, data, to_email):
         to_email = [to_email]
 
     data["URL_HOSTNAME"] = settings.URL_HOSTNAME
+    data["URL_HOSTNAME_WITHOUT_SLASH_API"] = settings.URL_HOSTNAME_WITHOUT_SLASH_API
 
     msg_html = render_to_string(f"imovel/html/{template}.html", data)
     msg = EmailMessage(
