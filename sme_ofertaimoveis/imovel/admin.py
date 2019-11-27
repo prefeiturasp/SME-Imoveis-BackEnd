@@ -24,8 +24,8 @@ class ImovelAdmin(admin.ModelAdmin):
     list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
     search_fields = ('cep', 'endereco')
     fields = ("protocolo", 'show_proponente', 'show_contato', 'cep', "endereco", "bairro", 'numero', 'complemento',
-              'numero_iptu',)
-    readonly_fields = ("protocolo", 'show_proponente', 'show_contato',)
+              'numero_iptu', 'criado_em')
+    readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
 
     def show_proponente(self, obj):
         return format_html("<a href='/api/admin/imovel/proponente/{id}/change'>{url}</a>", id=obj.proponente.id,
