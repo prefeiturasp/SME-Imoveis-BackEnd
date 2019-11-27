@@ -28,13 +28,13 @@ class ImovelAdmin(admin.ModelAdmin):
     readonly_fields = ("protocolo", 'show_proponente', 'show_contato',)
 
     def show_proponente(self, obj):
-        return format_html("<a href='/admin/imovel/proponente/{id}/change'>{url}</a>", id=obj.proponente.id,
+        return format_html("<a href='/api/admin/imovel/proponente/{id}/change'>{url}</a>", id=obj.proponente.id,
                            url=obj.proponente)
 
     show_proponente.short_description = "Proponente"
 
     def show_contato(self, obj):
-        return format_html("<a href='/admin/imovel/contatoimovel/{id}/change'>{url}</a>", id=obj.contato.id,
+        return format_html("<a href='/api/admin/imovel/contatoimovel/{id}/change'>{url}</a>", id=obj.contato.id,
                            url=obj.contato)
 
     show_contato.short_description = "Contato"
