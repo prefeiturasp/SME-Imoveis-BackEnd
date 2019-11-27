@@ -108,7 +108,7 @@ class Imovel(models.Model):
 
     @property
     def protocolo(self):
-        return "{:03d}".format(self.id) + "/" + str(datetime.date.today().year)
+        return "{:03d}".format(self.id) + "/" + str(self.criado_em.year)
 
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
