@@ -2,7 +2,7 @@ from django.core import validators
 
 
 phone_validation = validators.RegexValidator(
-    regex=r"^\(\d{2}\) [\d\-\_]{9,10}$",
+    regex=r"^\(\d{2}\) [\d\-]{9,10}$",
     message="Digite o telefone no formato (XX) 12345-6789. Entre 8 ou 9 digitos",
 )
 
