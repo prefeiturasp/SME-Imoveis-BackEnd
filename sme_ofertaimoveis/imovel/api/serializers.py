@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from drf_base64.serializers import ModelSerializer
+from rest_framework.exceptions import ValidationError
 
 from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto
 
@@ -17,6 +18,15 @@ class ProponenteSerializer(serializers.ModelSerializer):
 
 
 class PlantaFotoSerializer(ModelSerializer):
+
+    def validate_planta(self, planta):
+        filesize = planta.size
+
+        if filesize > 10485760:
+            raise ValidationError("O tamanho máximo de um arquivo é 10MB")
+        else:
+            return planta
+
     class Meta:
         model = PlantaFoto
         exclude = ("id", "imovel")
@@ -61,7 +71,12 @@ class ImovelSerializer(serializers.ModelSerializer):
             contato=contato, proponente=proponente, **validated_data
         )
 
+        tamanho_total_dos_arquivos = 0
         for planta_foto in planta_fotos:
+            filesize = planta_foto.get('planta').size
+            tamanho_total_dos_arquivos += filesize
+            if tamanho_total_dos_arquivos > 10485760:
+                raise ValidationError("O tamanho total máximo dos arquivos é 10MB")
             PlantaFoto.objects.create(
                 imovel=imovel, planta=planta_foto.get("planta")
             )
