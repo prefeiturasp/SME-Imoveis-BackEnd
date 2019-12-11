@@ -7,35 +7,40 @@
         Você recebeu uma oferta de imovel que no momento existe demanda de crianças.
 
         <br/> <br/>
+        
         <h5>Dados da Oferta</h5>
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td><b>Nome Proponente:</b> {{ oferta.proponente.nome }}</td>
-                    <td><b>Documento:</b> {{ oferta.proponente.cpf_cnpj }}</td>
-                </tr>
-                <tr>
-                    <td><b>Nome do Proprietario:</b> {{ oferta.contato.nome }}</td>
-                    <td><b>Documento:</b> {{ oferta.contato.cpf_cnpj }}</td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <b>Endereço:</b> {{ oferta.endereco }} - {{ oferta.bairro }} <b>CEP:</b> {{oferta.cep}}
-                        <br />
-                        <b>Numero IPTU:</b> {{ oferta.numero_iptu }}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <b>Anexos:</b><br />
-                        {% for planta_foto in oferta.planta_fotos %} 
-                            <a target="blank" href="{{ URL_HOSTNAME_WITHOUT_SLASH_API }}{{ planta_foto.planta.url }}">{{ planta_foto.planta }}</a><br />
-                        {% endfor %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <br/> <br/>
+
+        <b>Proponente</b><br /><br />
+        <b>Tipo:</b> {{ oferta.proponente.get_tipo_display }}<br />
+        <b>Nome Proponente:</b> {{ oferta.proponente.nome }}<br />
+        <b>Documento:</b> {{ oferta.proponente.cpf_cnpj }}<br />
+        <b>Email:</b> {{ oferta.proponente.email }}<br />
+        <b>Telefone:</b> {{ oferta.proponente.telefone }}<br />
+        <br />
+
+        <b>Proprietário</b><br /><br />
+        <b>Nome do Proprietário:</b> {{ oferta.contato.nome }}<br />
+        <b>Documento:</b> {{ oferta.contato.cpf_cnpj }}<br />
+        <b>Email:</b> {{ oferta.proponente.email }}<br />
+        <b>Telefone:</b> {{ oferta.proponente.telefone }}<br />
+        <br />
+
+        <b>Dados do imóvel</b><br /><br />
+        <b>Endereço:</b> {{ oferta.endereco }}<br />
+        {% if oferta.complemento %}
+            <b>Complemento:</b> {{oferta.complemento}}<br />
+        {% endif %}
+        <b>Bairro:</b> {{ oferta.bairro }}<br />
+        <b>CEP:</b> {{oferta.cep}}<br />
+        <b>Número IPTU:</b> {{ oferta.numero_iptu }}<br />
+        <br />
+
+        <b>Anexos</b><br /><br />
+        {% for planta_foto in oferta.planta_fotos %} 
+            <a target="blank" href="{{ URL_HOSTNAME_WITHOUT_SLASH_API }}{{ planta_foto.planta.url }}">{{ planta_foto.planta }}</a><br />
+        {% endfor %}
+        <br />
+
         <h5>Demanda</h5>
         <div class="mr-5 ml-5">
             <table class="table table-striped">
