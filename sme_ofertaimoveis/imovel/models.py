@@ -39,7 +39,7 @@ class Proponente(models.Model):
         (OUTRO , "Outro"),
     )
 
-    tipo = models.CharField("Tipo", choices=TYPES, default=OUTRO, max_length=2)
+    tipo = models.PositiveSmallIntegerField("Tipo", choices=TYPES, default=OUTRO)
     nome = models.CharField("Nome", max_length=255, blank=True, null=True)
     cpf_cnpj = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation]
