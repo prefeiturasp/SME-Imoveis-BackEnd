@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 
+from ..sql_views import sql_create_view_listaimoveis, sql_drop_view_listaimoveis
 
 class Migration(migrations.Migration):
 
@@ -10,9 +11,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql_drop_view_listaimoveis,
+            migrations.RunSQL.noop
+        ),
         migrations.AlterField(
             model_name='proponente',
             name='tipo',
             field=models.PositiveSmallIntegerField(choices=[(0, '----SELECIONE-----'), (1, 'Imobiliária'), (2, 'Procurador'), (3, 'Ong'), (4, 'Outro')], default=4, verbose_name='Tipo'),
         ),
+        migrations.RunSQL(
+            sql_create_view_listaimoveis,
+            sql_drop_view_listaimoveis
+        ),
+
     ]
