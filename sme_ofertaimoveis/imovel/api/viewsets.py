@@ -1,9 +1,13 @@
+import requests
+
+from django.conf import settings
+
+from rest_framework import status, mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
-from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import mixins
+from rest_framework.viewsets import ViewSet
+from rest_framework.views import APIView
 
 from .serializers import ImovelSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
@@ -37,3 +41,18 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
             )
         except ValidationError as e:
             return Response({'detail': e.args[0]}, status=e.status_code)
+
+
+class DemandaRegiao(APIView):
+    """
+    Encapsula a chamada a API de demanda
+    """
+    permission_classes = (AllowAny,)
+    def get(self, request, param1, param2, format=None):
+        url = f'{settings.SCIEDU_URL}/{param1}/{param2}'
+        headers = {
+            "Authorization": f'Token {settings.SCIEDU_TOKEN}',
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        return Response(response.json(), status=response.status_code)
