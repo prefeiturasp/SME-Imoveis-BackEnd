@@ -254,7 +254,8 @@ JWT_AUTH = {
 }
 
 FILA_CRECHE_URL = "https://filadacreche.sme.prefeitura.sp.gov.br"
-SCIEDU_URL = "https://hom-smecieduapi.sme.prefeitura.sp.gov.br"
+SCIEDU_URL = env("SCIEDU_URL")
+SCIEDU_TOKEN = env("SCIEDU_TOKEN")
 FILA_CRECHE_GRUPOS = (
     (1, "Bercario I"),
     (4, "Bercario II"),
