@@ -120,6 +120,6 @@ class Imovel(models.Model):
 
 class PlantaFoto(models.Model):
 
-    imovel = models.ForeignKey(Imovel, on_delete=models.DO_NOTHING)
+    imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
     planta = models.FileField()
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
