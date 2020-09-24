@@ -23,7 +23,7 @@ RUN apk update && apk add postgresql-dev tzdata && \
       harfbuzz-dev \
       fribidi-dev && \
     python -m pip --no-cache install -U pip && \
-    python -m pip --no-cache install -r requirements/production.txt && \
+    python -m pip --no-cache --use-feature=2020-resolver install -r requirements/production.txt && \
     apk del --purge .build-dependencies
 
 EXPOSE 8000
