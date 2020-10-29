@@ -14,6 +14,7 @@ RUN apk update && apk add postgresql-dev tzdata && \
       jpeg-dev \
       # Pillow
       zlib-dev \
+      libffi-dev \
       freetype-dev \
       lcms2-dev \
       openjpeg-dev \
