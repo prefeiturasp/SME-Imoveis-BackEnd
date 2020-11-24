@@ -31,7 +31,7 @@ class Bidders(models.Model):
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation], primary_key=True
     )
     fk_type_registers = models.ForeignKey(
-        TypeRegisters, models.RESTRICT, verbose_name='Tipo'
+        TypeRegisters, models.PROTECT, verbose_name='Tipo'
     )
     name = models.CharField(
         "Nome", max_length=255, validators=[name_validation]
