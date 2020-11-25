@@ -1,30 +1,30 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from rest_framework import serializers
-from .models import (
-    TypeRegisters, Bidders, BiddersBuildings, BiddersBuildingsContacts,
+from ..models import (
+    TypeBidders, Bidders, BiddersBuildings, BiddersBuildingsContacts,
     BiddersBuildingsDocsImages
 )
 
 
-class TypeRegistersSerializer(serializers.HyperlinkedModelSerializer):
+class TypeBiddersSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = TypeRegisters
-        fields = ['id', 'name']
+        model = TypeBidders
+        fields = ['pk_type_bidders', 'name']
 
 
 class BiddersSerializer(serializers.HyperlinkedModelSerializer):
-    # register_types = TypeRegistersSerializer(many=True)
 
     class Meta:
         model = Bidders
         fields = [
-            'pk_bidders', 'fk_type_registers', 'name', 'email', 'telefone',
+            'pk_bidders', 'fk_type_bidders_id', 'name', 'email', 'telefone',
             'insert_date', 'update_date'
         ]
 
 
 class BiddersBuildingsSerializer(serializers.HyperlinkedModelSerializer):
+    fk_bidders = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = BiddersBuildings
@@ -37,16 +37,22 @@ class BiddersBuildingsSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BiddersBuildingsContactsSerializer(serializers.HyperlinkedModelSerializer):
+    fk_bidders_buildings = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = BiddersBuildingsContacts
         fields = [
-            'fk_bidders', 'cep', 'address', 'quarter', 'number',
+            'fk_bidders_buildings', 'cep', 'address', 'quarter', 'number',
             'complement', 'flag_default', 'insert_date', 'update_date',
         ]
 
 
 class BiddersBuildingsDocsImagesSerializer(serializers.HyperlinkedModelSerializer):
+    fk_bidders_buildings_docs = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = BiddersBuildingsDocsImages
+        fields = [
+            'fk_bidders_buildings_docs', 'document', 'flag_type_docs',
+            'flag_type_file', 'insert_date', 'update_date',
+        ]

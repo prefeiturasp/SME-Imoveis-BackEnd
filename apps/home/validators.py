@@ -6,8 +6,8 @@ PHONE_REGEX = r"^\(\d{2}\) [\d\-]{9,10}$"
 
 name_validation = validators.RegexValidator(
     #deve conter pelo menos dois nomes com 3 carateres cada
-    regex=r"^\([A-Za-z\S]{3}\.\w+\)|\([A-Za-z\S]{3}\.\w+\)",
-    message="Digite o telefone no formato (XX) 12345-6789. Entre 8 ou 9 digitos",
+    regex=r"^([A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ\S]{3,}\w)|([A-Za-záàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ\S]{3,}\w+)",
+    message="Digite o nome com no mínimo 2 palavras com 3 caracteres cada",
 )
 
 phone_validation = validators.RegexValidator(

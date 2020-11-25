@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import environ
 from des import urls as des_urls
 from django.conf import settings
@@ -8,8 +9,7 @@ from django.views import defaults as default_views
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from rest_framework_swagger.views import get_swagger_view
 
-from sme_ofertaimoveis.imovel.urls import urlpatterns as imovel_urls
-from apps.home.urls import urlpatterns as new_imovel_urls
+from apis import router
 
 env = environ.Env()
 
@@ -27,4 +27,4 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # ADDING ROUTERS FROM ALL APPS
-urlpatterns += imovel_urls + new_imovel_urls
+urlpatterns += router.urls

@@ -1,13 +1,13 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from django.shortcuts import render
 from rest_framework import viewsets
 from rest_framework import permissions
-from .models import (
-    TypeRegisters, Bidders, BiddersBuildings, BiddersBuildingsContacts,
+from ..models import (
+    TypeBidders, Bidders, BiddersBuildings, BiddersBuildingsContacts,
     BiddersBuildingsDocsImages
 )
 from .serializers import (
-    TypeRegistersSerializer, BiddersSerializer, BiddersBuildingsSerializer,
+    TypeBiddersSerializer, BiddersSerializer, BiddersBuildingsSerializer,
     BiddersBuildingsContactsSerializer, BiddersBuildingsDocsImagesSerializer
 )
 
@@ -16,8 +16,8 @@ class TypeRegisterViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows TypeRegisters to be viewed or edited.
     """
-    queryset = TypeRegisters.objects.all().order_by('name')
-    serializer_class = TypeRegistersSerializer
+    queryset = TypeBidders.objects.all().order_by('name')
+    serializer_class = TypeBiddersSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 

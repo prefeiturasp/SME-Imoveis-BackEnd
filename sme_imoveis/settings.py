@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """Base settings to build other settings files upon."""
 import os
 import datetime

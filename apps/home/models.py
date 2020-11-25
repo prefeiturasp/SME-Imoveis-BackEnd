@@ -4,11 +4,11 @@ from django.core import validators
 from .validators import (
     cep_validation, cpf_cnpj_validation, name_validation, phone_validation
 )
-from .choices import CHOICE_TYPE_CONTACTS
 from commom.choices import CHOICE_SIM_NAO
 
 
-class TypeRegisters(models.Model):
+class TypeBidders(models.Model):
+    pk_type_bidders = models.AutoField(verbose_name='Código', primary_key=True)
     name = models.CharField(max_length=50, verbose_name='Nome')
     insert_date = models.DateTimeField(
         "Criado em", editable=False, auto_now_add=True
@@ -21,7 +21,7 @@ class TypeRegisters(models.Model):
         return self.name
 
     class Meta:
-        db_table = 'sme_type_register'
+        db_table = 'sme_type_bidders'
         verbose_name = 'Tipo de Proponente'
         verbose_name_plural = 'Tipos de Proponentes'
 
@@ -30,8 +30,11 @@ class Bidders(models.Model):
     pk_bidders = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation], primary_key=True
     )
-    fk_type_registers = models.ForeignKey(
-        TypeRegisters, models.PROTECT, verbose_name='Tipo'
+    fk_type_bidders = models.ForeignKey(
+        TypeBidders,
+        models.PROTECT,
+        related_name='fk_type_bidders',
+        verbose_name='Tipo'
     )
     name = models.CharField(
         "Nome", max_length=255, validators=[name_validation]
@@ -62,7 +65,13 @@ class Bidders(models.Model):
 
 class BiddersBuildings(models.Model):
 
-    fk_bidders = models.ForeignKey(Bidders, models.CASCADE, verbose_name='Proponente')
+    pk_bidders_buildings = models.AutoField(verbose_name='Código', primary_key=True)
+    fk_bidders = models.ForeignKey(
+        Bidders,
+        models.CASCADE,
+        related_name='fk_bidders',
+        verbose_name='Proponente'
+    )
 
     # fk_countries = models.ForeignKey(Countries, models.CASCADE, verbose_name='País')
     # fk_provinces = models.ForeignKey(Provinces, models.CASCADE, verbose_name='Estado')
@@ -116,7 +125,15 @@ class BiddersBuildings(models.Model):
 
 class BiddersBuildingsContacts(models.Model):
 
-    fk_bidders = models.ForeignKey(BiddersBuildings, models.CASCADE, verbose_name='Proponente')
+    pk_bidders_buildings_contacts = models.AutoField(
+        verbose_name='Código', primary_key=True
+    )
+    fk_bidders_buildings = models.ForeignKey(
+        BiddersBuildings,
+        models.CASCADE,
+        related_name='fk_bidders_buildings',
+        verbose_name='Proponente'
+    )
 
     # fk_countries = models.ForeignKey(Countries, models.CASCADE, verbose_name='País')
     # fk_provinces = models.ForeignKey(Provinces, models.CASCADE, verbose_name='Estado')
@@ -156,11 +173,32 @@ class BiddersBuildingsContacts(models.Model):
 
 
 class BiddersBuildingsDocsImages(models.Model):
-    fk_bidders_buildings = models.ForeignKey(
-        BiddersBuildings, on_delete=models.CASCADE, verbose_name='Imóvel'
+
+    TYPE_DOCUMENTS = (
+        (1, 'Fotos da Fachada'),
+        (2, 'Fotos do Ambiente Interno'),
+        (3, 'Cópia do IPTU ou ITR'),
+        (4, 'Cópia da Planta ou Croqui'),
     )
 
-    planta = models.FileField('Documetos/Imagens')
+    TYPE_FILE = (
+        (1, 'Imagem'),
+        (2, 'Documento')
+    )
+
+    pk_bidders_buildings_docs_images = models.AutoField(
+        verbose_name='Código', primary_key=True
+    )
+    fk_bidders_buildings = models.ForeignKey(
+        BiddersBuildings,
+        on_delete=models.CASCADE,
+        related_name='fk_bidders_buildings_docs',
+        verbose_name='Imóvel'
+    )
+
+    document = models.FileField('Documetos/Imagens')
+    flag_type_docs = models.SmallIntegerField('Tipo Documento', choices=TYPE_DOCUMENTS)
+    flag_type_file = models.SmallIntegerField('Tipo Arquivo', choices=TYPE_FILE)
     insert_date = models.DateTimeField(
         "Criado em", editable=False, auto_now_add=True
     )
