@@ -30,7 +30,7 @@ pipeline {
                     -Dsonar.projectKey=SME-Imoveis-BackEnd \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
-                    -Dsonar.login=f94dfac4bc550f0c352a92db4d97572274391a93'
+                    -Dsonar.login=aad582cdfd5a6f174f87fcd53e52291198ac0728'
             }
        }
          
