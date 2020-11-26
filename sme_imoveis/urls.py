@@ -5,20 +5,30 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from django.views import defaults as default_views
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
-from rest_framework_swagger.views import get_swagger_view
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 
 from apis import router
 
 env = environ.Env()
 
-schema_view = get_swagger_view(
-    title="API de Oferta Imoveis", url=env.str("DJANGO_API_URL", default="")
+schema_view = get_schema_view(
+    openapi.Info(
+        title="API de Oferta Imoveis",
+        default_version='v1',
+        description="API para manutenção do cadastro de imóvies SME",
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    path("docs/", schema_view, name="docs"),
+    # path('swagger/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    # path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    # path('docs/', schema_view.with_ui('docs', cache_timeout=0), name='schema-redoc'),
+    path("docs/", schema_view.with_ui('redoc'), name="schema-redoc"),
     path("django-des/", include(des_urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("admin/", admin.site.urls),

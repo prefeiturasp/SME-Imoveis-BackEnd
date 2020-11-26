@@ -6,8 +6,8 @@ from .models import (
 )
 
 
-admin.register(TypeBidders)
-admin.register(Bidders)
-admin.register(BiddersBuildings)
-admin.register(BiddersBuildingsContacts)
-admin.register(BiddersBuildingsDocsImages)
+admin.site.register(TypeBidders)
+admin.site.register(Bidders)
+admin.site.register(BiddersBuildings)
+admin.site.register(BiddersBuildingsContacts)
+admin.site.register(BiddersBuildingsDocsImages)

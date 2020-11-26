@@ -33,29 +33,28 @@ class Bidders(models.Model):
     fk_type_bidders = models.ForeignKey(
         TypeBidders,
         models.PROTECT,
-        related_name='fk_type_bidders',
         verbose_name='Tipo'
     )
     name = models.CharField(
-        "Nome", max_length=255, validators=[name_validation]
+        verbose_name="Nome", max_length=255, validators=[name_validation]
     )
     email = models.CharField(
-        "E-mail", max_length=255, validators=[validators.EmailValidator()]
-        , blank=True, null=True, default=""
+        verbose_name="E-mail", max_length=255, blank=True, null=True,
+        validators=[validators.EmailValidator()], default=""
     )
     telefone = models.CharField(
-        "Telefone", max_length=20, validators=[phone_validation]
+        verbose_name="Telefone", max_length=20, validators=[phone_validation]
         , blank=True, null=True, default=""
     )
     insert_date = models.DateTimeField(
-        "Criado em", editable=False, auto_now_add=True
+        verbose_name="Criado em", editable=False, auto_now_add=True
     )
     update_date = models.DateTimeField(
-        "Alterado em", editable=False, auto_now=True
+        verbose_name="Alterado em", editable=False, auto_now=True
     )
 
     def __str__(self):
-        return f"{self.nome}: {self.email} - {self.telefone}"
+        return f"{self.name}: {self.email} - {self.telefone}"
 
     class Meta:
         db_table = 'sme_bidders'
@@ -69,7 +68,6 @@ class BiddersBuildings(models.Model):
     fk_bidders = models.ForeignKey(
         Bidders,
         models.CASCADE,
-        related_name='fk_bidders',
         verbose_name='Proponente'
     )
 
@@ -131,7 +129,6 @@ class BiddersBuildingsContacts(models.Model):
     fk_bidders_buildings = models.ForeignKey(
         BiddersBuildings,
         models.CASCADE,
-        related_name='fk_bidders_buildings',
         verbose_name='Proponente'
     )
 
@@ -192,7 +189,6 @@ class BiddersBuildingsDocsImages(models.Model):
     fk_bidders_buildings = models.ForeignKey(
         BiddersBuildings,
         on_delete=models.CASCADE,
-        related_name='fk_bidders_buildings_docs',
         verbose_name='Imóvel'
     )
 

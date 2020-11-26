@@ -6,38 +6,35 @@ from ..models import (
 )
 
 
-class TypeBiddersSerializer(serializers.HyperlinkedModelSerializer):
+class TypeBiddersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TypeBidders
         fields = ['pk_type_bidders', 'name']
 
 
-class BiddersSerializer(serializers.HyperlinkedModelSerializer):
+class BiddersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bidders
         fields = [
-            'pk_bidders', 'fk_type_bidders_id', 'name', 'email', 'telefone',
+            'pk_bidders', 'fk_type_bidders', 'name', 'email', 'telefone',
             'insert_date', 'update_date'
         ]
 
 
-class BiddersBuildingsSerializer(serializers.HyperlinkedModelSerializer):
-    fk_bidders = serializers.StringRelatedField(many=True)
+class BiddersBuildingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BiddersBuildings
         fields = [
             'fk_bidders', 'cep', 'address', 'quarter', 'number',
             'complement', 'latitude', 'longitude', 'number_iptu',
-            'insert_date', 'update_date',
-
+            'insert_date', 'update_date'
         ]
 
 
-class BiddersBuildingsContactsSerializer(serializers.HyperlinkedModelSerializer):
-    fk_bidders_buildings = serializers.StringRelatedField(many=True)
+class BiddersBuildingsContactsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BiddersBuildingsContacts
@@ -47,12 +44,11 @@ class BiddersBuildingsContactsSerializer(serializers.HyperlinkedModelSerializer)
         ]
 
 
-class BiddersBuildingsDocsImagesSerializer(serializers.HyperlinkedModelSerializer):
-    fk_bidders_buildings_docs = serializers.StringRelatedField(many=True)
+class BiddersBuildingsDocsImagesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BiddersBuildingsDocsImages
         fields = [
-            'fk_bidders_buildings_docs', 'document', 'flag_type_docs',
+            'fk_bidders_buildings', 'document', 'flag_type_docs',
             'flag_type_file', 'insert_date', 'update_date',
         ]

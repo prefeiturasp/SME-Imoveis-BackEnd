@@ -86,7 +86,7 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
-    "rest_framework_swagger",
+    'drf_yasg',
     "des",  # for email configuration in database
     "django_celery_results",  # Celery integration for Django
 ]
@@ -286,6 +286,7 @@ REST_FRAMEWORK = {
     "TIME_INPUT_FORMATS": ["%H:%M:%S", "iso-8601"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
 
 SWAGGER_SETTINGS = {
