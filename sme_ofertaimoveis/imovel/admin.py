@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-
-from .models import ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
+from .models import (
+    TypeBidders, ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
+)
 
 
 @admin.register(SME_Contatos)
@@ -11,7 +12,7 @@ class SME_ContatosAdmin(admin.ModelAdmin):
 
 @admin.register(Proponente)
 class ProponenteAdmin(admin.ModelAdmin):
-    fields = ('get_tipo', 'nome', 'cpf_cnpj', 'email', 'telefone')
+    fields = ('get_tipo', 'fk_type_bidders', 'nome', 'cpf_cnpj', 'email', 'telefone', 'celular')
 
     def get_tipo(self, obj):
         return obj.TYPES[int(obj.tipo)][1]
@@ -48,4 +49,5 @@ class ImovelAdmin(admin.ModelAdmin):
     ]
 
 
+admin.site.register(TypeBidders)
 admin.site.register(ContatoImovel)

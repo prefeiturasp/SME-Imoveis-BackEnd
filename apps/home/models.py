@@ -42,9 +42,12 @@ class Bidders(models.Model):
         verbose_name="E-mail", max_length=255, blank=True, null=True,
         validators=[validators.EmailValidator()], default=""
     )
-    telefone = models.CharField(
+    phone = models.CharField(
         verbose_name="Telefone", max_length=20, validators=[phone_validation]
         , blank=True, null=True, default=""
+    )
+    cel = models.CharField(
+        verbose_name="Celular", max_length=20, validators=[phone_validation]
     )
     insert_date = models.DateTimeField(
         verbose_name="Criado em", editable=False, auto_now_add=True
@@ -158,7 +161,6 @@ class BiddersBuildingsContacts(models.Model):
         addr += f"{self.complement}\n"
         # addr += f"fk_countries.dsc_country, fk_states.pk_states - fk_cities.dsc_city"
         return addr
-
 
     def __str__(self):
         return f"{self.address}"
