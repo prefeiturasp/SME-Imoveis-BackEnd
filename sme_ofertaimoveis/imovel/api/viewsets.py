@@ -24,7 +24,7 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
 
             serializer.save()
             instance = serializer.instance
-
+            """
             # Envia E-mail Usuario
 
             if instance.proponente and instance.proponente.email:
@@ -34,7 +34,7 @@ class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
 
             # Task do E-mail do SES
             task_send_email_to_sme.apply_async((instance.pk,), countdown=15)
-
+            """
             headers = self.get_success_headers(serializer.data)
             return Response(
                 serializer.data, status=status.HTTP_201_CREATED, headers=headers

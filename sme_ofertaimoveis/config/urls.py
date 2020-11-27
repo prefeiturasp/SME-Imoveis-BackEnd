@@ -9,6 +9,7 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from rest_framework_swagger.views import get_swagger_view
 
 from sme_ofertaimoveis.imovel.urls import urlpatterns as imovel_urls
+from sme_ofertaimoveis.users.urls import urlpatterns as url_users
 
 
 env = environ.Env()
@@ -28,3 +29,4 @@ urlpatterns = [
 
 # ADDING ROUTERS FROM ALL APPS
 urlpatterns += imovel_urls
+
