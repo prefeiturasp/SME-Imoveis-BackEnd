@@ -92,7 +92,6 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     "sme_ofertaimoveis.imovel.apps.ImovelConfig",
-    "apps.home",
     "gunicorn",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

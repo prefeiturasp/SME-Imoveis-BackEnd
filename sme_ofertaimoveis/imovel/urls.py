@@ -2,9 +2,10 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .api.viewsets import CadastroImoveisViewSet, DemandaRegiao
+from .api.viewsets import CadastroImoveisViewSet, DemandaRegiao, TipoProponente
 
 router = routers.DefaultRouter()
+router.register("tipo-proponente", CadastroImoveisViewSet, basename="tipo-proponente")
 router.register("cadastro-imovel", CadastroImoveisViewSet, basename="cadastro-imoveis")
 
 urlpatterns = [

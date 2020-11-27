@@ -6,11 +6,20 @@ from rest_framework import status, mixins
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ViewSet, ModelViewSet
 from rest_framework.views import APIView
 
-from .serializers import ImovelSerializer
+from .serializers import ImovelSerializer, TipoProponenteSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
+from ..models import TipoProponente
+
+
+class TipoProponenteViewSet(ModelViewSet):
+    """
+    API endpoint that allows TypeRegisters to be viewed or edited.
+    """
+    queryset = TipoProponente.objects.all().order_by('nome')
+    serializer_class = TipoProponenteSerializer
 
 
 class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):

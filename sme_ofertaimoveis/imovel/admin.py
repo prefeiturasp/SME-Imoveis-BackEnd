@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
-    TypeBidders, ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
+    TipoProponente, ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
 )
 
 
@@ -12,7 +12,12 @@ class SME_ContatosAdmin(admin.ModelAdmin):
 
 @admin.register(Proponente)
 class ProponenteAdmin(admin.ModelAdmin):
-    fields = ('get_tipo', 'fk_type_bidders', 'nome', 'cpf_cnpj', 'email', 'telefone', 'celular')
+    fields = (
+        'get_tipo', 'fk_tipo_proponente', 'nome', 'cpf_cnpj', 'email',
+        'telefone', 'celular', 'situacao'
+    )
+
+    search_fields = ('sitiacao', 'nome', 'cpf_cnpj')
 
     def get_tipo(self, obj):
         return obj.TYPES[int(obj.tipo)][1]
@@ -25,8 +30,8 @@ class ImovelAdmin(admin.ModelAdmin):
     list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
     search_fields = ('cep', 'endereco')
     fields = ("protocolo", 'show_proponente', 'show_contato', 'cep', "endereco", "bairro", 'numero', 'complemento',
-              'numero_iptu', 'criado_em')
-    readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
+              'numero_iptu', 'criado_em', 'situacao')
+    readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em', 'situacao')
 
     def show_proponente(self, obj):
         return format_html("<a href='/api/admin/imovel/proponente/{id}/change'>{url}</a>", id=obj.proponente.id,
@@ -49,5 +54,5 @@ class ImovelAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(TypeBidders)
+admin.site.register(TipoProponente)
 admin.site.register(ContatoImovel)
