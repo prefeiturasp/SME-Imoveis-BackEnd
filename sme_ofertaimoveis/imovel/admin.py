@@ -13,11 +13,14 @@ class SME_ContatosAdmin(admin.ModelAdmin):
 @admin.register(Proponente)
 class ProponenteAdmin(admin.ModelAdmin):
     fields = (
-        'get_tipo', 'fk_tipo_proponente', 'nome', 'cpf_cnpj', 'email',
+        'fk_tipo_proponente', 'nome', 'cpf_cnpj', 'email',
         'telefone', 'celular', 'situacao'
     )
 
-    search_fields = ('sitiacao', 'nome', 'cpf_cnpj')
+    list_display = ('nome', 'cpf_cnpj', 'telefone', 'celular', 'situacao')
+    list_filter = ('situacao', 'fk_tipo_proponente')
+
+    search_fields = ('situacao', 'nome', 'cpf_cnpj')
 
     def get_tipo(self, obj):
         return obj.TYPES[int(obj.tipo)][1]

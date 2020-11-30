@@ -9,7 +9,6 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-
 from sme_ofertaimoveis.imovel.urls import router
 
 env = environ.Env()
@@ -34,6 +33,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-token-auth/", obtain_jwt_token),
     path("api-token-refresh/", refresh_jwt_token),
+    path('', include('apps.home.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # ADDING ROUTERS FROM ALL APPS

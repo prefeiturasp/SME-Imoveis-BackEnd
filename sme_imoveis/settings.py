@@ -91,6 +91,7 @@ THIRD_PARTY_APPS = [
     "django_celery_results",  # Celery integration for Django
 ]
 LOCAL_APPS = [
+    "apps.home",
     "sme_ofertaimoveis.imovel.apps.ImovelConfig",
     "gunicorn",
 ]
