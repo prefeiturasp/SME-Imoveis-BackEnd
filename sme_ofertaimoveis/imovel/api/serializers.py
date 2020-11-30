@@ -7,20 +7,20 @@ from ..models import (
 )
 
 
-class TipoProponenteSerializer(serializers.ModelSerializer):
+class TipoProponenteSerializer(ModelSerializer):
 
     class Meta:
         model = TipoProponente
         fields = ['pk_tipo_proponente', 'nome']
 
 
-class ContatoSerializer(serializers.ModelSerializer):
+class ContatoSerializer(ModelSerializer):
     class Meta:
         model = ContatoImovel
         exclude = ("id",)
 
 
-class ProponenteSerializer(serializers.ModelSerializer):
+class ProponenteSerializer(ModelSerializer):
     class Meta:
         model = Proponente
         exclude = ("id",)
@@ -41,7 +41,7 @@ class PlantaFotoSerializer(ModelSerializer):
         exclude = ("id", "imovel")
 
 
-class EnderecoSerializer(serializers.ModelSerializer):
+class EnderecoSerializer(ModelSerializer):
     def get_attribute(self, obj):
         return obj
 
@@ -49,8 +49,20 @@ class EnderecoSerializer(serializers.ModelSerializer):
         model = Imovel
         exclude = ("id", "proponente", "contato")
 
+# class BuscaImovelPeloIPTUSerializer(serializers.ModelSerializer):
+#     def get_queryset(self):
+#         numero_iptu = self.request.query_params.get('numero_iptu')
+#         queryset = Imovel.objects.filter(
+#             numero_iptu=numero_iptu
+#         ).order_by('numero_iptu')
+#         return queryset
+#
+#     class Meta:
+#         model = Imovel
+#         fields = ["proponente", "contato", "endereco", "planta_fotos", "criado_em", "protocolo"]
 
-class ImovelSerializer(serializers.ModelSerializer):
+
+class ImovelSerializer(ModelSerializer):
     proponente = ProponenteSerializer(required=False)
     contato = ContatoSerializer()
     endereco = EnderecoSerializer()

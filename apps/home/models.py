@@ -56,7 +56,7 @@ class Bidders(models.Model):
     )
 
     def __str__(self):
-        return f"{self.nome}: {self.email} - {self.telefone}"
+        return f"{self.name}: {self.email} - {self.phone}"
 
     class Meta:
         db_table = 'sme_bidders'
