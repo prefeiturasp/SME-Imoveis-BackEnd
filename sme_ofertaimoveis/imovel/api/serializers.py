@@ -2,7 +2,16 @@ from rest_framework import serializers
 from drf_base64.serializers import ModelSerializer
 from rest_framework.exceptions import ValidationError
 
-from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto
+from ..models import (
+    ContatoImovel, Imovel, Proponente, PlantaFoto, TipoProponente
+)
+
+
+class TipoProponenteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TipoProponente
+        fields = ['pk_tipo_proponente', 'nome']
 
 
 class ContatoSerializer(serializers.ModelSerializer):
