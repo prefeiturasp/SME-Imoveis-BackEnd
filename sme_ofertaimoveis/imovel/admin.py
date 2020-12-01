@@ -13,6 +13,9 @@ class SME_ContatosAdmin(admin.ModelAdmin):
 class ProponenteAdmin(admin.ModelAdmin):
     fields = ('get_tipo', 'nome', 'cpf_cnpj', 'email', 'telefone')
 
+    list_display = ('nome', 'cpf_cnpj', 'email', 'telefone', 'situacao')
+    list_filter = ('situacao', 'fk_tipo_proponente')
+
     def get_tipo(self, obj):
         return obj.TYPES[int(obj.tipo)][1]
 

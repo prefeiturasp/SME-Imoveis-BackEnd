@@ -6,6 +6,26 @@ from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
 
 
+# Added in 11/26/2020 new feature/28572-28582
+class TipoProponente(models.Model):
+    pk_tipo_proponente = models.AutoField(verbose_name='Código', primary_key=True)
+    nome = models.CharField(max_length=50, verbose_name='Nome')
+    criado_em = models.DateTimeField(
+        "Criado em", editable=False, auto_now_add=True
+    )
+    atualizado_em = models.DateTimeField(
+        "Alterado em", editable=False, auto_now=True
+    )
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = 'Tipo de Proponente'
+        verbose_name_plural = 'Tipos de Proponentes'
+# End feature/28572-28582
+
+
 class SME_Contatos(models.Model):
     nome = models.CharField("Nome", max_length=255)
     email = models.CharField(
@@ -40,6 +60,16 @@ class Proponente(models.Model):
     )
 
     tipo = models.PositiveSmallIntegerField("Tipo", choices=TYPES, default=OUTRO)
+    # Added in 11/26/2020 new feature/28572-28582
+    fk_tipo_proponente = models.ForeignKey(
+        TipoProponente,
+        models.PROTECT,
+        verbose_name='Tipo',
+        null=True,
+        blank=True,
+        default=None
+    )
+    # End feature/28572-28582
     nome = models.CharField("Nome", max_length=255, blank=True, null=True)
     cpf_cnpj = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation]
@@ -53,6 +83,19 @@ class Proponente(models.Model):
         "Telefone", max_length=20, validators=[phone_validation]
         , blank=True, null=True, default=""
     )
+    # Added in 11/26/2020 new feature/27865-28434
+    celular = models.CharField(
+        verbose_name="Celular",
+        max_length=20,
+        validators=[phone_validation],
+        blank=True,
+        null=True,
+        default=""
+    )
+    situacao = models.CharField(
+        verbose_name="Status", max_length=255, blank=True, null=True, default=""
+    )
+    # end feature
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     def __str__(self):
@@ -75,6 +118,14 @@ class ContatoImovel(models.Model):
         "Telefone", max_length=20, validators=[phone_validation]
         , blank=True, null=True, default=""
     )
+    # Added in 11/26/2020 new feature/27865-28434
+    celular = models.CharField(
+        verbose_name="Celular",
+        max_length=20,
+        validators=[phone_validation],
+        default = "(11) 9 9111-1111"
+    )
+    # Ended feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     def __str__(self):
@@ -99,6 +150,11 @@ class Imovel(models.Model):
     latitude = models.CharField("Latitude", max_length=255)
     longitude = models.CharField("longitude", max_length=255)
     numero_iptu = models.CharField("Numero IPTU", max_length=20, blank=True, default="")
+    # Added in 11/26/2020 new feature/27865-28434
+    situacao = models.CharField(
+        verbose_name="Status", max_length=255, null=True, blank=True, default=None
+    )
+    # end feature
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
@@ -120,6 +176,30 @@ class Imovel(models.Model):
 
 class PlantaFoto(models.Model):
 
+    TIPO_DOCUMENTO = (
+        (1, 'Fotos da Fachada'),
+        (2, 'Fotos do Ambiente Interno'),
+        (3, 'Cópia do IPTU ou ITR'),
+        (4, 'Cópia da Planta ou Croqui'),
+    )
+
+    TIPO_ARQUIVO = (
+        (1, 'Imagem'),
+        (2, 'Documento')
+    )
+
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
     planta = models.FileField()
+    # Added in 11/26/2020 new feature/27865-28434
+    flag_tipo_documento = models.SmallIntegerField(
+        'Tipo Documento', choices=TIPO_DOCUMENTO, blank=True, null=True
+    )
+    flag_tipo_arquivo = models.SmallIntegerField(
+        'Tipo Arquivo', choices=TIPO_ARQUIVO, blank=True, null=True
+    )
+    # End feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Documento"
+        verbose_name_plural = "Documentos"
