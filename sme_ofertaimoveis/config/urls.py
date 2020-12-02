@@ -9,6 +9,8 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from rest_framework_swagger.views import get_swagger_view
 
 from sme_ofertaimoveis.imovel.urls import urlpatterns as imovel_urls
+from sme_ofertaimoveis.users.api.viewsets import LoginView
+from sme_ofertaimoveis.users.urls import urlpatterns as users_urls
 
 
 env = environ.Env()
@@ -24,8 +26,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-token-auth/", obtain_jwt_token),
     path("api-token-refresh/", refresh_jwt_token),
+    path("login/", LoginView.as_view()),
     path("", include("apps.home.urls"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # ADDING ROUTERS FROM ALL APPS
 urlpatterns += imovel_urls
+urlpatterns += users_urls
