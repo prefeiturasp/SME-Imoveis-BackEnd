@@ -13,7 +13,7 @@ LOG = logging.getLogger(__name__)
 class AutenticacaoService:
     DEFAULT_HEADERS = {
         'Content-Type': 'application/json',
-        'Authorization': f'Token {AUTENTICA_CORESSO_API_TOKEN}'}
+        'x-api-eol-key': f'{AUTENTICA_CORESSO_API_TOKEN}'}
     DEFAULT_TIMEOUT = 10
 
     @classmethod
@@ -22,7 +22,7 @@ class AutenticacaoService:
         try:
             LOG.info("Autenticando no sme-autentica. Login: %s", login)
             response = requests.post(
-                f"{AUTENTICA_CORESSO_API_URL}/autenticacao/",
+                f"{AUTENTICA_CORESSO_API_URL}/v1/autenticacao/",
                 headers=cls.DEFAULT_HEADERS,
                 timeout=cls.DEFAULT_TIMEOUT,
                 json=payload
