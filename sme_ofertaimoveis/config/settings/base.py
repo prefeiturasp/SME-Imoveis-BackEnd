@@ -6,6 +6,7 @@ import os
 import environ
 
 # (sme_ofertaimoveis/config/settings/base.py - 3 = sme_ofertaimoveis/)
+BASE_DIR = environ.Path(__file__) - 4
 ROOT_DIR = environ.Path(__file__) - 4
 APPS_DIR = ROOT_DIR.path("sme_ofertaimoveis")
 
@@ -86,8 +87,11 @@ THIRD_PARTY_APPS = [
     "des",  # for email configuration in database
     "django_celery_results",  # Celery integration for Django
 ]
-LOCAL_APPS = ["sme_ofertaimoveis.users.apps.UsersConfig",
-              "sme_ofertaimoveis.imovel.apps.ImovelConfig"]
+LOCAL_APPS = [
+    "apps.home",
+    "sme_ofertaimoveis.users.apps.UsersConfig",
+    "sme_ofertaimoveis.imovel.apps.ImovelConfig",
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
