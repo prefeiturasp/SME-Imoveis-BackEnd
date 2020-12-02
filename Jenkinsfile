@@ -1,4 +1,4 @@
-pipeline {
+upipeline {
     agent {
       node { 
         label 'py-uniformes'
@@ -30,7 +30,7 @@ pipeline {
                     -Dsonar.projectKey=SME-Imoveis-BackEnd \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
-                    -Dsonar.login=f94dfac4bc550f0c352a92db4d97572274391a93'
+                    -Dsonar.login=aad582cdfd5a6f174f87fcd53e52291198ac0728'
             }
        }
          
@@ -125,7 +125,7 @@ pipeline {
             
             timeout(time: 24, unit: "HOURS") {
                telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Requer uma aprovação para deploy !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n")
-               input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'marcos_nastri, pedro_walter'
+               input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'pedro_walter, calvin_rossinhole, rodolfo_lima',
             }
             //Start JOB Rundeck para update de imagens no host homologação 
          
@@ -185,7 +185,7 @@ pipeline {
             steps {
                 timeout(time: 24, unit: "HOURS") {
                 telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Requer uma aprovação para deploy !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n")
-                input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'marcos_nastri, pedro_walter'
+                input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'calvin_rossinhole, pedro_walter, rodolfo_lima'
                 }
                     
             
