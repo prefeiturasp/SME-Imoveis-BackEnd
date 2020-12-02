@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-token-auth/", obtain_jwt_token),
     path("api-token-refresh/", refresh_jwt_token),
+    path("", include("apps.home.urls"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # ADDING ROUTERS FROM ALL APPS
