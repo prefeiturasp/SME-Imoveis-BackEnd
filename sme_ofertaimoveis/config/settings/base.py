@@ -79,7 +79,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # 'django.contrib.humanize', # Handy template tags
-    # "django.contrib.admin",
+    "django.contrib.admin",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
