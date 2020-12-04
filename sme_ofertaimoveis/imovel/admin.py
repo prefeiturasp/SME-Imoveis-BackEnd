@@ -11,22 +11,19 @@ class SME_ContatosAdmin(admin.ModelAdmin):
 
 @admin.register(Proponente)
 class ProponenteAdmin(admin.ModelAdmin):
-    fields = ('get_tipo', 'nome', 'cpf_cnpj', 'email', 'telefone')
+    fields = ('nome', 'cpf_cnpj', 'email', 'telefone', 'tipo_proponente')
 
-    list_display = ('nome', 'cpf_cnpj', 'email', 'telefone', 'situacao')
-    list_filter = ('situacao', 'fk_tipo_proponente')
+    list_display = ('nome', 'cpf_cnpj', 'email', 'telefone', 'situacao', 'tipo_proponente')
+    list_filter = ('situacao', 'tipo_proponente')
 
-    def get_tipo(self, obj):
-        return obj.TYPES[int(obj.tipo)][1]
 
-    get_tipo.short_description = 'Tipo'
 
 
 @admin.register(Imovel)
 class ImovelAdmin(admin.ModelAdmin):
     list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
     search_fields = ('cep', 'endereco')
-    fields = ("protocolo", 'show_proponente', 'show_contato', 'cep', "endereco", "bairro", 'numero', 'complemento',
+    fields = ("protocolo", 'show_proponente', 'show_contato', 'cidade', 'uf', 'cep', "endereco", "bairro", 'numero', 'complemento',
               'numero_iptu', 'criado_em')
     readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
 
@@ -42,12 +39,12 @@ class ImovelAdmin(admin.ModelAdmin):
 
     show_contato.short_description = "Contato"
 
-    class PlantaFotoInline(admin.TabularInline):
+    class AnexosInline(admin.TabularInline):
         model = PlantaFoto
         extra = 0
 
     inlines = [
-        PlantaFotoInline,
+        AnexosInline,
     ]
 
 
