@@ -78,7 +78,12 @@ class Proponente(models.Model):
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     def __str__(self):
-        return f"{self.nome} => {self.email} " f"{self.telefone}"
+        phone = ""
+        if self.celular:
+            phone = self.celular
+        elif self.telefone:
+            phone = self.telefone
+        return f"{self.nome} => {self.email} " f"{phone}"
 
     class Meta:
         verbose_name = "Proponente"
