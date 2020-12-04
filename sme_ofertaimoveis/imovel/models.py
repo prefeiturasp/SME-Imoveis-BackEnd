@@ -6,26 +6,6 @@ from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
 
 
-# Added in 11/26/2020 new feature/28572-28582
-class TipoProponente(models.Model):
-    pk_tipo_proponente = models.AutoField(verbose_name='Código', primary_key=True)
-    nome = models.CharField(max_length=50, verbose_name='Nome')
-    criado_em = models.DateTimeField(
-        "Criado em", editable=False, auto_now_add=True
-    )
-    atualizado_em = models.DateTimeField(
-        "Alterado em", editable=False, auto_now=True
-    )
-
-    def __str__(self):
-        return self.nome
-
-    class Meta:
-        verbose_name = 'Tipo de Proponente'
-        verbose_name_plural = 'Tipos de Proponentes'
-# End feature/28572-28582
-
-
 class SME_Contatos(models.Model):
     nome = models.CharField("Nome", max_length=255)
     email = models.CharField(
@@ -59,17 +39,16 @@ class Proponente(models.Model):
         (OUTRO , "Outro"),
     )
 
-    tipo = models.PositiveSmallIntegerField("Tipo", choices=TYPES, default=OUTRO)
-    # Added in 11/26/2020 new feature/28572-28582
-    fk_tipo_proponente = models.ForeignKey(
-        TipoProponente,
-        models.PROTECT,
-        verbose_name='Tipo',
-        null=True,
-        blank=True,
-        default=None
+    TIPO_PROPONENTE = (
+        (0, "Não Informado"),
+        (1, "Proprietário"),
+        (2 , "Representante Legal")
     )
-    # End feature/28572-28582
+
+    tipo = models.PositiveSmallIntegerField("Tipo", choices=TYPES, default=OUTRO)
+
+    tipo_proponente = models.PositiveSmallIntegerField("Tipo de Proponente", choices=TIPO_PROPONENTE, default=0)
+
     nome = models.CharField("Nome", max_length=255, blank=True, null=True)
     cpf_cnpj = models.CharField(
         "CPF / CNPJ", max_length=20, validators=[cpf_cnpj_validation]
@@ -138,11 +117,43 @@ class ContatoImovel(models.Model):
 
 class Imovel(models.Model):
 
+    UFChoices = (
+        ('AC', 'Acre'),
+        ('AL', "Alagoas"),
+        ('AP' , "Amapá"),
+        ('AM' , 'Amazonas'),
+        ('BA' , 'Bahia'),
+        ('CE' , 'Ceará'),
+        ('DF' , 'Distrito Federal'),
+        ('ES' , 'Espírito Santo'),
+        ('GO' , 'Goiás'),
+        ('MA' , 'Maranhão'),
+        ('MT' , 'Mato Grosso'),
+        ('MS' , 'Mato Grosso do Sul'),
+        ('MG' , 'Minas Gerais'),
+        ('PA' , 'Pará'),
+        ('PB' , 'Paraíba'),
+        ('PR' , 'Paraná'),
+        ('PE' , 'Pernambuco'),
+        ('PI' , 'Piauí'),
+        ('RJ' , 'Rio de Janeiro'),
+        ('RN' , 'Rio Grande do Norte'),
+        ('RS' , 'Rio Grande do Sul'),
+        ('RO' , 'Rondônia'),
+        ('RR' , 'Roraima'),
+        ('SC' , 'Santa Catarina'),
+        ('SP' , 'São Paulo'),
+        ('SE' , 'Sergipe'),
+        ('TO' , 'Tocantins')
+    )
+
     proponente = models.ForeignKey(Proponente, on_delete=models.DO_NOTHING, blank=True, null=True)
-    contato = models.ForeignKey(ContatoImovel, on_delete=models.DO_NOTHING)
+    contato = models.ForeignKey(ContatoImovel, on_delete=models.DO_NOTHING, null=True)
 
     cep = models.CharField("CEP", max_length=20, validators=[cep_validation])
     endereco = models.CharField("Logradouro", max_length=255)
+    cidade = models.CharField("Cidade", max_length=255, null=True, blank=True)
+    uf = models.CharField("UF", max_length=2, choices=UFChoices, null=True, blank=True)
     bairro = models.CharField("Bairro", max_length=255)
     numero = models.CharField("Numero", max_length=255)
     complemento = models.CharField("Complemento", max_length=255, null=True, blank=True)
@@ -154,17 +165,21 @@ class Imovel(models.Model):
     situacao = models.CharField(
         verbose_name="Status", max_length=255, null=True, blank=True, default=None
     )
+    declaracao_responsabilidade = models.BooleanField(default=True)
     # end feature
+    observacoes = models.TextField(blank=True, null=True)
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     @property
-    def planta_fotos(self):
-        return self.plantafoto_set.all()
+    def anexos(self):
+        return self.anexo_set.all()
 
     @property
     def protocolo(self):
-        return "{:03d}".format(self.id) + "/" + str(self.criado_em.year)
+        if self.id:
+            return "{:03d}".format(self.id) + "/" + str(self.criado_em.year)
+        return ""
 
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
@@ -177,29 +192,30 @@ class Imovel(models.Model):
 class PlantaFoto(models.Model):
 
     TIPO_DOCUMENTO = (
-        (1, 'Fotos da Fachada'),
-        (2, 'Fotos do Ambiente Interno'),
+        (0, 'Fotos da Fachada'),
+        (1, 'Fotos do Ambiente Interno'),
+        (2, 'Fotos de Área Externa'),
         (3, 'Cópia do IPTU ou ITR'),
         (4, 'Cópia da Planta ou Croqui'),
     )
 
     TIPO_ARQUIVO = (
-        (1, 'Imagem'),
-        (2, 'Documento')
+        (0, 'Imagem'),
+        (1, 'Documento')
     )
 
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
-    planta = models.FileField()
+    arquivo = models.FileField()
     # Added in 11/26/2020 new feature/27865-28434
-    flag_tipo_documento = models.SmallIntegerField(
-        'Tipo Documento', choices=TIPO_DOCUMENTO, blank=True, null=True
+    tipo_documento = models.SmallIntegerField(
+        'Tipo Documento', choices=TIPO_DOCUMENTO, default=4
     )
-    flag_tipo_arquivo = models.SmallIntegerField(
+    tipo_arquivo = models.SmallIntegerField(
         'Tipo Arquivo', choices=TIPO_ARQUIVO, blank=True, null=True
     )
     # End feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
     class Meta:
-        verbose_name = "Documento"
-        verbose_name_plural = "Documentos"
+        verbose_name = "Anexo"
+        verbose_name_plural = "Anexos"
