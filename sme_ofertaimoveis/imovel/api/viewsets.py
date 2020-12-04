@@ -9,41 +9,16 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
-
-from .serializers import ImovelSerializer
 from ..models import Imovel
+from .serializers import CadastroImovelSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 
 
 class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
     permission_classes = (AllowAny,)
-    get_serializer = ImovelSerializer
+    get_serializer = CadastroImovelSerializer
 
-    def create(self, request):
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-
-            serializer.save()
-            instance = serializer.instance
-            """
-            # Envia E-mail Usuario
-
-            if instance.proponente and instance.proponente.email:
-                task_send_email_to_usuario(instance.proponente.email, protocolo=instance.protocolo)
-
-            task_send_email_to_usuario(instance.contato.email, protocolo=instance.protocolo)
-
-            # Task do E-mail do SES
-            task_send_email_to_sme.apply_async((instance.pk,), countdown=15)
-            """
-            headers = self.get_success_headers(serializer.data)
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED, headers=headers
-            )
-        except ValidationError as e:
-            return Response({'detail': e.args[0]}, status=e.status_code)
 
     @action(detail=False,
             methods=['get'],
