@@ -4,6 +4,7 @@ from django.core import validators
 
 from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
+from ..dados_comuns.models import DiretoriaRegional, Secretaria
 
 
 class SME_Contatos(models.Model):
@@ -149,6 +150,8 @@ class Imovel(models.Model):
 
     proponente = models.ForeignKey(Proponente, on_delete=models.DO_NOTHING, blank=True, null=True)
     contato = models.ForeignKey(ContatoImovel, on_delete=models.DO_NOTHING, null=True)
+    dre = models.ForeignKey(DiretoriaRegional, on_delete=models.SET_NULL, null=True)
+    secretaria = models.ForeignKey(Secretaria, on_delete=models.SET_NULL, null=True)
 
     cep = models.CharField("CEP", max_length=20, validators=[cep_validation])
     endereco = models.CharField("Logradouro", max_length=255)
