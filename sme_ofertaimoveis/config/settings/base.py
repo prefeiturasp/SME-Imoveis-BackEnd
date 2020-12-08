@@ -89,6 +89,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     "apps.home",
+    "sme_ofertaimoveis.dados_comuns.apps.DadosComunsConfig",
     "sme_ofertaimoveis.users.apps.UsersConfig",
     "sme_ofertaimoveis.imovel.apps.ImovelConfig",
 ]

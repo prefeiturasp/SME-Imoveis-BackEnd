@@ -1,0 +1,26 @@
+[
+  {
+    "model": "users.perfil",
+    "fields": {
+      "nome": "ADMIN"
+    }
+  },
+  {
+    "model": "users.perfil",
+    "fields": {
+      "nome": "SECRETARIA"
+    }
+  },
+  {
+    "model": "users.perfil",
+    "fields": {
+      "nome": "CONSULTA_SECRETARIA"
+    }
+  },
+  {
+    "model": "users.perfil",
+    "fields": {
+      "nome": "DRE"
+    }
+  }
+]
