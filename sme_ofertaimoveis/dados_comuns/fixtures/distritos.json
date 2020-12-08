@@ -1,0 +1,770 @@
+[
+  {
+    "model": "dados_comuns.distrito",
+    "id": 1,
+    "fields": {
+      "nome": "BUTANTA",
+      "subprefeitura": 1
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 2,
+    "fields": {
+      "nome": "MORUMBI",
+      "subprefeitura": 1
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 3,
+    "fields": {
+      "nome": "RAPOSO TAVARES",
+      "subprefeitura": 1
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 4,
+    "fields": {
+      "nome": "RIO PEQUENO",
+      "subprefeitura": 1
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 5,
+    "fields": {
+      "nome": "VILA SONIA",
+      "subprefeitura": 1
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 6,
+    "fields": {
+      "nome": "ALTO DE PINHEIROS",
+      "subprefeitura": 2
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 7,
+    "fields": {
+      "nome": "ITAIM BIBI",
+      "subprefeitura": 2
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 8,
+    "fields": {
+      "nome": "JARDIM PAULISTA",
+      "subprefeitura": 2
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 9,
+    "fields": {
+      "nome": "PINHEIROS",
+      "subprefeitura": 2
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 10,
+    "fields": {
+      "nome": "CAMPO LIMPO",
+      "subprefeitura": 3
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 11,
+    "fields": {
+      "nome": "CAPAO REDONDO",
+      "subprefeitura": 3
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 12,
+    "fields": {
+      "nome": "VILA ANDRADE",
+      "subprefeitura": 3
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 13,
+    "fields": {
+      "nome": "JARDIM ANGELA",
+      "subprefeitura": 4
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 14,
+    "fields": {
+      "nome": "JARDIM SAO LUIS",
+      "subprefeitura": 4
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 15,
+    "fields": {
+      "nome": "CIDADE DUTRA",
+      "subprefeitura": 5
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 16,
+    "fields": {
+      "nome": "GRAJAU",
+      "subprefeitura": 5
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 17,
+    "fields": {
+      "nome": "SOCORRO",
+      "subprefeitura": 5
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 18,
+    "fields": {
+      "nome": "MARSILAC",
+      "subprefeitura": 6
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 19,
+    "fields": {
+      "nome": "PARELHEIROS",
+      "subprefeitura": 6
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 20,
+    "fields": {
+      "nome": "CACHOEIRINHA",
+      "subprefeitura": 10
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 21,
+    "fields": {
+      "nome": "CASA VERDE",
+      "subprefeitura": 10
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 22,
+    "fields": {
+      "nome": "LIMAO",
+      "subprefeitura": 10
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 23,
+    "fields": {
+      "nome": "BRASILANDIA",
+      "subprefeitura": 9
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 24,
+    "fields": {
+      "nome": "FREGUESIA DO O",
+      "subprefeitura": 9
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 25,
+    "fields": {
+      "nome": "CIDADE TIRADENTES",
+      "subprefeitura": 32
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 26,
+    "fields": {
+      "nome": "GUAIANASES",
+      "subprefeitura": 23
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 27,
+    "fields": {
+      "nome": "LAJEADO",
+      "subprefeitura": 23
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 28,
+    "fields": {
+      "nome": "CURSINO",
+      "subprefeitura": 25
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 29,
+    "fields": {
+      "nome": "IPIRANGA",
+      "subprefeitura": 25
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 30,
+    "fields": {
+      "nome": "SACOMA",
+      "subprefeitura": 25
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 31,
+    "fields": {
+      "nome": "BELA VISTA",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 32,
+    "fields": {
+      "nome": "BOM RETIRO",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 33,
+    "fields": {
+      "nome": "CAMBUCI",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 34,
+    "fields": {
+      "nome": "CONSOLACAO",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 35,
+    "fields": {
+      "nome": "LIBERDADE",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 36,
+    "fields": {
+      "nome": "REPUBLICA",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 37,
+    "fields": {
+      "nome": "SANTA CECILIA",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 38,
+    "fields": {
+      "nome": "SE",
+      "subprefeitura": 14
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 39,
+    "fields": {
+      "nome": "MOEMA",
+      "subprefeitura": 24
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 40,
+    "fields": {
+      "nome": "SAUDE",
+      "subprefeitura": 24
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 41,
+    "fields": {
+      "nome": "VILA MARIANA",
+      "subprefeitura": 24
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 42,
+    "fields": {
+      "nome": "SAO LUCAS",
+      "subprefeitura": 29
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 43,
+    "fields": {
+      "nome": "VILA PRUDENTE",
+      "subprefeitura": 29
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 44,
+    "fields": {
+      "nome": "ARICANDUVA",
+      "subprefeitura": 19
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 45,
+    "fields": {
+      "nome": "CARRAO",
+      "subprefeitura": 19
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 46,
+    "fields": {
+      "nome": "VILA FORMOSA",
+      "subprefeitura": 19
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 47,
+    "fields": {
+      "nome": "CIDADE LIDER",
+      "subprefeitura": 18
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 48,
+    "fields": {
+      "nome": "ITAQUERA",
+      "subprefeitura": 18
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 49,
+    "fields": {
+      "nome": "JOSE BONIFACIO",
+      "subprefeitura": 18
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 50,
+    "fields": {
+      "nome": "PARQUE DO CARMO",
+      "subprefeitura": 18
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 51,
+    "fields": {
+      "nome": "JACANA",
+      "subprefeitura": 20
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 52,
+    "fields": {
+      "nome": "TREMEMBE",
+      "subprefeitura": 20
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 53,
+    "fields": {
+      "nome": "MANDAQUI",
+      "subprefeitura": 11
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 54,
+    "fields": {
+      "nome": "SANTANA",
+      "subprefeitura": 11
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 55,
+    "fields": {
+      "nome": "TUCURUVI",
+      "subprefeitura": 11
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 56,
+    "fields": {
+      "nome": "VILA GUILHERME",
+      "subprefeitura": 21
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 57,
+    "fields": {
+      "nome": "VILA MARIA",
+      "subprefeitura": 21
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 58,
+    "fields": {
+      "nome": "VILA MEDEIROS",
+      "subprefeitura": 21
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 59,
+    "fields": {
+      "nome": "ERMELINO MATARAZZO",
+      "subprefeitura": 16
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 60,
+    "fields": {
+      "nome": "PONTE RASA",
+      "subprefeitura": 16
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 61,
+    "fields": {
+      "nome": "AGUA RASA",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 62,
+    "fields": {
+      "nome": "BELEM",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 63,
+    "fields": {
+      "nome": "BRAS",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 64,
+    "fields": {
+      "nome": "MOOCA",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 65,
+    "fields": {
+      "nome": "PARI",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 66,
+    "fields": {
+      "nome": "TATUAPE",
+      "subprefeitura": 7
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 67,
+    "fields": {
+      "nome": "ARTUR ALVIM",
+      "subprefeitura": 15
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 68,
+    "fields": {
+      "nome": "CANGAIBA",
+      "subprefeitura": 15
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 69,
+    "fields": {
+      "nome": "PENHA",
+      "subprefeitura": 15
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 70,
+    "fields": {
+      "nome": "VILA MATILDE",
+      "subprefeitura": 15
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 71,
+    "fields": {
+      "nome": "BARRA FUNDA",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 72,
+    "fields": {
+      "nome": "JAGUARA",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 73,
+    "fields": {
+      "nome": "JAGUARE",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 74,
+    "fields": {
+      "nome": "LAPA",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 75,
+    "fields": {
+      "nome": "PERDIZES",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 76,
+    "fields": {
+      "nome": "VILA LEOPOLDINA",
+      "subprefeitura": 13
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 77,
+    "fields": {
+      "nome": "ANHANGUERA",
+      "subprefeitura": 12
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 78,
+    "fields": {
+      "nome": "PERUS",
+      "subprefeitura": 12
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 79,
+    "fields": {
+      "nome": "JARAGUA",
+      "subprefeitura": 8
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 80,
+    "fields": {
+      "nome": "PIRITUBA",
+      "subprefeitura": 8
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 81,
+    "fields": {
+      "nome": "SAO DOMINGOS",
+      "subprefeitura": 8
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 82,
+    "fields": {
+      "nome": "CIDADE ADEMAR",
+      "subprefeitura": 28
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 83,
+    "fields": {
+      "nome": "PEDREIRA",
+      "subprefeitura": 28
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 84,
+    "fields": {
+      "nome": "JABAQUARA",
+      "subprefeitura": 27
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 85,
+    "fields": {
+      "nome": "CAMPO BELO",
+      "subprefeitura": 26
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 86,
+    "fields": {
+      "nome": "CAMPO GRANDE",
+      "subprefeitura": 26
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 87,
+    "fields": {
+      "nome": "SANTO AMARO",
+      "subprefeitura": 26
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 88,
+    "fields": {
+      "nome": "IGUATEMI",
+      "subprefeitura": 30
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 89,
+    "fields": {
+      "nome": "SAO MATEUS",
+      "subprefeitura": 30
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 90,
+    "fields": {
+      "nome": "SAO RAFAEL",
+      "subprefeitura": 30
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 91,
+    "fields": {
+      "nome": "SAPOPEMBA",
+      "subprefeitura": 31
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 92,
+    "fields": {
+      "nome": "ITAIM PAULISTA",
+      "subprefeitura": 17
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 93,
+    "fields": {
+      "nome": "VILA CURUCA",
+      "subprefeitura": 17
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 94,
+    "fields": {
+      "nome": "JARDIM HELENA",
+      "subprefeitura": 17
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 95,
+    "fields": {
+      "nome": "SAO MIGUEL",
+      "subprefeitura": 22
+    }
+  },
+  {
+    "model": "dados_comuns.distrito",
+    "id": 96,
+    "fields": {
+      "nome": "VILA JACUI",
+      "subprefeitura": 22
+    }
+  }
+]

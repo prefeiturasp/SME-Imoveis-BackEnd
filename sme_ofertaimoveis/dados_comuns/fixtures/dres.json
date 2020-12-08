@@ -1,0 +1,119 @@
+[
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 1,
+    "fields": {
+      "nome": "SANTO AMARO",
+      "sigla": "SA",
+      "codigo_eol": "109100"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 2,
+    "fields": {
+      "nome": "PIRITUBA/JARAGUA",
+      "sigla": "PJ",
+      "codigo_eol": "109000"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 3,
+    "fields": {
+      "nome": "BUTANTA",
+      "sigla": "BT",
+      "codigo_eol": "108100"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 4,
+    "fields": {
+      "nome": "CAMPO LIMPO",
+      "sigla": "CL",
+      "codigo_eol": "108200"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 5,
+    "fields": {
+      "nome": "CAPELA DO SOCORRO",
+      "sigla": "CS",
+      "codigo_eol": "108300"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 6,
+    "fields": {
+      "nome": "IPIRANGA",
+      "sigla": "IP",
+      "codigo_eol": "108600"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 7,
+    "fields": {
+      "nome": "ITAQUERA",
+      "sigla": "IQ",
+      "codigo_eol": "108700"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 8,
+    "fields": {
+      "nome": "GUAIANASES",
+      "sigla": "G",
+      "codigo_eol": "108500"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 9,
+    "fields": {
+      "nome": "SAO MATEUS",
+      "sigla": "SM",
+      "codigo_eol": "109200"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 10,
+    "fields": {
+      "nome": "PENHA",
+      "sigla": "PE",
+      "codigo_eol": "108900"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 11,
+    "fields": {
+      "nome": "JACANA/TREMEMBE",
+      "sigla": "JT",
+      "codigo_eol": "108800"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 12,
+    "fields": {
+      "nome": "FREGUESIA/BRASILANDIA",
+      "sigla": "FB",
+      "codigo_eol": "108400"
+    }
+  },
+  {
+    "model": "dados_comuns.diretoriaregional",
+    "id": 13,
+    "fields": {
+      "nome": "SAO MIGUEL",
+      "sigla": "MP",
+      "codigo_eol": "109300"
+    }
+  }
+]
