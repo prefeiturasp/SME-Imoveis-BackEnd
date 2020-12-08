@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 
-from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Secretaria
+from sme_ofertaimoveis.dados_comuns.models import Secretaria, Setor
 
 
 class Perfil(models.Model):
@@ -21,8 +21,8 @@ class Perfil(models.Model):
 class User(AbstractUser):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     perfil = models.ForeignKey(Perfil, null=True, blank=True, on_delete=models.SET_NULL)
-    secretaria = models.ForeignKey(Secretaria, null=True, blank=True,  on_delete=models.SET_NULL)
-    dre = models.ForeignKey(DiretoriaRegional, null=True, blank=True, on_delete=models.SET_NULL)
+    secretaria = models.ForeignKey(Secretaria, null=True, blank=True, on_delete=models.SET_NULL)
+    setor = models.ForeignKey(Setor, null=True, blank=True, on_delete=models.SET_NULL)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})

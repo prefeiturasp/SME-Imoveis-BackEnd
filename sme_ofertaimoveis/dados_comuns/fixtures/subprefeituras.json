@@ -1,0 +1,258 @@
+[
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 1,
+    "fields": {
+      "nome": "BUTANTA",
+      "dre": [3]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 2,
+    "fields": {
+      "nome": "PINHEIROS",
+      "dre": [3]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 3,
+    "fields": {
+      "nome": "CAMPO LIMPO",
+      "dre": [4]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 4,
+    "fields": {
+      "nome": "M BOI MIRIM",
+      "dre": [4]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 5,
+    "fields": {
+      "nome": "CAPELA DO SOCORRO",
+      "dre": [5]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 6,
+    "fields": {
+      "nome": "PARELHEIROS",
+      "dre": [5]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 7,
+    "fields": {
+      "nome": "MOOCA",
+      "dre": [5, 7, 10]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 8,
+    "fields": {
+      "nome": "PIRITUBA",
+      "dre": [2, 12]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 9,
+    "fields": {
+      "nome": "FREGUESIA/BRASILANDIA",
+      "dre": [2, 12]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 10,
+    "fields": {
+      "nome": "CASA VERDE/CACHOEIRINHA",
+      "dre": [12]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 11,
+    "fields": {
+      "nome": "SANTANA/TUCURUVI",
+      "dre": [11, 12]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 12,
+    "fields": {
+      "nome": "PERUS",
+      "dre": [2]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 13,
+    "fields": {
+      "nome": "LAPA",
+      "dre": [2, 6]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 14,
+    "fields": {
+      "nome": "SE",
+      "dre": [2, 6]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 15,
+    "fields": {
+      "nome": "PENHA",
+      "dre": [10]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 16,
+    "fields": {
+      "nome": "ERMELINO MATARAZZO",
+      "dre": [7, 10, 13]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 17,
+    "fields": {
+      "nome": "SAO MIGUEL",
+      "dre": [10, 13]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 18,
+    "fields": {
+      "nome": "ITAQUERA",
+      "dre": [7, 10]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 19,
+    "fields": {
+      "nome": "ARICANDUVA",
+      "dre": [7]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 20,
+    "fields": {
+      "nome": "JACANA/TREMEMBE",
+      "dre": [11]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 21,
+    "fields": {
+      "nome": "VILA MARIA/VILA GUILHERME",
+      "dre": [11, 13]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 22,
+    "fields": {
+      "nome": "ITAIM PAULISTA",
+      "dre": [13]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 23,
+    "fields": {
+      "nome": "GUAIANASES",
+      "dre": [8, 13]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 24,
+    "fields": {
+      "nome": "VILA MARIANA",
+      "dre": [1, 6]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 25,
+    "fields": {
+      "nome": "IPIRANGA",
+      "dre": [1, 6]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 26,
+    "fields": {
+      "nome": "SANTO AMARO",
+      "dre": [1]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 27,
+    "fields": {
+      "nome": "JABAQUARA",
+      "dre": [1]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 28,
+    "fields": {
+      "nome": "CIDADE ADEMAR",
+      "dre": [1]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 29,
+    "fields": {
+      "nome": "VILA PRUDENTE",
+      "dre": [6, 9]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 30,
+    "fields": {
+      "nome": "SAO MATEUS",
+      "dre": [9]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 31,
+    "fields": {
+      "nome": "SAPOPEMBA",
+      "dre": [9]
+    }
+  },
+  {
+    "model": "dados_comuns.subprefeitura",
+    "id": 32,
+    "fields": {
+      "nome": "CIDADE TIRADENTES",
+      "dre": [8]
+    }
+  }
+]
