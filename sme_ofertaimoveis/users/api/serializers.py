@@ -1,14 +1,21 @@
 from rest_framework import serializers
 
-from ..models import User
+from ..models import Perfil, User
+
+
+class PerfilSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perfil
+        exclude = ('id', )
 
 
 class UserSerializer(serializers.ModelSerializer):
-    perfil_usuario = serializers.CharField(required=False)
+    perfil = PerfilSerializer()
+    nome = serializers.SerializerMethodField()
 
-    def create(self, validated_data):  # noqa C901
-        pass
+    def get_nome(self, obj):
+        return f'{obj.first_name} {obj.last_name}'
 
     class Meta:
         model = User
-        fields = ("username", "email", "perfil_usuario")
+        fields = ("username", "email", "perfil", "nome")
