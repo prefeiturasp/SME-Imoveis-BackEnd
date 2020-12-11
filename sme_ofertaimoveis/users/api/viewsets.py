@@ -11,14 +11,12 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 
 from .serializers import UserSerializer, PerfilSerializer
 from .services import AutenticacaoService
-from ..models import Perfil
-
-User = get_user_model()
+from ..models import Perfil, User
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+class UserViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     queryset = User.objects.all()
     lookup_field = "username"
 
@@ -27,6 +25,10 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 
     def _get_usuario_por_rf(self, registro_funcional):
         return User.objects.get(username=registro_funcional)
+
+    def list(self, request, *args, **kwargs):
+        serializer = UserSerializer(self.queryset, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
     @action(detail=False, methods=["GET"], permission_classes=(IsAuthenticated,))
     def me(self, request):
