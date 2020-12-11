@@ -6,7 +6,7 @@ from ..models import Perfil, User
 class PerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perfil
-        exclude = ('id', )
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):

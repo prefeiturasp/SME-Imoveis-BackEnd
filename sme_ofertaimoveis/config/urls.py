@@ -11,6 +11,7 @@ from rest_framework_swagger.views import get_swagger_view
 from sme_ofertaimoveis.imovel.urls import urlpatterns as imovel_urls
 from sme_ofertaimoveis.users.api.viewsets import LoginView
 from sme_ofertaimoveis.users.urls import urlpatterns as users_urls
+from sme_ofertaimoveis.dados_comuns.urls import urlpatterns as dados_comuns_urls
 
 
 env = environ.Env()
@@ -33,3 +34,4 @@ urlpatterns = [
 # ADDING ROUTERS FROM ALL APPS
 urlpatterns += imovel_urls
 urlpatterns += users_urls
+urlpatterns += dados_comuns_urls

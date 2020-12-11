@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError as coreValidationError
-from rest_framework import status, permissions
+from rest_framework import status, permissions, mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
@@ -9,8 +9,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_jwt.views import ObtainJSONWebToken
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, PerfilSerializer
 from .services import AutenticacaoService
+from ..models import Perfil
 
 User = get_user_model()
 
@@ -26,19 +27,6 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 
     def _get_usuario_por_rf(self, registro_funcional):
         return User.objects.get(username=registro_funcional)
-
-    def create(self, request):  # noqa C901
-        try:
-            assert not User.objects.filter(
-                username=request.data.get('username')
-            ).exists(), 'Usuário existente no sistema'
-            usuario = UserSerializer().create(request.data)
-            usuario.enviar_email_confirmacao()
-            return Response(UserSerializer(usuario).data)
-        except ValidationError as e:
-            return Response({'detail': e.detail[0].title()}, status=status.HTTP_400_BAD_REQUEST)
-        except AssertionError as e:
-            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["GET"], permission_classes=(IsAuthenticated,))
     def me(self, request):
@@ -72,6 +60,12 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             return Response({'sucesso!': 'senha atualizada com sucesso'})
         else:
             return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
+
+
+class PerfilViewset(mixins.ListModelMixin, GenericViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = PerfilSerializer
+    queryset = Perfil.objects.all()
 
 
 class UsuarioConfirmaEmailViewSet(GenericViewSet):
