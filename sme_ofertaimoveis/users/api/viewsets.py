@@ -1,9 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError as coreValidationError
+from django.db.models import Q
 from rest_framework import status, permissions, mixins
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -27,7 +26,20 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         return User.objects.get(username=registro_funcional)
 
     def list(self, request, *args, **kwargs):
-        serializer = UserSerializer(self.queryset, many=True)
+        queryset = self.queryset
+        if 'secretaria' in request.query_params:
+            queryset = queryset.filter(secretaria=request.query_params.get('secretaria'))
+        if 'dre' in request.query_params:
+            queryset = queryset.filter(setor__distrito__subprefeitura__dre=request.query_params.get('dre'))
+        if 'perfil' in request.query_params:
+            if request.query_params.get('perfil') == 'SEM PERMISSAO':
+                queryset = queryset.filter(perfil__isnull=True)
+            else:
+                queryset = queryset.filter(perfil=request.query_params.get('perfil'))
+        if 'nome' in request.query_params:
+            queryset = queryset.filter(Q(first_name__icontains=request.query_params.get('nome')) |
+                                       Q(last_name__icontains=request.query_params.get('nome')))
+        serializer = UserSerializer(queryset, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
     @action(detail=False, methods=["GET"], permission_classes=(IsAuthenticated,))
