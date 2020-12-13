@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError as coreVa
 from django.db.models import Q
 from rest_framework import status, permissions, mixins
 from rest_framework.decorators import action
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -11,9 +11,10 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 from .serializers import UserSerializer, PerfilSerializer
 from .services import AutenticacaoService
 from ..models import Perfil, User
+from ...dados_comuns.models import Setor, Secretaria
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
     queryset = User.objects.all()
@@ -25,8 +26,38 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     def _get_usuario_por_rf(self, registro_funcional):
         return User.objects.get(username=registro_funcional)
 
+    # TODO: colocar lógica no serializer; verificar porque só deixa dar update no usuário logado
+    def update(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        usuario = User.objects.get(username=username)
+        if request.data.get('secretaria_'):
+            usuario.secretaria = Secretaria.objects.get(id=request.data.get('secretaria_'))
+        else:
+            usuario.secretaria = None
+        if request.data.get('setor'):
+            try:
+                setor_ = Setor.objects.get(codigo=request.data.get('setor').get('codigo'))
+                usuario.setor = setor_
+            except ObjectDoesNotExist:
+                return Response({"detail": "Setor não existe"}, status=status.HTTP_400_BAD_REQUEST)
+        if 'perfil_' in request.data:
+            if request.data.get('perfil_') == 'SEM PERMISSAO':
+                usuario.perfil = None
+            else:
+                perfil = Perfil.objects.get(id=request.data.get('perfil_'))
+                if perfil.nome == 'ADMIN' and User.objects.filter(perfil__nome='ADMIN').count() == 3:
+                    return Response({"detail": "Excedeu o limite de usuários ADMIN no sistema"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif perfil.nome == 'SECRETARIA' and User.objects.filter(perfil__nome='SECRETARIA').count() == 3:
+                    return Response({"detail": "Excedeu o limite de usuários SECRETARIA no sistema"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                usuario.perfil = Perfil.objects.get(id=request.data.get('perfil_'))
+        usuario.save()
+        serializer = UserSerializer(usuario)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
     def list(self, request, *args, **kwargs):
-        queryset = self.queryset
+        queryset = User.objects.all()
         if 'secretaria' in request.query_params:
             queryset = queryset.filter(secretaria=request.query_params.get('secretaria'))
         if 'dre' in request.query_params:
