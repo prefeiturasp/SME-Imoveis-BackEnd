@@ -12,6 +12,7 @@ class UserAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         error = False
         if (change and
+                form.data.get('perfil') and
                 'perfil' in form.changed_data):
             if (Perfil.objects.get(id=form.data.get('perfil')).nome == 'ADMIN' and
                     User.objects.filter(perfil__nome='ADMIN').count() == 3):
