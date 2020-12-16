@@ -1,3 +1,4 @@
+import datetime
 import requests
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.conf import settings
 from rest_framework import status, mixins
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
@@ -15,10 +16,30 @@ from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 
 
-class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin):
+class CadastroImoveisViewSet(ViewSet, mixins.CreateModelMixin, mixins.ListModelMixin):
     permission_classes = (AllowAny,)
     get_serializer = CadastroImovelSerializer
 
+    def _agrupa_por_mes_por_solicitacao(self, query_set: list) -> dict:
+        # TODO: melhorar performance
+        sumario = {'novos_cadastros': 0, 'proximos_ao_vencimento': 0, 'atrasados': 0}  # type: dict
+        _25_dias_atras = datetime.date.today() - datetime.timedelta(days=25)
+        _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
+        sumario['novos_cadastros'] = query_set.filter(criado_em__gte=_25_dias_atras).count()
+        sumario['proximos_ao_vencimento'] = query_set.filter(criado_em__lt=_25_dias_atras,
+                                                             criado_em__gte=_30_dias_atras).count()
+        sumario['atrasados'] = query_set.filter(criado_em__lt=_30_dias_atras).count()
+        return sumario
+
+    @action(
+        detail=False,
+        methods=['GET'],
+        url_path=f'ultimos-30-dias',
+        permission_classes=(IsAuthenticated,))
+    def relatorio_resumo_anual_e_mensal(self, request):
+        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=30))
+        resumo_do_mes = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
+        return Response(resumo_do_mes, status=status.HTTP_200_OK)
 
     @action(detail=False,
             methods=['get'],
