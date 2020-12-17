@@ -62,7 +62,6 @@ class AnexoSerializer(ModelSerializer):
         exclude = ("id", "imovel")
 
 
-
 class CadastroImovelSerializer(serializers.ModelSerializer):
     proponente = ProponenteSerializer()
     contato = ContatoSerializer()
@@ -70,7 +69,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         child=AnexoSerializer(), required=False
     )
     protocolo = serializers.SerializerMethodField()
-    setor = SetorSerializer()
+    setor = SetorSerializer(required=False)
 
     def get_protocolo(self, obj):
         return obj.protocolo
@@ -118,5 +117,5 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             PlantaFoto.objects.create(
                 imovel=imovel, **anexo
             )
-        # task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
+        task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
         return imovel
