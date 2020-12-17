@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 
 from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto
+from ...dados_comuns.api.serializers import SetorSerializer
 
 
 class ContatoSerializer(serializers.ModelSerializer):
@@ -61,7 +62,6 @@ class AnexoSerializer(ModelSerializer):
         exclude = ("id", "imovel")
 
 
-
 class CadastroImovelSerializer(serializers.ModelSerializer):
     proponente = ProponenteSerializer()
     contato = ContatoSerializer()
@@ -69,6 +69,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         child=AnexoSerializer(), required=False
     )
     protocolo = serializers.SerializerMethodField()
+    setor = SetorSerializer(required=False)
 
     def get_protocolo(self, obj):
         return obj.protocolo
@@ -90,7 +91,8 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
                   "complemento",
                   "contato", 
                   "observacoes",
-                  "declaracao_responsabilidade"]
+                  "declaracao_responsabilidade",
+                  "setor"]
 
     def create(self, validated_data):
 

@@ -24,7 +24,7 @@ class ImovelAdmin(admin.ModelAdmin):
     list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
     search_fields = ('cep', 'endereco')
     fields = ("protocolo", 'show_proponente', 'show_contato', 'cidade', 'uf', 'cep', "endereco", "bairro", 'numero', 'complemento',
-              'numero_iptu', 'criado_em', 'observacoes')
+              'numero_iptu', 'criado_em', 'observacoes', 'setor', 'secretaria')
     readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
 
     def show_proponente(self, obj):
