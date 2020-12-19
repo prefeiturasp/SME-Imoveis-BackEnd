@@ -85,7 +85,8 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_swagger",
     "des",  # for email configuration in database
-    "django_celery_results",  # Celery integration for Django
+    "django_celery_results",  # Celery integration for Django,
+    'django_xworkflows',
 ]
 LOCAL_APPS = [
     "apps.home",
@@ -118,8 +119,8 @@ LOGIN_URL = "account_login"
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {''
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+     "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},

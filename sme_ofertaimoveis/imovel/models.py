@@ -4,7 +4,8 @@ from django.core import validators
 
 from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
-from ..dados_comuns.models import DiretoriaRegional, Secretaria, Setor
+from ..dados_comuns.fluxo_status import FluxoImoveis
+from ..dados_comuns.models import Secretaria, Setor
 
 
 class SME_Contatos(models.Model):
@@ -121,7 +122,7 @@ class ContatoImovel(models.Model):
         verbose_name_plural = "Contatos"
 
 
-class Imovel(models.Model):
+class Imovel(FluxoImoveis):
 
     UFChoices = (
         ('AC', 'Acre'),
