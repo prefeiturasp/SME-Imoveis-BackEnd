@@ -19,6 +19,7 @@ from ..utils import checa_digito_verificador_iptu
 
 class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mixins.ListModelMixin):
     permission_classes = (AllowAny,)
+    queryset = Imovel.objects.all()
     get_serializer = CadastroImovelSerializer
 
     def _agrupa_por_mes_por_solicitacao(self, query_set: list) -> dict:

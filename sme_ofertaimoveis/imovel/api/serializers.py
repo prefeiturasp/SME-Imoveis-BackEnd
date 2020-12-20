@@ -5,6 +5,7 @@ from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 
 from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto
 from ...dados_comuns.api.serializers import SetorSerializer
+from ...dados_comuns.api.serializers.log_fluxo_status_serializer import LogFluxoStatusSerializer
 
 
 class ContatoSerializer(serializers.ModelSerializer):
@@ -70,6 +71,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
     )
     protocolo = serializers.SerializerMethodField()
     setor = SetorSerializer(required=False)
+    logs = LogFluxoStatusSerializer(many=True, required=False)
 
     def get_protocolo(self, obj):
         return obj.protocolo
@@ -92,7 +94,8 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
                   "contato", 
                   "observacoes",
                   "declaracao_responsabilidade",
-                  "setor"]
+                  "setor",
+                  "logs"]
 
     def create(self, validated_data):
 

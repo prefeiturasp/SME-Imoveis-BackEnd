@@ -67,6 +67,7 @@ class Setor(models.Model):
 
 class LogFluxoStatus(models.Model):
     (
+        SOLICITACAO_REALIZADA,
         AGUARDANDO_ANALISE_PREVIA_SME,
         ENVIADO_COMAPRE,
         AGUARDANDO_RELATORIO_DE_VISTORIA,
@@ -75,11 +76,12 @@ class LogFluxoStatus(models.Model):
         ENVIADO_DRE,
         FINALIZADO,
         CANCELADO,
-    ) = range(8)
+    ) = range(9)
 
     STATUS_POSSIVEIS = (
-        (AGUARDANDO_ANALISE_PREVIA_SME, 'Aguardando análise prévia da SME'),
-        (ENVIADO_COMAPRE, 'Enviado à COMPAPRE'),
+        (SOLICITACAO_REALIZADA, 'Solicitação realizada'),
+        (AGUARDANDO_ANALISE_PREVIA_SME, 'SME analisou previamente'),
+        (ENVIADO_COMAPRE, 'Enviado à COMAPRE'),
         (AGUARDANDO_RELATORIO_DE_VISTORIA, 'Aguardando relatório de vistoria'),
         (AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, 'Aguardando laudo de valor locatício'),
         (APROVADO, 'Aprovado'),

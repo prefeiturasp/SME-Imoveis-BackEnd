@@ -9,6 +9,7 @@ from sme_ofertaimoveis.dados_comuns.models import LogFluxoStatus
 class ImoveisWorkflow(xwf_models.Workflow):
     log_model = ''
 
+    SOLICITACAO_REALIZADA = 'SOLICITACAO_REALIZADA'
     AGUARDANDO_ANALISE_PREVIA_SME = 'AGUARDANDO_ANALISE_PREVISA_SME'
     ENVIADO_COMAPRE = 'ENVIADO_COMAPRE'
     AGUARDANDO_RELATORIO_DE_VISTORIA = 'AGUARDANDO_RELATORIO_DE_VISTORIA'
@@ -19,8 +20,9 @@ class ImoveisWorkflow(xwf_models.Workflow):
     CANCELADO = 'CANCELADO'
 
     states = (
-        (AGUARDANDO_ANALISE_PREVIA_SME, 'Aguardando análise prévia da SME'),
-        (ENVIADO_COMAPRE, 'Enviado à COMPAPRE'),
+        (SOLICITACAO_REALIZADA, 'Solicitação Realizada'),
+        (AGUARDANDO_ANALISE_PREVIA_SME, 'SME analisou previamente'),
+        (ENVIADO_COMAPRE, 'Enviado à COMAPRE'),
         (AGUARDANDO_RELATORIO_DE_VISTORIA, 'Aguardando relatório de vistoria'),
         (AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, 'Aguardando laudo de valor locatício'),
         (APROVADO, 'Aprovado'),
@@ -30,6 +32,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
     )
 
     transitions = (
+        ('sme_analisa_previamente', SOLICITACAO_REALIZADA, AGUARDANDO_ANALISE_PREVIA_SME),
         ('envia_a_comapre', AGUARDANDO_ANALISE_PREVIA_SME, ENVIADO_COMAPRE),
         ('aguarda_relatorio_vistoria', ENVIADO_COMAPRE, AGUARDANDO_RELATORIO_DE_VISTORIA),
         ('aguarda_laudo_valor_locaticio', AGUARDANDO_RELATORIO_DE_VISTORIA, AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO),
@@ -41,7 +44,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
          CANCELADO)
     )
 
-    initial_state = AGUARDANDO_ANALISE_PREVIA_SME
+    initial_state = SOLICITACAO_REALIZADA
 
 
 class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
@@ -51,7 +54,14 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         raise NotImplementedError('Deve criar um método salvar_log_transicao')
 
-    @xworkflows.after_transition('')
+    @xworkflows.after_transition('sme_analisa_previamente')
+    def _sme_analisa_previamente_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.AGUARDANDO_ANALISE_PREVIA_SME,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''))
+
+    @xworkflows.after_transition('envia_a_comapre')
     def _envia_a_comapre_hook(self, *args, **kwargs):
         user = kwargs['user']
         self.salvar_log_transicao(status_evento=LogFluxoStatus.ENVIADO_COMAPRE,
