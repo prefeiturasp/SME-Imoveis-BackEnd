@@ -4,7 +4,8 @@ from django.core import validators
 
 from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
-from ..dados_comuns.models import DiretoriaRegional, Secretaria, Setor
+from ..dados_comuns.fluxo_status import FluxoImoveis
+from ..dados_comuns.models import Secretaria, Setor, LogFluxoStatus
 
 
 class SME_Contatos(models.Model):
@@ -121,7 +122,7 @@ class ContatoImovel(models.Model):
         verbose_name_plural = "Contatos"
 
 
-class Imovel(models.Model):
+class Imovel(FluxoImoveis):
 
     UFChoices = (
         ('AC', 'Acre'),
@@ -191,6 +192,17 @@ class Imovel(models.Model):
 
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
+
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get('justificativa', '')
+        LogFluxoStatus.objects.create(
+            descricao=str(self),
+            status_evento=status_evento,
+            usuario=usuario,
+            imovel=self,
+            justificativa=justificativa,
+        )
+
 
     class Meta:
         verbose_name = "Imovel"
