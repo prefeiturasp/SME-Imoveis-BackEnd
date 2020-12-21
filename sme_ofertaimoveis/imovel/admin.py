@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
+from .models import ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto, DemandaImovel
 
 
 @admin.register(SME_Contatos)
@@ -49,3 +49,4 @@ class ImovelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ContatoImovel)
+admin.site.register(DemandaImovel)

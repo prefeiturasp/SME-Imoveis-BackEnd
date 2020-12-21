@@ -1,9 +1,12 @@
+import requests
+
 from rest_framework import serializers
+from django.conf import settings
 from drf_base64.serializers import ModelSerializer
 from rest_framework.exceptions import ValidationError
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 
-from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto
+from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto, DemandaImovel
 from ...dados_comuns.api.serializers import SetorSerializer
 from ...dados_comuns.api.serializers.log_fluxo_status_serializer import LogFluxoStatusSerializer
 
@@ -30,7 +33,6 @@ class ProponenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proponente
         exclude = ("id",)
-    
     
     def create(self, validated_data):
         cpf_cnpj = validated_data.get("cpf_cnpj")
@@ -63,6 +65,17 @@ class AnexoSerializer(ModelSerializer):
         exclude = ("id", "imovel")
 
 
+class DemandaImovelSerializer(ModelSerializer):
+    total = serializers.SerializerMethodField()
+
+    def get_total(self, obj):
+        return obj.total
+
+    class Meta:
+        model = DemandaImovel
+        exclude = ('uuid', 'imovel',)
+
+
 class CadastroImovelSerializer(serializers.ModelSerializer):
     proponente = ProponenteSerializer()
     contato = ContatoSerializer()
@@ -72,6 +85,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
     protocolo = serializers.SerializerMethodField()
     setor = SetorSerializer(required=False)
     logs = LogFluxoStatusSerializer(many=True, required=False)
+    demandaimovel = DemandaImovelSerializer(required=False)
 
     def get_protocolo(self, obj):
         return obj.protocolo
@@ -84,7 +98,9 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
                   "protocolo", 
                   "numero_iptu", 
                   "cep", 
-                  "endereco", 
+                  "endereco",
+                  "latitude",
+                  "longitude",
                   "numero", 
                   "complemento", 
                   "cidade", 
@@ -95,7 +111,8 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
                   "observacoes",
                   "declaracao_responsabilidade",
                   "setor",
-                  "logs"]
+                  "logs",
+                  "demandaimovel"]
 
     def create(self, validated_data):
 
@@ -111,6 +128,28 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         else:
             imovel = Imovel.objects.create(proponente=proponente, contato=contato, **validated_data)
 
+        url = f'{settings.SCIEDU_URL}/{imovel.latitude}/{imovel.longitude}'
+        headers = {
+            "Authorization": f'Token {settings.SCIEDU_TOKEN}',
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        results = response.json().get('results')
+        bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
+        demanda_imovel = DemandaImovel(imovel=imovel)
+        if bercario_i:
+            demanda_imovel.bercario_i = bercario_i.get('total')
+        bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
+        if bercario_ii:
+            demanda_imovel.bercario_ii = bercario_ii.get('total')
+        mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
+        if mini_grupo_i:
+            demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
+        mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
+        if mini_grupo_ii:
+            demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+        demanda_imovel.save()
+
         tamanho_total_dos_arquivos = 0
         for anexo in anexos:
             filesize = anexo.get('arquivo').size
@@ -120,5 +159,5 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             PlantaFoto.objects.create(
                 imovel=imovel, **anexo
             )
-        task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
+        # task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
         return imovel
