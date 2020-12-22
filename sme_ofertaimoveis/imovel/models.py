@@ -181,7 +181,7 @@ class Imovel(FluxoImoveis):
 
     @property
     def anexos(self):
-        return self.anexo_set.all()
+        return self.plantafoto_set.all()
 
     @property
     def protocolo(self):
