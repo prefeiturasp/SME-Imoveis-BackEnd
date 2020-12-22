@@ -169,6 +169,7 @@ class Imovel(FluxoImoveis):
     longitude = models.CharField("longitude", max_length=255)
     numero_iptu = models.CharField("Numero IPTU", max_length=20, blank=True, default="")
     # Added in 11/26/2020 new feature/27865-28434
+    area_construida = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     situacao = models.CharField(
         verbose_name="Status", max_length=255, null=True, blank=True, default=None
     )
@@ -204,6 +205,7 @@ class Imovel(FluxoImoveis):
     class Meta:
         verbose_name = "Imovel"
         verbose_name_plural = "Imoveis"
+        ordering = ('id',)
 
 
 class PlantaFoto(models.Model):
@@ -255,4 +257,3 @@ class DemandaImovel(models.Model):
     class Meta:
         verbose_name = "Demanda"
         verbose_name_plural = "Demandas"
-
