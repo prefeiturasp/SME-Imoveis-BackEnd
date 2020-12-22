@@ -18,7 +18,7 @@ class ContatoSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         cpf_cnpj = validated_data.get("cpf_cnpj")
         contato = ContatoImovel.objects.filter(cpf_cnpj=cpf_cnpj).first()
-        
+
         if contato:
             contato.nome = validated_data.get("nome")
             contato.telefone = validated_data.get("telefone")
@@ -33,7 +33,7 @@ class ProponenteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proponente
         exclude = ("id",)
-    
+
     def create(self, validated_data):
         cpf_cnpj = validated_data.get("cpf_cnpj")
         proponente = Proponente.objects.filter(cpf_cnpj=cpf_cnpj).first()
@@ -86,30 +86,36 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
     setor = SetorSerializer(required=False)
     logs = LogFluxoStatusSerializer(many=True, required=False)
     demandaimovel = DemandaImovelSerializer(required=False)
+    status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return obj.get_status_display()
 
     def get_protocolo(self, obj):
         return obj.protocolo
 
     class Meta:
         model = Imovel
-        fields = ["proponente", 
-                  "anexos", 
-                  "criado_em", 
-                  "protocolo", 
-                  "numero_iptu", 
-                  "cep", 
+        fields = ["proponente",
+                  "anexos",
+                  "area_construida",
+                  "criado_em",
+                  "protocolo",
+                  "numero_iptu",
+                  "cep",
                   "endereco",
                   "latitude",
                   "longitude",
-                  "numero", 
-                  "complemento", 
-                  "cidade", 
-                  "uf",
-                  "bairro", 
+                  "numero",
                   "complemento",
-                  "contato", 
+                  "cidade",
+                  "uf",
+                  "bairro",
+                  "complemento",
+                  "contato",
                   "observacoes",
                   "declaracao_responsabilidade",
+                  "status",
                   "setor",
                   "logs",
                   "demandaimovel"]
@@ -122,7 +128,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         proponente = ProponenteSerializer().create(validated_data.pop("proponente", {}))
 
         imovel = Imovel.objects.filter(numero_iptu=validated_data.get("numero_iptu")).first()
-        
+
         if imovel:
             raise ValidationError("Já existe um imovel com este IPTU cadastrado")
         else:
@@ -159,5 +165,5 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             PlantaFoto.objects.create(
                 imovel=imovel, **anexo
             )
-        # task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
+        task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
         return imovel
