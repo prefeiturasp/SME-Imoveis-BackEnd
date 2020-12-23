@@ -24,6 +24,46 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
     queryset = Imovel.objects.all()
     get_serializer = CadastroImovelSerializer
 
+    def _filtrar_cadastros(self, request):
+        queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        if 'protocolo' in request.query_params:
+            queryset = queryset.filter(id=request.query_params.get('protocolo'))
+        if 'endereco' in request.query_params:
+            queryset = queryset.filter(Q(endereco__icontains=request.query_params.get('endereco')))
+        if 'area' in request.query_params:
+            area = request.query_params.get('area')
+            if area == '1':
+                queryset = queryset.filter(area_construida__lt=200)
+            if area == '2':
+                queryset = queryset.filter(area_construida__gte=200, area_construida__lte=500)
+            if area == '3':
+                queryset = queryset.filter(area_construida__gt=500)
+        if 'setor' in request.query_params:
+            queryset = queryset.filter(setor__codigo=request.query_params.get('setor'))
+        if 'distrito' in request.query_params:
+            queryset = queryset.filter(setor__distrito__nome=request.query_params.get('distrito'))
+        if 'dre' in request.query_params:
+            queryset = queryset.filter(setor__distrito__subprefeitura__dre__nome=request.query_params.get('dre'))
+        if 'status' in request.query_params:
+            queryset = queryset.filter(status=request.query_params.get('status'))
+        if 'demanda' in request.query_params:
+            demanda = request.query_params.get('demanda')
+            if demanda == '1':
+                queryset = queryset.filter(demandaimovel__total__lt=40)
+            if demanda == '2':
+                queryset = queryset.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
+            if demanda == '3':
+                queryset = queryset.filter(demandaimovel__total__gt=100)
+        if ('data_inicio' in request.query_params) and ('data_fim' in request.query_params):
+            data_inicio = request.query_params.get('data_inicio').split('-')
+            data_fim = request.query_params.get('data_fim').split('-')
+            dates = [
+                        datetime.date(int(data_inicio[0]), int(data_inicio[1]),  int(data_inicio[2])),
+                        datetime.date(int(data_fim[0]), int(data_fim[1]),  int(data_fim[2])),
+                    ]
+            queryset = queryset.filter(criado_em__gte=dates[0], criado_em__lte=dates[1])
+        return queryset
+
     def _agrupa_por_mes_por_solicitacao(self, query_set: list) -> dict:
         # TODO: melhorar performance
         sumario = {'novos_cadastros': 0, 'proximos_ao_vencimento': 0, 'atrasados': 0}  # type: dict
@@ -83,47 +123,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
         return self.get_paginated_response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
-        if 'protocolo' in request.query_params:
-            queryset = queryset.filter(id=request.query_params.get('protocolo'))
-        if 'endereco' in request.query_params:
-            queryset = queryset.filter(Q(endereco__icontains=request.query_params.get('endereco')))
-        if 'area' in request.query_params:
-            area = request.query_params.get('area')
-            if area == '1':
-                queryset = queryset.filter(area_construida__lt=200)
-            if area == '2':
-                queryset = queryset.filter(area_construida__gte=200, area_construida__lte=500)
-            if area == '3':
-                queryset = queryset.filter(area_construida__gt=500)
-        if 'setor' in request.query_params:
-            queryset = queryset.filter(setor__codigo=request.query_params.get('setor'))
-        if 'distrito' in request.query_params:
-            queryset = queryset.filter(setor__distrito__nome=request.query_params.get('distrito'))
-        if 'dre' in request.query_params:
-            queryset = queryset.filter(setor__distrito__subprefeitura__dre__nome=request.query_params.get('dre'))
-        if 'status' in request.query_params:
-            queryset = queryset.filter(status=request.query_params.get('status'))
-        if 'demanda' in request.query_params:
-            demanda = request.query_params.get('demanda')
-            if demanda == '1':
-                queryset = queryset.filter(demandaimovel__total__lt=40)
-            if demanda == '2':
-                queryset = queryset.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
-            if demanda == '3':
-                queryset = queryset.filter(demandaimovel__total__gt=100)
-        if ('data_inicio' in request.query_params) and ('data_fim' in request.query_params):
-            data_inicio = request.query_params.get('data_inicio').split('-')
-            data_fim = request.query_params.get('data_fim').split('-')
-            dates = [
-                        datetime.date(int(data_inicio[0]), int(data_inicio[1]),  int(data_inicio[2])),
-                        datetime.date(int(data_fim[0]), int(data_fim[1]),  int(data_fim[2])),
-                    ]
-            queryset = queryset.filter(criado_em__gte=dates[0], criado_em__lte=dates[1])
+        queryset = self._filtrar_cadastros(request)
         page = self.paginate_queryset(queryset)
-        serializer_paginated = self.get_serializer(page, many=True, context={'request': request})
+        serializer = self.get_serializer(page, many=True, context={'request': request})
+        return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=['GET'],
+        url_path=f'imoveis/exportar',
+        permission_classes=(IsAuthenticated,))
+    def exportar(self, request):
+        queryset = self._filtrar_cadastros(request)
         serializer = self.get_serializer(queryset, many=True, context={'request': request})
-        return Response(status=status.HTTP_200_OK, data=[serializer_paginated.data, serializer.data])
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
 
     @action(detail=False,
             methods=['get'],
