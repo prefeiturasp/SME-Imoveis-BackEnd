@@ -15,6 +15,8 @@ from ..models import Imovel
 from .serializers import CadastroImovelSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
+from django.db.models import Q
+from django.db.models import Sum
 
 
 class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mixins.ListModelMixin):
@@ -81,7 +83,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
         return self.get_paginated_response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = Imovel.objects.all()
+        queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
         if 'protocolo' in request.query_params:
             queryset = queryset.filter(id=request.query_params.get('protocolo'))
         if 'endereco' in request.query_params:
