@@ -222,6 +222,7 @@ class PlantaFoto(models.Model):
         (1, 'Documento')
     )
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
     arquivo = models.FileField()
     # Added in 11/26/2020 new feature/27865-28434
@@ -233,6 +234,14 @@ class PlantaFoto(models.Model):
     )
     # End feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+
+    def as_dict(self):
+        return {
+            "imovel": self.imovel.id,
+            "arquivo": self.arquivo,
+            "tipo_documento": self.tipo_documento,
+            "uuid": self.uuid
+        }
 
     class Meta:
         verbose_name = "Anexo"

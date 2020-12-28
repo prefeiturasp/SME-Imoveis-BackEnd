@@ -1,4 +1,5 @@
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import serializers
 from django.conf import settings
@@ -15,6 +16,7 @@ class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContatoImovel
         exclude = ("id",)
+
     def create(self, validated_data):
         cpf_cnpj = validated_data.get("cpf_cnpj")
         contato = ContatoImovel.objects.filter(cpf_cnpj=cpf_cnpj).first()
@@ -51,6 +53,7 @@ class ProponenteSerializer(serializers.ModelSerializer):
 
 
 class AnexoSerializer(ModelSerializer):
+    get_tipo_documento_display = serializers.CharField(required=False)
 
     def validate_arquivo(self, arquivo):
         filesize = arquivo.size
@@ -63,6 +66,23 @@ class AnexoSerializer(ModelSerializer):
     class Meta:
         model = PlantaFoto
         exclude = ("id", "imovel")
+
+
+class AnexoCreateSerializer(serializers.ModelSerializer):
+    imovel = serializers.IntegerField()
+    tipo_documento = serializers.IntegerField()
+
+    def create(self, validated_data):
+        imovel_id = validated_data.pop('imovel')
+        imovel = Imovel.objects.get(id=imovel_id)
+        anexo = PlantaFoto.objects.create(
+            imovel=imovel,
+            **validated_data)
+        return anexo.as_dict()
+
+    class Meta:
+        model = PlantaFoto
+        exclude = ('id',)
 
 
 class DemandaImovelSerializer(ModelSerializer):
@@ -96,7 +116,9 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Imovel
-        fields = ["proponente",
+        fields = [
+                  "id",
+                  "proponente",
                   "anexos",
                   "area_construida",
                   "criado_em",

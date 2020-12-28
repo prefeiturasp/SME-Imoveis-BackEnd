@@ -11,8 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
-from ..models import Imovel
-from .serializers import CadastroImovelSerializer
+from ..models import Imovel, PlantaFoto
+from .serializers import CadastroImovelSerializer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 
@@ -79,6 +79,10 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_object(), context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         queryset = Imovel.objects.all()
@@ -160,3 +164,17 @@ class DemandaRegiao(APIView):
         }
         response = requests.get(url, headers=headers)
         return Response(response.json(), status=response.status_code)
+
+
+class AnexosViewset(mixins.CreateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'uuid'
+    queryset = PlantaFoto.objects.all()
+    serializer_class = AnexoSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return AnexoCreateSerializer
+        return AnexoSerializer
