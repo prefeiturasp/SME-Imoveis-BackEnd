@@ -1,4 +1,5 @@
 import requests
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import serializers
 from django.conf import settings
@@ -9,12 +10,14 @@ from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto, DemandaImovel
 from ...dados_comuns.api.serializers import SetorSerializer
 from ...dados_comuns.api.serializers.log_fluxo_status_serializer import LogFluxoStatusSerializer
+from ...dados_comuns.models import Setor
 
 
 class ContatoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContatoImovel
         exclude = ("id",)
+
     def create(self, validated_data):
         cpf_cnpj = validated_data.get("cpf_cnpj")
         contato = ContatoImovel.objects.filter(cpf_cnpj=cpf_cnpj).first()
@@ -51,6 +54,7 @@ class ProponenteSerializer(serializers.ModelSerializer):
 
 
 class AnexoSerializer(ModelSerializer):
+    get_tipo_documento_display = serializers.CharField(required=False)
 
     def validate_arquivo(self, arquivo):
         filesize = arquivo.size
@@ -63,6 +67,23 @@ class AnexoSerializer(ModelSerializer):
     class Meta:
         model = PlantaFoto
         exclude = ("id", "imovel")
+
+
+class AnexoCreateSerializer(serializers.ModelSerializer):
+    imovel = serializers.IntegerField()
+    tipo_documento = serializers.IntegerField()
+
+    def create(self, validated_data):
+        imovel_id = validated_data.pop('imovel')
+        imovel = Imovel.objects.get(id=imovel_id)
+        anexo = PlantaFoto.objects.create(
+            imovel=imovel,
+            **validated_data)
+        return anexo.as_dict()
+
+    class Meta:
+        model = PlantaFoto
+        exclude = ('id',)
 
 
 class DemandaImovelSerializer(ModelSerializer):
@@ -96,32 +117,34 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Imovel
-        fields = ["proponente",
-                  "anexos",
-                  "area_construida",
-                  "criado_em",
-                  "protocolo",
-                  "numero_iptu",
-                  "cep",
-                  "endereco",
-                  "latitude",
-                  "longitude",
-                  "numero",
-                  "complemento",
-                  "cidade",
-                  "uf",
-                  "bairro",
-                  "complemento",
-                  "contato",
-                  "observacoes",
-                  "declaracao_responsabilidade",
-                  "status",
-                  "setor",
-                  "logs",
-                  "demandaimovel"]
+        fields = [
+            "id",
+            "proponente",
+            "anexos",
+            "area_construida",
+            "criado_em",
+            "protocolo",
+            "numero_iptu",
+            "cep",
+            "endereco",
+            "latitude",
+            "longitude",
+            "numero",
+            "complemento",
+            "cidade",
+            "uf",
+            "bairro",
+            "complemento",
+            "contato",
+            "observacoes",
+            "declaracao_responsabilidade",
+            "status",
+            "setor",
+            "logs",
+            "demandaimovel",
+            "nao_possui_iptu"]
 
     def create(self, validated_data):
-
         contato = ContatoSerializer().create(validated_data.pop("contato", {}))
         anexos = validated_data.pop('anexos', [])
 
@@ -166,4 +189,48 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
                 imovel=imovel, **anexo
             )
         task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
+        return imovel
+
+    def update(self, instance, validated_data):
+        validated_data.pop('anexos', [])
+        setor = validated_data.pop('setor', None)
+        if setor.get('codigo'):
+            setor = Setor.objects.get(codigo=setor.get('codigo'))
+        else:
+            setor = None
+        validated_data.pop('demandaimovel', [])
+        if 'logs' in validated_data:
+            validated_data.pop('logs')
+        contato = ContatoSerializer().create(validated_data.pop("contato", {}))
+        proponente = ProponenteSerializer().create(validated_data.pop("proponente", {}))
+
+        Imovel.objects.filter(
+            id=instance.id).update(
+            setor=setor, proponente=proponente, contato=contato, **validated_data)
+        imovel = Imovel.objects.get(id=instance.id)
+
+        url = f'{settings.SCIEDU_URL}/{imovel.latitude}/{imovel.longitude}'
+        headers = {
+            "Authorization": f'Token {settings.SCIEDU_TOKEN}',
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        results = response.json().get('results')
+        print(results)
+        DemandaImovel.objects.filter(imovel=imovel).delete()
+        bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
+        demanda_imovel = DemandaImovel(imovel=imovel)
+        if bercario_i:
+            demanda_imovel.bercario_i = bercario_i.get('total')
+        bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
+        if bercario_ii:
+            demanda_imovel.bercario_ii = bercario_ii.get('total')
+        mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
+        if mini_grupo_i:
+            demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
+        mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
+        if mini_grupo_ii:
+            demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+        demanda_imovel.save()
+
         return imovel

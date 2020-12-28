@@ -168,6 +168,7 @@ class Imovel(FluxoImoveis):
     latitude = models.CharField("Latitude", max_length=255)
     longitude = models.CharField("longitude", max_length=255)
     numero_iptu = models.CharField("Numero IPTU", max_length=20, blank=True, default="")
+    nao_possui_iptu = models.BooleanField(default=False)
     # Added in 11/26/2020 new feature/27865-28434
     area_construida = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     situacao = models.CharField(
@@ -222,6 +223,7 @@ class PlantaFoto(models.Model):
         (1, 'Documento')
     )
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
     arquivo = models.FileField()
     # Added in 11/26/2020 new feature/27865-28434
@@ -233,6 +235,14 @@ class PlantaFoto(models.Model):
     )
     # End feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
+
+    def as_dict(self):
+        return {
+            "imovel": self.imovel.id,
+            "arquivo": self.arquivo,
+            "tipo_documento": self.tipo_documento,
+            "uuid": self.uuid
+        }
 
     class Meta:
         verbose_name = "Anexo"

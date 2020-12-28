@@ -6,7 +6,7 @@ from ...models import Setor
 
 class SetorSerializer(serializers.ModelSerializer):
     dre = serializers.SerializerMethodField()
-    distrito = DistritoSerializer()
+    distrito = DistritoSerializer(required=False)
 
     def get_dre(self, obj):
         return DreSerializer(obj.distrito.subprefeitura.dre.first()).data
