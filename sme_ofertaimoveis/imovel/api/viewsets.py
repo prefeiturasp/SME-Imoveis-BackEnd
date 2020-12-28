@@ -17,7 +17,10 @@ from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 
 
-class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mixins.ListModelMixin):
+class CadastroImoveisViewSet(viewsets.ModelViewSet,
+                             mixins.CreateModelMixin,
+                             mixins.UpdateModelMixin,
+                             mixins.ListModelMixin):
     permission_classes = (AllowAny,)
     queryset = Imovel.objects.all()
     get_serializer = CadastroImovelSerializer
@@ -84,6 +87,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
         serializer = self.get_serializer(self.get_object(), context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def update(self, request, *args, **kwargs):
+        if not request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return super().update(request, args, kwargs)
+
     def list(self, request, *args, **kwargs):
         queryset = Imovel.objects.all()
         if 'protocolo' in request.query_params:
@@ -118,9 +126,9 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet, mixins.CreateModelMixin, mix
             data_inicio = request.query_params.get('data_inicio').split('-')
             data_fim = request.query_params.get('data_fim').split('-')
             dates = [
-                        datetime.date(int(data_inicio[0]), int(data_inicio[1]),  int(data_inicio[2])),
-                        datetime.date(int(data_fim[0]), int(data_fim[1]),  int(data_fim[2])),
-                    ]
+                datetime.date(int(data_inicio[0]), int(data_inicio[1]), int(data_inicio[2])),
+                datetime.date(int(data_fim[0]), int(data_fim[1]), int(data_fim[2])),
+            ]
             queryset = queryset.filter(criado_em__gte=dates[0], criado_em__lte=dates[1])
         page = self.paginate_queryset(queryset)
         serializer_paginated = self.get_serializer(page, many=True, context={'request': request})
