@@ -252,6 +252,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+URL_CONFIGS = {
+    'RECUPERAR_SENHA': '/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
+}
+
 SWAGGER_SETTINGS = {
     "LOGIN_URL": "rest_framework:login",
     "LOGOUT_URL": "rest_framework:logout",

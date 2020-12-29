@@ -7,6 +7,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 
+from ..config.settings.base import URL_CONFIGS
+
 from django.template.loader import get_template
 from django.template import Context
 from django.core.mail import EmailMultiAlternatives
@@ -59,3 +61,7 @@ def consult_api_sciedu(latitude, longitude):
     response = requests.request("GET", url, headers=headers)
     response.raise_for_status()
     return response.json()["results"]
+
+
+def url_configs(variable, content):
+    return env('REACT_APP_URL') + URL_CONFIGS[variable].format(**content)
