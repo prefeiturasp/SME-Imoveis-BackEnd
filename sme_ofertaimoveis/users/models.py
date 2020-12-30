@@ -1,10 +1,13 @@
 import uuid as uuid
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db import models
 from django.urls import reverse
 
-from sme_ofertaimoveis.dados_comuns.models import Secretaria, Setor
+from ..dados_comuns.models import Secretaria, Setor
+from ..dados_comuns.utils import url_configs, send_email
+from ..imovel.tasks import send_email_
 
 
 class Perfil(models.Model):
@@ -27,6 +30,33 @@ class User(AbstractUser):
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})
 
+    def enviar_email_recuperacao_senha(self):
+        token_generator = PasswordResetTokenGenerator()
+        token = token_generator.make_token(self)
+        content = {'uuid': self.uuid, 'confirmation_key': token}
+        send_email_.delay(
+            subject="Recuperação de senha",
+            template="recuperar_senha",
+            data={'link': url_configs("RECUPERAR_SENHA", content)},
+            to_email=self.email
+        )
+        # sem celery
+        """
+        send_email(
+            subject="Recuperação de senha",
+            template="recuperar_senha",
+            data={'link': url_configs("RECUPERAR_SENHA", content)},
+            to_email=self.email,
+        )
+        """
+
+    def atualiza_senha(self, senha, token):
+        token_generator = PasswordResetTokenGenerator()
+        if token_generator.check_token(self, token):
+            self.set_password(senha)
+            self.save()
+            return True
+        return False
+
     class Meta:
         ordering = ("first_name", "last_name",)
-

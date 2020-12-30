@@ -252,6 +252,10 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
+URL_CONFIGS = {
+    'RECUPERAR_SENHA': '/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
+}
+
 SWAGGER_SETTINGS = {
     "LOGIN_URL": "rest_framework:login",
     "LOGOUT_URL": "rest_framework:logout",
@@ -290,3 +294,6 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_ENABLE_UTC = True
 
 URL_HOSTNAME = ""
+
+SME_INTEGRACAO_URL = env('SME_INTEGRACAO_URL')
+SME_INTEGRACAO_TOKEN = env('SME_INTEGRACAO_TOKEN')
