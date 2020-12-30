@@ -11,7 +11,9 @@ from rest_framework_jwt.views import ObtainJSONWebToken
 from .serializers import UserSerializer, PerfilSerializer
 from .services import AutenticacaoService
 from ..models import Perfil, User
+from ..services.sme_integracao_service import SmeIntegracaoService
 from ...dados_comuns.models import Setor, Secretaria
+from ...dados_comuns.utils import ofuscar_email
 
 
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
@@ -86,7 +88,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             usuario = self._get_usuario_por_rf(registro_funcional)
             assert usuario.email, 'Usuário não possui e-mail cadastrado'
             usuario.enviar_email_recuperacao_senha()
-            return Response({'email': f'{usuario.email}'})
+            return Response({'email': f'{ofuscar_email(usuario.email)}'})
         except ObjectDoesNotExist:
             return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -108,7 +110,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         except ObjectDoesNotExist:
             return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
                             status=status.HTTP_400_BAD_REQUEST)
-        response = AutenticacaoService.altera_senha(usuario.username, senha1)
+        response = SmeIntegracaoService.redefine_senha(usuario.username, senha1)
         if response.status_code != 200:
             return Response({'detail': 'Erro ao atualizar senha no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
         if usuario.atualiza_senha(senha=senha1, token=token_reset):
@@ -124,7 +126,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         try:
             usuario = request.user
             novo_email = request.data.get('email') + "@sme.prefeitura.sp.gov.br"
-            response = AutenticacaoService.altera_email(usuario.username, novo_email)
+            response = SmeIntegracaoService.redefine_email(usuario.username, novo_email)
             if response.status_code != 200:
                 return Response({'detail': 'Erro ao atualizar e-mail no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
             usuario.email = novo_email

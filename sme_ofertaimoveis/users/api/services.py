@@ -53,19 +53,23 @@ class AutenticacaoService:
             raise e
 
     @classmethod
-    def altera_email(cls, login, email):
-        data = {'Usuario': login, 'Email': email}
+    def redefine_email(cls, registro_funcional, email):
+        logger.info('Alterando email.')
         try:
-            LOG.info("Alterando e-amail no sme-autentica. Login: %s", login)
-            response = requests.post(
-                f"{AUTENTICA_CORESSO_API_URL}/AutenticacaoSgp/AlterarEmail",
-                headers=cls.MULTIPART_DATA_HEADERS,
-                files=data
-            )
-            return response
-        except Exception as e:
-            LOG.info("ERROR - %s", str(e))
-            raise e
+            data = {
+                'Usuario': registro_funcional,
+                'Email': email
+            }
+            response = requests.post(f'{settings.SME_INTEGRACAO_URL}/api/AutenticacaoSgp/AlterarEmail', data=data,
+                                     headers=cls.headers)
+            if response.status_code == status.HTTP_200_OK:
+                result = "OK"
+                return result
+            else:
+                logger.info("Erro ao redefinir email: %s", response.json())
+                raise SmeIntegracaoException('Erro ao redefinir email')
+        except Exception as err:
+            raise SmeIntegracaoException(str(err))
 
     @classmethod
     def altera_senha(cls, login, senha):
