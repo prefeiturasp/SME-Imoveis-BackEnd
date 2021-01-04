@@ -1,10 +1,12 @@
-import datetime
+import uuid
+
 from django.db import models
 from django.core import validators
 
 from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
-from ..dados_comuns.models import DiretoriaRegional, Secretaria, Setor
+from ..dados_comuns.fluxo_status import FluxoImoveis
+from ..dados_comuns.models import Secretaria, Setor, LogFluxoStatus
 
 
 class SME_Contatos(models.Model):
@@ -26,7 +28,6 @@ class SME_Contatos(models.Model):
 
 
 class Proponente(models.Model):
-
     IMOBILIARIA = 1
     PROCURADOR = 2
     ONG = 3
@@ -35,15 +36,15 @@ class Proponente(models.Model):
     TYPES = (
         (0, "----SELECIONE-----"),
         (IMOBILIARIA, "Imobiliária"),
-        (PROCURADOR , "Procurador"),
-        (ONG , "Ong"),
-        (OUTRO , "Outro"),
+        (PROCURADOR, "Procurador"),
+        (ONG, "Ong"),
+        (OUTRO, "Outro"),
     )
 
     TIPO_PROPONENTE = (
         (0, "Não Informado"),
         (1, "Proprietário"),
-        (2 , "Representante Legal")
+        (2, "Representante Legal")
     )
 
     tipo = models.PositiveSmallIntegerField("Tipo", choices=TYPES, default=OUTRO)
@@ -92,7 +93,6 @@ class Proponente(models.Model):
 
 
 class ContatoImovel(models.Model):
-
     nome = models.CharField("Nome", max_length=255)
     cpf_cnpj = models.CharField("CPF / CNPJ", max_length=20)
     email = models.CharField(
@@ -108,7 +108,7 @@ class ContatoImovel(models.Model):
         verbose_name="Celular",
         max_length=20,
         validators=[phone_validation],
-        default = "(11) 9 9111-1111"
+        default="(11) 9 9111-1111"
     )
     # Ended feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
@@ -121,36 +121,35 @@ class ContatoImovel(models.Model):
         verbose_name_plural = "Contatos"
 
 
-class Imovel(models.Model):
-
+class Imovel(FluxoImoveis):
     UFChoices = (
         ('AC', 'Acre'),
         ('AL', "Alagoas"),
-        ('AP' , "Amapá"),
-        ('AM' , 'Amazonas'),
-        ('BA' , 'Bahia'),
-        ('CE' , 'Ceará'),
-        ('DF' , 'Distrito Federal'),
-        ('ES' , 'Espírito Santo'),
-        ('GO' , 'Goiás'),
-        ('MA' , 'Maranhão'),
-        ('MT' , 'Mato Grosso'),
-        ('MS' , 'Mato Grosso do Sul'),
-        ('MG' , 'Minas Gerais'),
-        ('PA' , 'Pará'),
-        ('PB' , 'Paraíba'),
-        ('PR' , 'Paraná'),
-        ('PE' , 'Pernambuco'),
-        ('PI' , 'Piauí'),
-        ('RJ' , 'Rio de Janeiro'),
-        ('RN' , 'Rio Grande do Norte'),
-        ('RS' , 'Rio Grande do Sul'),
-        ('RO' , 'Rondônia'),
-        ('RR' , 'Roraima'),
-        ('SC' , 'Santa Catarina'),
-        ('SP' , 'São Paulo'),
-        ('SE' , 'Sergipe'),
-        ('TO' , 'Tocantins')
+        ('AP', "Amapá"),
+        ('AM', 'Amazonas'),
+        ('BA', 'Bahia'),
+        ('CE', 'Ceará'),
+        ('DF', 'Distrito Federal'),
+        ('ES', 'Espírito Santo'),
+        ('GO', 'Goiás'),
+        ('MA', 'Maranhão'),
+        ('MT', 'Mato Grosso'),
+        ('MS', 'Mato Grosso do Sul'),
+        ('MG', 'Minas Gerais'),
+        ('PA', 'Pará'),
+        ('PB', 'Paraíba'),
+        ('PR', 'Paraná'),
+        ('PE', 'Pernambuco'),
+        ('PI', 'Piauí'),
+        ('RJ', 'Rio de Janeiro'),
+        ('RN', 'Rio Grande do Norte'),
+        ('RS', 'Rio Grande do Sul'),
+        ('RO', 'Rondônia'),
+        ('RR', 'Roraima'),
+        ('SC', 'Santa Catarina'),
+        ('SP', 'São Paulo'),
+        ('SE', 'Sergipe'),
+        ('TO', 'Tocantins')
     )
 
     proponente = models.ForeignKey(Proponente, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -169,7 +168,9 @@ class Imovel(models.Model):
     latitude = models.CharField("Latitude", max_length=255)
     longitude = models.CharField("longitude", max_length=255)
     numero_iptu = models.CharField("Numero IPTU", max_length=20, blank=True, default="")
+    nao_possui_iptu = models.BooleanField(default=False)
     # Added in 11/26/2020 new feature/27865-28434
+    area_construida = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     situacao = models.CharField(
         verbose_name="Status", max_length=255, null=True, blank=True, default=None
     )
@@ -181,7 +182,7 @@ class Imovel(models.Model):
 
     @property
     def anexos(self):
-        return self.anexo_set.all()
+        return self.plantafoto_set.all()
 
     @property
     def protocolo(self):
@@ -192,13 +193,23 @@ class Imovel(models.Model):
     def __str__(self):
         return f"{self.contato} => {self.endereco}"
 
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get('justificativa', '')
+        LogFluxoStatus.objects.create(
+            descricao=str(self),
+            status_evento=status_evento,
+            usuario=usuario,
+            imovel=self,
+            justificativa=justificativa,
+        )
+
     class Meta:
         verbose_name = "Imovel"
         verbose_name_plural = "Imoveis"
+        ordering = ('id',)
 
 
 class PlantaFoto(models.Model):
-
     TIPO_DOCUMENTO = (
         (0, 'Fotos da Fachada'),
         (1, 'Fotos do Ambiente Interno'),
@@ -212,6 +223,7 @@ class PlantaFoto(models.Model):
         (1, 'Documento')
     )
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     imovel = models.ForeignKey(Imovel, on_delete=models.CASCADE)
     arquivo = models.FileField()
     # Added in 11/26/2020 new feature/27865-28434
@@ -224,6 +236,34 @@ class PlantaFoto(models.Model):
     # End feature/27865-28434
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
+    def as_dict(self):
+        return {
+            "imovel": self.imovel.id,
+            "arquivo": self.arquivo,
+            "tipo_documento": self.tipo_documento,
+            "uuid": self.uuid
+        }
+
     class Meta:
         verbose_name = "Anexo"
         verbose_name_plural = "Anexos"
+
+
+class DemandaImovel(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    imovel = models.OneToOneField(Imovel, on_delete=models.CASCADE)
+    bercario_i = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    bercario_ii = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    mini_grupo_i = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    mini_grupo_ii = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+
+    @property
+    def total(self):
+        return self.bercario_i + self.bercario_ii + self.mini_grupo_i + self.mini_grupo_ii
+
+    def __str__(self):
+        return f"{self.imovel.endereco} => total demanda: {self.total}"
+
+    class Meta:
+        verbose_name = "Demanda"
+        verbose_name_plural = "Demandas"

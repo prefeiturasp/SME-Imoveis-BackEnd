@@ -20,7 +20,6 @@ class UserSerializer(serializers.ModelSerializer):
     setor = SetorSerializer()
 
     def update(self, instance, validated_data):
-        print(validated_data)
         if 'setor' in validated_data:
             try:
                 setor_ = Setor.objects.get(codigo=validated_data.get('setor').get('codigo'))

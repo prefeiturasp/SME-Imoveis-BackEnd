@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto
+from .models import ContatoImovel, Imovel, Proponente, SME_Contatos, PlantaFoto, DemandaImovel
 
 
 @admin.register(SME_Contatos)
@@ -23,8 +23,8 @@ class ProponenteAdmin(admin.ModelAdmin):
 class ImovelAdmin(admin.ModelAdmin):
     list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
     search_fields = ('cep', 'endereco')
-    fields = ("protocolo", 'show_proponente', 'show_contato', 'cidade', 'uf', 'cep', "endereco", "bairro", 'numero', 'complemento',
-              'numero_iptu', 'criado_em', 'observacoes')
+    fields = ("protocolo", 'show_proponente', 'show_contato', 'area_construida', 'cidade', 'uf', 'cep', "endereco", "bairro", 'numero', 'complemento',
+              'numero_iptu', 'criado_em', 'observacoes', 'setor', 'secretaria', 'status')
     readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
 
     def show_proponente(self, obj):
@@ -49,3 +49,4 @@ class ImovelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ContatoImovel)
+admin.site.register(DemandaImovel)

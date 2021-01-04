@@ -85,7 +85,8 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_swagger",
     "des",  # for email configuration in database
-    "django_celery_results",  # Celery integration for Django
+    "django_celery_results",  # Celery integration for Django,
+    'django_xworkflows',
 ]
 LOCAL_APPS = [
     "apps.home",
@@ -118,8 +119,8 @@ LOGIN_URL = "account_login"
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {''
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+     "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+     },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -247,8 +248,12 @@ REST_FRAMEWORK = {
     "DATE_INPUT_FORMATS": ["%d/%m/%Y", "iso-8601"],
     "TIME_FORMAT": "%H:%M:%S",
     "TIME_INPUT_FORMATS": ["%H:%M:%S", "iso-8601"],
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 100,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+}
+
+URL_CONFIGS = {
+    'RECUPERAR_SENHA': '/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
 }
 
 SWAGGER_SETTINGS = {
@@ -289,3 +294,6 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_ENABLE_UTC = True
 
 URL_HOSTNAME = ""
+
+SME_INTEGRACAO_URL = env('SME_INTEGRACAO_URL')
+SME_INTEGRACAO_TOKEN = env('SME_INTEGRACAO_TOKEN')

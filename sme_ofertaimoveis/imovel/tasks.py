@@ -43,3 +43,13 @@ def task_send_email_to_usuario(email, protocolo=None):
         data={'protocolo': protocolo},
         to_email=email,
     )
+
+
+@shared_task
+def send_email_(subject, template, data, to_email):
+    send_email(
+        subject=subject,
+        template=template,
+        data=data,
+        to_email=to_email,
+    )
