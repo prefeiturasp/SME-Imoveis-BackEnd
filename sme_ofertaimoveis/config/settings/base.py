@@ -253,7 +253,7 @@ REST_FRAMEWORK = {
 }
 
 URL_CONFIGS = {
-    'RECUPERAR_SENHA': '/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
+    'RECUPERAR_SENHA': 'recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
 }
 
 SWAGGER_SETTINGS = {
