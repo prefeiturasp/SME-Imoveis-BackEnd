@@ -34,21 +34,21 @@ class User(AbstractUser):
         token_generator = PasswordResetTokenGenerator()
         token = token_generator.make_token(self)
         content = {'uuid': self.uuid, 'confirmation_key': token}
+        """
         send_email_.delay(
             subject="Recuperação de senha",
             template="recuperar_senha",
             data={'link': url_configs("RECUPERAR_SENHA", content)},
             to_email=self.email
         )
-        # sem celery
         """
+        # sem celery
         send_email(
             subject="Recuperação de senha",
             template="recuperar_senha",
             data={'link': url_configs("RECUPERAR_SENHA", content)},
             to_email=self.email,
         )
-        """
 
     def atualiza_senha(self, senha, token):
         token_generator = PasswordResetTokenGenerator()
