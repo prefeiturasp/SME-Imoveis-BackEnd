@@ -44,9 +44,9 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         if 'setor' in request.query_params:
             queryset = queryset.filter(setor__codigo=request.query_params.get('setor'))
         if 'distrito' in request.query_params:
-            queryset = queryset.filter(setor__distrito__nome=request.query_params.get('distrito'))
+            queryset = queryset.filter(setor__distrito__id=request.query_params.get('distrito'))
         if 'dre' in request.query_params:
-            queryset = queryset.filter(setor__distrito__subprefeitura__dre__nome=request.query_params.get('dre'))
+            queryset = queryset.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dre'))
         if 'status' in request.query_params:
             queryset = queryset.filter(status=request.query_params.get('status'))
         if 'demanda' in request.query_params:
