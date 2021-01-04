@@ -84,7 +84,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'ultimos-30-dias',
         permission_classes=(IsAuthenticated,))
     def ultimos_30_dias(self, request):
-        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=30))
+        query_set = Imovel.objects.all()
         resumo_do_mes = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
         return Response(resumo_do_mes, status=status.HTTP_200_OK)
 
