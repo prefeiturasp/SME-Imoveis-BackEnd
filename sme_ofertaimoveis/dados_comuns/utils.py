@@ -64,6 +64,7 @@ def consult_api_sciedu(latitude, longitude):
 
 
 def url_configs(variable, content):
+    print('teste')
     return env('REACT_APP_URL') + URL_CONFIGS[variable].format(**content)
 
 
