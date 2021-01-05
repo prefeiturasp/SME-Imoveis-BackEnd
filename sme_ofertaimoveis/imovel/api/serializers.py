@@ -164,19 +164,27 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         }
         response = requests.get(url, headers=headers)
         results = response.json().get('results')
-        bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
         demanda_imovel = DemandaImovel(imovel=imovel)
-        if bercario_i:
+        try:
+            bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
-        bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
-        if bercario_ii:
+        except StopIteration:
+            demanda_imovel.bercario_i = 0
+        try:
+            bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
-        mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
-        if mini_grupo_i:
+        except StopIteration:
+            demanda_imovel.bercario_ii = 0
+        try:
+            mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
-        mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
-        if mini_grupo_ii:
+        except StopIteration:
+            demanda_imovel.mini_grupo_i = 0
+        try:
+            mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+        except StopIteration:
+            demanda_imovel.mini_grupo_ii = 0
         demanda_imovel.save()
 
         tamanho_total_dos_arquivos = 0
@@ -216,7 +224,6 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         }
         response = requests.get(url, headers=headers)
         results = response.json().get('results')
-        print(results)
         DemandaImovel.objects.filter(imovel=imovel).delete()
         bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
         demanda_imovel = DemandaImovel(imovel=imovel)
