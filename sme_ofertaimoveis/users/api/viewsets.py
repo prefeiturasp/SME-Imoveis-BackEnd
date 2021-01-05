@@ -50,8 +50,12 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
                 if perfil.nome == 'ADMIN' and User.objects.filter(perfil__nome='ADMIN').count() == 3:
                     return Response({"detail": "Excedeu o limite de usuários ADMIN no sistema"},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif perfil.nome == 'SECRETARIA' and User.objects.filter(perfil__nome='SECRETARIA').count() == 3:
-                    return Response({"detail": "Excedeu o limite de usuários SECRETARIA no sistema"},
+                elif (perfil.nome == 'SECRETARIA' and
+                      'secretaria_' in request.data and
+                      User.objects.filter(perfil__nome='SECRETARIA',
+                                          secretaria__id=request.data.get('secretaria_')).count() == 3):
+                    return Response({"detail": f'Excedeu o limite de usuários SECRETARIA da secretaria '
+                                     f'{usuario.secretaria.nome} no sistema'},
                                     status=status.HTTP_400_BAD_REQUEST)
                 usuario.perfil = Perfil.objects.get(id=request.data.get('perfil_'))
         usuario.save()
@@ -110,10 +114,10 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         except ObjectDoesNotExist:
             return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
                             status=status.HTTP_400_BAD_REQUEST)
-        response = SmeIntegracaoService.redefine_senha(usuario.username, senha1)
-        if response.status_code != 200:
-            return Response({'detail': 'Erro ao atualizar senha no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
         if usuario.atualiza_senha(senha=senha1, token=token_reset):
+            response = SmeIntegracaoService.redefine_senha(usuario.username, senha1)
+            if response.status_code != 200:
+                return Response({'detail': 'Erro ao atualizar senha no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'sucesso!': 'senha atualizada com sucesso'})
         else:
             return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
