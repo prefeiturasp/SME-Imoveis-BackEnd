@@ -114,10 +114,10 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         except ObjectDoesNotExist:
             return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
                             status=status.HTTP_400_BAD_REQUEST)
-        response = SmeIntegracaoService.redefine_senha(usuario.username, senha1)
-        if response.status_code != 200:
-            return Response({'detail': 'Erro ao atualizar senha no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
         if usuario.atualiza_senha(senha=senha1, token=token_reset):
+            response = SmeIntegracaoService.redefine_senha(usuario.username, senha1)
+            if response.status_code != 200:
+                return Response({'detail': 'Erro ao atualizar senha no CoreSSO'}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'sucesso!': 'senha atualizada com sucesso'})
         else:
             return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
