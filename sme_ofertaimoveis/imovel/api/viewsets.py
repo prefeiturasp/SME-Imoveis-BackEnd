@@ -142,6 +142,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(
         detail=False,
+        methods=['PUT'],
+        url_path=f'imoveis/update-status',
+        permission_classes=(IsAuthenticated,))
+    def update_status(self, request):
+        imovel = Imovel.objects.all().get(id=request.query_params.get('id'))
+        imovel.situacao = request.query_params.get('situacao')
+        imovel.escola = request.query_params.get('escola')
+        imovel.codigo_eol = request.query_params.get('codigo_eol')
+        imovel.save()
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(
+        detail=False,
         methods=['GET'],
         url_path=f'imoveis/exportar',
         permission_classes=(IsAuthenticated,))
