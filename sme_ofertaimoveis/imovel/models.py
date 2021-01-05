@@ -172,11 +172,14 @@ class Imovel(FluxoImoveis):
     # Added in 11/26/2020 new feature/27865-28434
     area_construida = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     situacao = models.CharField(
-        verbose_name="Status", max_length=255, null=True, blank=True, default=None
+        verbose_name="Situação", max_length=255, null=False, blank=False, default="Novo"
     )
     declaracao_responsabilidade = models.BooleanField(default=True)
     # end feature
     observacoes = models.TextField(blank=True, null=True)
+
+    codigo_eol = models.CharField("Codigo EOL", max_length=255, null=True, blank=True)
+    escola = models.CharField("Escola", max_length=255, null=True, blank=True)
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 

@@ -50,8 +50,12 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
                 if perfil.nome == 'ADMIN' and User.objects.filter(perfil__nome='ADMIN').count() == 3:
                     return Response({"detail": "Excedeu o limite de usuários ADMIN no sistema"},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif perfil.nome == 'SECRETARIA' and User.objects.filter(perfil__nome='SECRETARIA').count() == 3:
-                    return Response({"detail": "Excedeu o limite de usuários SECRETARIA no sistema"},
+                elif (perfil.nome == 'SECRETARIA' and
+                      'secretaria_' in request.data and
+                      User.objects.filter(perfil__nome='SECRETARIA',
+                                          secretaria__id=request.data.get('secretaria_')).count() == 3):
+                    return Response({"detail": f'Excedeu o limite de usuários SECRETARIA da secretaria '
+                                     f'{usuario.secretaria.nome} no sistema'},
                                     status=status.HTTP_400_BAD_REQUEST)
                 usuario.perfil = Perfil.objects.get(id=request.data.get('perfil_'))
         usuario.save()
