@@ -54,7 +54,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
                       'secretaria_' in request.data and
                       User.objects.filter(perfil__nome='SECRETARIA',
                                           secretaria__id=request.data.get('secretaria_')).count() == 3):
-                    return Response({"detail": f'Excedeu o limite de usuários SECRETARIA da secretaria '
+                    return Response({"detail": f'Excedeu o limite de usuários com perfil SECRETARIA '
                                      f'{usuario.secretaria.nome} no sistema'},
                                     status=status.HTTP_400_BAD_REQUEST)
                 usuario.perfil = Perfil.objects.get(id=request.data.get('perfil_'))
