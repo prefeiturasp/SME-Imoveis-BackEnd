@@ -143,7 +143,7 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 class PerfilViewset(mixins.ListModelMixin, GenericViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = PerfilSerializer
-    queryset = Perfil.objects.all()
+    queryset = Perfil.objects.all().order_by('nome')
 
 
 class UsuarioConfirmaEmailViewSet(GenericViewSet):
