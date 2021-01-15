@@ -97,7 +97,7 @@ class DemandaImovelSerializer(ModelSerializer):
         exclude = ('uuid', 'imovel',)
 
 
-class CadastroImovelSerializer(serializers.ModelSerializer):
+class ListaImoveisSeriliazer(serializers.ModelSerializer):
     proponente = ProponenteSerializer()
     contato = ContatoSerializer()
     anexos = serializers.ListField(
@@ -105,6 +105,61 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
     )
     protocolo = serializers.SerializerMethodField()
     setor = SetorSerializer(required=False)
+
+    logs = LogFluxoStatusSerializer(many=True, required=False)
+    demandaimovel = DemandaImovelSerializer(required=False)
+    status = serializers.SerializerMethodField()
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    def get_protocolo(self, obj):
+        return obj.protocolo
+
+    class Meta:
+        model = Imovel
+        fields = [
+            "id",
+            "proponente",
+            "anexos",
+            "area_construida",
+            "criado_em",
+            "protocolo",
+            "numero_iptu",
+            "cep",
+            "endereco",
+            "latitude",
+            "longitude",
+            "numero",
+            "complemento",
+            "cidade",
+            "uf",
+            "bairro",
+            "complemento",
+            "contato",
+            "observacoes",
+            "declaracao_responsabilidade",
+            "status",
+            "situacao",
+            "codigo_eol",
+            "escola",
+            "setor",
+            "logs",
+            "demandaimovel",
+            "nao_possui_iptu"]
+
+class CadastroImovelSerializer(serializers.ModelSerializer):
+    proponente = ProponenteSerializer()
+    contato = ContatoSerializer()
+    anexos = serializers.ListField(
+        child=AnexoSerializer(), required=False
+    )
+    protocolo = serializers.SerializerMethodField()
+    setor = serializers.SlugRelatedField(
+        slug_field='codigo',
+        required=False,
+        queryset=Setor.objects.all()
+    )
     logs = LogFluxoStatusSerializer(many=True, required=False)
     demandaimovel = DemandaImovelSerializer(required=False)
     status = serializers.SerializerMethodField()
