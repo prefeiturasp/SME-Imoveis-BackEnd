@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
 from ..models import Imovel, PlantaFoto
-from .serializers import CadastroImovelSerializer, AnexoCreateSerializer, AnexoSerializer
+from .serializers import CadastroImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 from django.db.models import Q
@@ -25,7 +25,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                              mixins.ListModelMixin):
     permission_classes = (AllowAny,)
     queryset = Imovel.objects.all()
-    get_serializer = CadastroImovelSerializer
+    serializer_class = ListaImoveisSeriliazer
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CadastroImovelSerializer
+        return ListaImoveisSeriliazer
 
     def _filtrar_cadastros(self, request):
         queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
