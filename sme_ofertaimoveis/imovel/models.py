@@ -183,6 +183,11 @@ class Imovel(FluxoImoveis):
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
+    situacao = models.CharField("Situação", max_length=30, blank=True, null=True, choices=[
+        ('DUPLICACAO_IPTU', "Duplicação de IPTU"), 
+        ('DUPLICACAO_ENDERECO', "Duplicação de Endereço")
+    ])
+
     @property
     def anexos(self):
         return self.plantafoto_set.all()
