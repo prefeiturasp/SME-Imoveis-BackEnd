@@ -1,6 +1,14 @@
 import datetime
 import requests
+import environ
+from io import BytesIO
+import pdb
 
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
+
+from django.http import HttpResponse
 from django.conf import settings
 
 from rest_framework import status, mixins, viewsets
@@ -12,12 +20,13 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
 from ..models import Imovel, PlantaFoto
-from .serializers import CadastroImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
+from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 from django.db.models import Q
 from django.db.models import Sum
 
+env = environ.Env()
 
 class CadastroImoveisViewSet(viewsets.ModelViewSet,
                              mixins.CreateModelMixin,
@@ -30,7 +39,10 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
     def get_serializer_class(self):
         if self.action == 'create':
             return CadastroImovelSerializer
-        return ListaImoveisSeriliazer
+        elif self.action == 'partial_update':
+            return UpdateImovelSerializer
+        else:
+            return ListaImoveisSeriliazer
 
     def _filtrar_cadastros(self, request):
         queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
@@ -165,9 +177,153 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/exportar',
         permission_classes=(IsAuthenticated,))
     def exportar(self, request):
-        queryset = self._filtrar_cadastros(request)
-        serializer = self.get_serializer(queryset, many=True, context={'request': request})
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        imoveis = self._filtrar_cadastros(request)
+
+        count_anexos = 0
+        count_fachada = 0
+        count_interno = 0
+        count_externo = 0
+        count_iptu_itr = 0
+        count_planta = 0
+
+        for imovel in imoveis:
+            fachada = 0
+            interno = 0
+            externo = 0
+            iptu_itr = 0
+            planta = 0
+            for anexo in imovel.anexos:
+                tipo = anexo.get_tipo_documento_display()
+                if tipo == "Fotos da Fachada":
+                    fachada = (fachada + 1)
+                if tipo == "Fotos do Ambiente Interno":
+                    interno = (interno + 1)
+                if tipo == "Fotos de Área Externa":
+                    externo = (externo + 1)
+                if tipo == "Cópia do IPTU ou ITR":
+                    iptu_itr = (iptu_itr + 1)
+                if tipo == "Cópia da Planta ou Croqui":
+                    planta = (planta + 1)
+            if count_fachada < fachada:
+                count_fachada = fachada
+            if count_interno < interno:
+                count_interno = interno
+            if count_externo < externo:
+                count_externo = externo
+            if count_iptu_itr < iptu_itr:
+                count_iptu_itr = iptu_itr
+            if count_planta < planta:
+                count_planta = planta
+
+        cabecalho = ['Protocolo', 'Data do Cadastro', 'Nome', 'E-mail', 'Celular', 'Telefone',
+                        'CPF/CNPJ', 'CEP', 'Número do IPTU', 'Endereço', 'Bairro', 'Cidade',
+                        'UF', 'Área Construída', 'DRE', 'Distrito', 'Setor', 'Status',
+                        'Berçário I', 'Berçário II', 'Mini Grupo I', 'Mini Grupo II', 'Demanda Total']
+
+        for i in range(1, (count_fachada+1)):
+            cabecalho.append("Fotos da Fachada %i"%(i))
+
+        for i in range(1, (count_interno+1)):
+            cabecalho.append("Fotos do Ambiente Interno %i"%(i))
+
+        for i in range(1, (count_externo+1)):
+            cabecalho.append("Fotos de Área Externa %i"%(i))
+
+        for i in range(1, (count_iptu_itr+1)):
+            cabecalho.append("Cópia do IPTU ou ITR %i"%(i))
+
+        for i in range(1, (count_planta+1)):
+            cabecalho.append("Cópia da Planta ou Croqui %i"%(i))
+
+        count_fields = len(cabecalho)
+        count_data = imoveis.count()
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Cadastros Realizados"
+        for ind, title in enumerate(cabecalho, 1):
+            celula = ws.cell(row=1, column=ind)
+            celula.value = title
+            ws.column_dimensions[celula.column_letter].width = 40
+
+        for ind, imovel in enumerate(imoveis, 2):
+            ws.cell(row=ind, column=1, value=imovel.protocolo)
+            ws.cell(row=ind, column=2, value=imovel.criado_em)
+            if(imovel.proponente != None):
+                ws.cell(row=ind, column=3, value=imovel.proponente.nome)
+                ws.cell(row=ind, column=4, value=imovel.proponente.email)
+                ws.cell(row=ind, column=5, value=imovel.proponente.celular)
+                ws.cell(row=ind, column=6, value=imovel.proponente.telefone)
+                ws.cell(row=ind, column=7, value=imovel.proponente.cpf_cnpj)
+            ws.cell(row=ind, column=8, value=imovel.cep)
+            ws.cell(row=ind, column=9, value=imovel.numero_iptu)
+            ws.cell(row=ind, column=10, value=("%s, %s"%(imovel.endereco, imovel.numero)))
+            ws.cell(row=ind, column=11, value=imovel.bairro)
+            ws.cell(row=ind, column=12, value=imovel.cidade)
+            ws.cell(row=ind, column=13, value=imovel.uf)
+            ws.cell(row=ind, column=14, value=imovel.area_construida)
+            if(imovel.setor != None):
+                ws.cell(row=ind, column=15, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
+                ws.cell(row=ind, column=16, value=imovel.setor.distrito.nome)
+                ws.cell(row=ind, column=17, value=imovel.setor.codigo)
+            if(imovel.status != None):
+                ws.cell(row=ind, column=18, value=imovel.status.title)
+            if(imovel.demandaimovel != None):
+                ws.cell(row=ind, column=19, value=imovel.demandaimovel.bercario_i)
+                ws.cell(row=ind, column=20, value=imovel.demandaimovel.bercario_ii)
+                ws.cell(row=ind, column=21, value=imovel.demandaimovel.mini_grupo_i)
+                ws.cell(row=ind, column=22, value=imovel.demandaimovel.mini_grupo_ii)
+                ws.cell(row=ind, column=23, value=imovel.demandaimovel.total)
+            fachada = 0
+            interno = 0
+            externo = 0
+            iptu_itr = 0
+            planta = 0
+            for x, anexo in enumerate(imovel.anexos, 1):
+                tipo = anexo.get_tipo_documento_display()
+                if tipo == "Fotos da Fachada":
+                    fachada = (fachada + 1)
+                    celula = ws.cell(row=ind, column=(23 + fachada))
+
+                if tipo == "Fotos do Ambiente Interno":
+                    interno = (interno + 1)
+                    celula = ws.cell(row=ind, column=(23 + count_fachada + interno))
+
+                if tipo == "Fotos de Área Externa":
+                    externo = (externo + 1)
+                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno +externo))
+
+                if tipo == "Cópia do IPTU ou ITR":
+                    iptu_itr = (iptu_itr + 1)
+                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + iptu_itr))
+
+                if tipo == "Cópia da Planta ou Croqui":
+                    planta = (planta + 1)
+                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
+                link = "%s%s"%(env.str("URL_HOSTNAME_WITHOUT_SLASH_API", default=""), anexo.arquivo.url)
+                celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
+
+        for linha in range(1, (count_data + 2)):
+            for coluna in range(1, (count_fields + 1)):
+                celula = ws.cell(row=linha, column=coluna)
+                celula.font = Font(color="404040", size="12", bold=True)
+                celula.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+                if linha == 1:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
+                elif(linha % 2) == 0:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='C5C5C5')
+                else:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='EAEAEA')
+                celula.alignment = Alignment(horizontal='center', vertical='center')
+
+        result = BytesIO(save_virtual_workbook(wb))
+        filename = 'cadastros-realizados.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
 
     @action(detail=False,
             methods=['get'],
