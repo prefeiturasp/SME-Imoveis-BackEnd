@@ -177,14 +177,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,))
     def exportar(self, request):
         imoveis = self._filtrar_cadastros(request)
-
         count_anexos = 0
         count_fachada = 0
         count_interno = 0
         count_externo = 0
         count_iptu_itr = 0
         count_planta = 0
-
         for imovel in imoveis:
             fachada = 0
             interno = 0
