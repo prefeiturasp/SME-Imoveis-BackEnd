@@ -2,7 +2,6 @@ import datetime
 import requests
 import environ
 from io import BytesIO
-import pdb
 
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
