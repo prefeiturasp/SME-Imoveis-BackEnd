@@ -10,6 +10,7 @@ class Secretaria(models.Model):
         return f"{self.nome}"
 
     class Meta:
+        ordering = ('nome',)
         verbose_name = "Secretaria"
         verbose_name_plural = "Secretarias"
 
@@ -23,6 +24,7 @@ class DiretoriaRegional(models.Model):
         return f"{self.nome}"
 
     class Meta:
+        ordering = ('nome',)
         verbose_name = "DRE"
         verbose_name_plural = "DREs"
 
@@ -37,6 +39,7 @@ class Subprefeitura(models.Model):
         return f"{self.nome}"
 
     class Meta:
+        ordering = ('nome',)
         verbose_name = "Subprefeitura"
         verbose_name_plural = "Subprefeituras"
 
@@ -49,6 +52,7 @@ class Distrito(models.Model):
         return f"{self.nome}"
 
     class Meta:
+        ordering = ('nome',)
         verbose_name = "Distrito"
         verbose_name_plural = "Distritos"
 
@@ -61,6 +65,7 @@ class Setor(models.Model):
         return f"{self.codigo}"
 
     class Meta:
+        ordering = ('codigo',)
         verbose_name = "Setor"
         verbose_name_plural = "Setores"
 
