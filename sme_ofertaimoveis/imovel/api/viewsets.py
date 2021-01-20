@@ -265,7 +265,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 ws.cell(row=ind, column=17, value=imovel.setor.codigo)
             if(imovel.status != None):
                 ws.cell(row=ind, column=18, value=imovel.status.title)
-            if(imovel.demandaimovel != None):
+            if(hasattr(imovel, 'demandaimovel')):
                 ws.cell(row=ind, column=19, value=imovel.demandaimovel.bercario_i)
                 ws.cell(row=ind, column=20, value=imovel.demandaimovel.bercario_ii)
                 ws.cell(row=ind, column=21, value=imovel.demandaimovel.mini_grupo_i)
