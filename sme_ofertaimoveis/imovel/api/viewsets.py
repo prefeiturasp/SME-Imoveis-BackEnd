@@ -1,7 +1,6 @@
 import datetime
 import requests
 import environ
-import json
 from io import BytesIO
 
 from openpyxl import Workbook
@@ -351,6 +350,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             permission_classes=(IsAuthenticated,))
     def enviar_para_comapre(self, request):
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
         if (request.query_params.get('enviar_email') == 'true'):
             enviar_email = True
         else:
@@ -359,8 +359,6 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         justificativa = ""
         if 'justificativa' in request.query_params:
             justificativa=request.query_params.get('justificativa')
-            user = request.user
-
         imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
         imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email)
         serializer = self.get_serializer(imovel, context={'request': request})
