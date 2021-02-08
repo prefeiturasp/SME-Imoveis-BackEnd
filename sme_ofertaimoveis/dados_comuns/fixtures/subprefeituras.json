@@ -52,7 +52,7 @@
     "id": 7,
     "fields": {
       "nome": "MOOCA",
-      "dre": [5, 7, 10]
+      "dre": [10]
     }
   },
   {
@@ -60,7 +60,7 @@
     "id": 8,
     "fields": {
       "nome": "PIRITUBA",
-      "dre": [2, 12]
+      "dre": [2]
     }
   },
   {
@@ -68,7 +68,7 @@
     "id": 9,
     "fields": {
       "nome": "FREGUESIA/BRASILANDIA",
-      "dre": [2, 12]
+      "dre": [12]
     }
   },
   {
@@ -84,7 +84,7 @@
     "id": 11,
     "fields": {
       "nome": "SANTANA/TUCURUVI",
-      "dre": [11, 12]
+      "dre": [11]
     }
   },
   {
@@ -100,7 +100,7 @@
     "id": 13,
     "fields": {
       "nome": "LAPA",
-      "dre": [2, 6]
+      "dre": [2]
     }
   },
   {
@@ -108,7 +108,7 @@
     "id": 14,
     "fields": {
       "nome": "SE",
-      "dre": [2, 6]
+      "dre": [6]
     }
   },
   {
@@ -124,7 +124,7 @@
     "id": 16,
     "fields": {
       "nome": "ERMELINO MATARAZZO",
-      "dre": [7, 10, 13]
+      "dre": [10]
     }
   },
   {
@@ -132,7 +132,7 @@
     "id": 17,
     "fields": {
       "nome": "SAO MIGUEL",
-      "dre": [10, 13]
+      "dre": [13]
     }
   },
   {
@@ -140,7 +140,7 @@
     "id": 18,
     "fields": {
       "nome": "ITAQUERA",
-      "dre": [7, 10]
+      "dre": [7]
     }
   },
   {
@@ -164,7 +164,7 @@
     "id": 21,
     "fields": {
       "nome": "VILA MARIA/VILA GUILHERME",
-      "dre": [11, 13]
+      "dre": [11]
     }
   },
   {
@@ -180,7 +180,7 @@
     "id": 23,
     "fields": {
       "nome": "GUAIANASES",
-      "dre": [8, 13]
+      "dre": [8]
     }
   },
   {
@@ -188,7 +188,7 @@
     "id": 24,
     "fields": {
       "nome": "VILA MARIANA",
-      "dre": [1, 6]
+      "dre": [6]
     }
   },
   {
@@ -196,7 +196,7 @@
     "id": 25,
     "fields": {
       "nome": "IPIRANGA",
-      "dre": [1, 6]
+      "dre": [6]
     }
   },
   {
@@ -228,7 +228,7 @@
     "id": 29,
     "fields": {
       "nome": "VILA PRUDENTE",
-      "dre": [6, 9]
+      "dre": [6]
     }
   },
   {
