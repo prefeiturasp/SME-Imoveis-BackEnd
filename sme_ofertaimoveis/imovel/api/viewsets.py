@@ -1,7 +1,6 @@
 import datetime
 import requests
 import environ
-import json
 from io import BytesIO
 
 from openpyxl import Workbook
