@@ -132,6 +132,20 @@ class LogFluxoStatus(models.Model):
 
 
 class AnexoLog(models.Model):
+    TIPO_DOCUMENTO = (
+        (0, 'Relatório de vistoria'),
+        (1, 'Relatório fotográfico'),
+        (2, 'Planta atual'),
+        (3, 'Planta com adequações'),
+        (4, 'Plano de adequação'),
+        (5, 'Laudo de valor locatício'),
+    )
+
+    TIPO_ARQUIVO = (
+        (0, 'Imagem'),
+        (1, 'Documento')
+    )
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     log = models.ForeignKey(
         LogFluxoStatus,
@@ -140,6 +154,21 @@ class AnexoLog(models.Model):
     )
     nome = models.CharField(max_length=255, blank=True)
     arquivo = models.FileField()
+    tipo_documento = models.SmallIntegerField(
+        'Tipo Documento', choices=TIPO_DOCUMENTO, default=4
+    )
+    tipo_arquivo = models.SmallIntegerField(
+        'Tipo Arquivo', choices=TIPO_ARQUIVO, blank=True, null=True
+    )
 
-    def __str__(self):
-        return f'Anexo {self.uuid} - {self.nome}'
+    def as_dict(self):
+        return {
+            "log": self.log.id,
+            "arquivo": self.arquivo,
+            "tipo_documento": self.tipo_documento,
+            "uuid": self.uuid
+        }
+
+    class Meta:
+        verbose_name = "Anexo"
+        verbose_name_plural = "Anexos"

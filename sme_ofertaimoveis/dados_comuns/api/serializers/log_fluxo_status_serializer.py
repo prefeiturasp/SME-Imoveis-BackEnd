@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sme_ofertaimoveis.dados_comuns.models import LogFluxoStatus
 from sme_ofertaimoveis.users.api.serializers import UserSerializer
-
+from ..serializers.anexo_log_serializer import AnexoLogSerializer
 
 class LogFluxoStatusSerializer(serializers.ModelSerializer):
     usuario = UserSerializer()
@@ -13,10 +13,11 @@ class LogFluxoStatusSerializer(serializers.ModelSerializer):
         read_only=True
     )
     data_agendada = serializers.SerializerMethodField('get_format_data')
+    anexos = AnexoLogSerializer(many=True, required=False)
 
     class Meta:
         model = LogFluxoStatus
-        fields = ('status_evento_explicacao', 'usuario', 'criado_em', 'descricao',
+        fields = ('id', 'status_evento_explicacao', 'usuario', 'anexos', 'criado_em', 'descricao',
                     'justificativa', 'data_agendada', 'email_enviado')
 
     def get_format_data(self, obj):
