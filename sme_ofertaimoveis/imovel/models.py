@@ -198,12 +198,16 @@ class Imovel(FluxoImoveis):
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get('justificativa', '')
+        email_enviado = kwargs.get('email_enviado', False)
+        data_agendada = kwargs.get('data_agendada', None)
         LogFluxoStatus.objects.create(
             descricao=str(self),
             status_evento=status_evento,
             usuario=usuario,
             imovel=self,
             justificativa=justificativa,
+            email_enviado=email_enviado,
+            data_agendada=data_agendada
         )
 
     class Meta:

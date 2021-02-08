@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import uuid
 from django.db import models
 
@@ -74,25 +74,41 @@ class LogFluxoStatus(models.Model):
     (
         SOLICITACAO_REALIZADA,
         AGUARDANDO_ANALISE_PREVIA_SME,
+        FINALIZADO_AREA_INSUFICIENTE,
+        FINALIZADO_DEMANDA_INSUFICIENTE,
+        FINALIZADO_NAO_ATENDE_NECESSIDADES,
         ENVIADO_COMAPRE,
+        AGENDAMENTO_DA_VISTORIA,
         AGUARDANDO_RELATORIO_DE_VISTORIA,
+        RELATORIO_VISTORIA,
         AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO,
-        APROVADO,
+        LAUDO_VALOR_LOCATICIO,
+        VISTORIA_APROVADA,
+        VISTORIA_REPROVADA,
         ENVIADO_DRE,
-        FINALIZADO,
+        FINALIZADO_APROVADO,
         CANCELADO,
-    ) = range(9)
+        REATIVADO
+    ) = range(17)
 
     STATUS_POSSIVEIS = (
-        (SOLICITACAO_REALIZADA, 'Solicitação realizada'),
+        (SOLICITACAO_REALIZADA, 'Solicitação Realizada'),
         (AGUARDANDO_ANALISE_PREVIA_SME, 'SME analisou previamente'),
+        (FINALIZADO_AREA_INSUFICIENTE, 'Finalizado - Área Insuficiente'),
+        (FINALIZADO_DEMANDA_INSUFICIENTE, 'Finalizado - Demanda Insuficiente'),
+        (FINALIZADO_NAO_ATENDE_NECESSIDADES, 'Finalizado - Não atende as necessidades da SME'),
         (ENVIADO_COMAPRE, 'Enviado à COMAPRE'),
+        (AGENDAMENTO_DA_VISTORIA, 'Agendamento da vistoria'),
         (AGUARDANDO_RELATORIO_DE_VISTORIA, 'Aguardando relatório de vistoria'),
+        (RELATORIO_VISTORIA, 'Relatório da vistoria'),
         (AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, 'Aguardando laudo de valor locatício'),
-        (APROVADO, 'Aprovado'),
+        (LAUDO_VALOR_LOCATICIO, 'Laudo de valor locatício'),
+        (VISTORIA_APROVADA, 'Vistoria aprovada'),
+        (VISTORIA_REPROVADA, 'Vistoria reprovada'),
         (ENVIADO_DRE, 'Enviado à DRE'),
-        (FINALIZADO, 'Finalizado'),
-        (CANCELADO, 'Cancelado')
+        (FINALIZADO_APROVADO, 'Finalizado - Aprovado'),
+        (CANCELADO, 'Cancelado'),
+        (REATIVADO, 'Reativado')
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -101,6 +117,8 @@ class LogFluxoStatus(models.Model):
     descricao = models.TextField('Descricao', blank=True)
     justificativa = models.TextField('Justificativa', blank=True)
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
+    email_enviado = models.BooleanField('Email enviado', blank=True, null=True)
+    data_agendada = models.DateTimeField('Data agendada', blank=True, null=True)
     imovel = models.ForeignKey('imovel.Imovel', on_delete=models.CASCADE, blank=True, null=True, related_name='logs')
     usuario = models.ForeignKey('users.User', on_delete=models.DO_NOTHING)
 
@@ -110,11 +128,24 @@ class LogFluxoStatus(models.Model):
 
     def __str__(self):
         data = datetime.strftime(self.criado_em, '%Y-%m-%d %H:%M:%S')
-        return (f'{self.usuario} executou {self.get_status_evento_display()} '
-                f'em {self.get_solicitacao_tipo_display()} no dia {data}')
+        return (f'{self.usuario.first_name} {self.usuario.last_name} executou {self.get_status_evento_display()} no dia {data}')
 
 
 class AnexoLog(models.Model):
+    TIPO_DOCUMENTO = (
+        (0, 'Relatório de vistoria'),
+        (1, 'Relatório fotográfico'),
+        (2, 'Planta atual'),
+        (3, 'Planta com adequações'),
+        (4, 'Plano de adequação'),
+        (5, 'Laudo de valor locatício'),
+    )
+
+    TIPO_ARQUIVO = (
+        (0, 'Imagem'),
+        (1, 'Documento')
+    )
+
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     log = models.ForeignKey(
         LogFluxoStatus,
@@ -123,6 +154,21 @@ class AnexoLog(models.Model):
     )
     nome = models.CharField(max_length=255, blank=True)
     arquivo = models.FileField()
+    tipo_documento = models.SmallIntegerField(
+        'Tipo Documento', choices=TIPO_DOCUMENTO, default=4
+    )
+    tipo_arquivo = models.SmallIntegerField(
+        'Tipo Arquivo', choices=TIPO_ARQUIVO, blank=True, null=True
+    )
 
-    def __str__(self):
-        return f'Anexo {self.uuid} - {self.nome}'
+    def as_dict(self):
+        return {
+            "log": self.log.id,
+            "arquivo": self.arquivo,
+            "tipo_documento": self.tipo_documento,
+            "uuid": self.uuid
+        }
+
+    class Meta:
+        verbose_name = "Anexo"
+        verbose_name_plural = "Anexos"
