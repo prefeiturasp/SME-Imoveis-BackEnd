@@ -136,5 +136,51 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   email_enviado=kwargs.get('enviar_email', False),
                                   data_agendada=kwargs.get('data_agendada', None))
 
+    @xworkflows.after_transition('relatorio_vistoria')
+    def _relatorio_vistoria_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.RELATORIO_VISTORIA,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+
+    @xworkflows.after_transition('aguarda_laudo_valor_locaticio')
+    def _aguarda_laudo_valor_locaticio_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+
+
+    @xworkflows.after_transition('laudo_valor_locaticio')
+    def _laudo_valor_locaticio_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.LAUDO_VALOR_LOCATICIO,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+
+    @xworkflows.after_transition('aprova_vistoria')
+    def _aprova_vistoria_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.VISTORIA_APROVADA,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+
+    @xworkflows.after_transition('reprova_vistoria')
+    def _reprova_vistoria_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.VISTORIA_REPROVADA,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+
     class Meta:
         abstract = True

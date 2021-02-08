@@ -1,6 +1,7 @@
 import datetime
 import requests
 import environ
+import json
 from io import BytesIO
 
 from openpyxl import Workbook
@@ -405,6 +406,47 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         data_agendada = request.query_params.get('data_agendada')
         imovel.agenda_vistoria(user=user, data_agendada=data_agendada, enviar_email=enviar_email)
         imovel.aguarda_relatorio_vistoria(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/relatorio-vistoria',
+            permission_classes=(IsAuthenticated,))
+    def relatorio_vistoria(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        imovel.relatorio_vistoria(user=user)
+        imovel.aguarda_laudo_valor_locaticio(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/laudo-locaticio',
+            permission_classes=(IsAuthenticated,))
+    def laudo_locaticio(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        imovel.laudo_valor_locaticio(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/resultado-vistoria',
+            permission_classes=(IsAuthenticated,))
+    def resultado_vistoria(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        if (request.query_params.get('enviar_email') == 'true'):
+            enviar_email = True
+        else:
+            enviar_email = False
+        if (request.query_params.get('resultado_da_vistoria') == '0'):
+            imovel.aprova_vistoria(user=user, enviar_email=enviar_email)
+        else:
+            imovel.reprova_vistoria(user=user, enviar_email=enviar_email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
