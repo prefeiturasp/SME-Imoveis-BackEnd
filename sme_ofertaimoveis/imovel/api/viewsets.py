@@ -359,8 +359,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         justificativa = ""
         if 'justificativa' in request.query_params:
             justificativa=request.query_params.get('justificativa')
-        imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
-        imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email)
+        imovel.sme_analisa_previamente(user=user)
+        imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email, justificativa=justificativa)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
