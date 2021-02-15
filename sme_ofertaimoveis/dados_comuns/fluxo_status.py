@@ -24,6 +24,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
     VISTORIA_REPROVADA = 'VISTORIA_REPROVADA'
     ENVIADO_DRE = 'ENVIADO_DRE'
     FINALIZADO_APROVADO = 'FINALIZADO_APROVADO'
+    FINALIZADO_REPROVADO = 'FINALIZADO_REPROVADO'
     CANCELADO = 'CANCELADO'
     REATIVADO = 'REATIVADO'
 
@@ -43,6 +44,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
         (VISTORIA_REPROVADA, 'Vistoria reprovada'),
         (ENVIADO_DRE, 'Enviado à DRE'),
         (FINALIZADO_APROVADO, 'Finalizado - Aprovado'),
+        (FINALIZADO_REPROVADO, 'Finalizado - Reprovado'),
         (CANCELADO, 'Cancelado'),
         (REATIVADO, 'Reativado')
     )
@@ -62,9 +64,8 @@ class ImoveisWorkflow(xwf_models.Workflow):
         ('reprova_vistoria', LAUDO_VALOR_LOCATICIO, VISTORIA_REPROVADA),
         ('envia_a_dre', VISTORIA_APROVADA, ENVIADO_DRE),
         ('finaliza_aprovado', ENVIADO_DRE, FINALIZADO_APROVADO),
-        ('cancela', [FINALIZADO_AREA_INSUFICIENTE, FINALIZADO_DEMANDA_INSUFICIENTE,
-                     FINALIZADO_NAO_ATENDE_NECESSIDADES],
-         CANCELADO),
+        ('finaliza_reprovado', VISTORIA_REPROVADA, FINALIZADO_REPROVADO),
+        ('cancela', VISTORIA_REPROVADA, CANCELADO),
         ('reativa', CANCELADO, REATIVADO)
     )
 
@@ -181,6 +182,43 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False),
                                   data_agendada=kwargs.get('data_agendada', None))
+
+    @xworkflows.after_transition('envia_a_dre')
+    def _envia_a_dre_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.ENVIADO_DRE,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None),
+                                  processo_sei=kwargs.get('processo_sei', None),
+                                  nome_da_unidade=kwargs.get('nome_da_unidade', None))
+
+    @xworkflows.after_transition('finaliza_aprovado')
+    def _finaliza_aprovado_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.FINALIZADO_APROVADO,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False))
+
+    @xworkflows.after_transition('finaliza_reprovado')
+    def _finaliza_reprovado_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.FINALIZADO_REPROVADO,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False))
+
+
+    @xworkflows.after_transition('cancela')
+    def _cancela_hook(self, *args, **kwargs):
+        user = kwargs['user']
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.CANCELADO,
+                                  usuario=user,
+                                  justificativa=kwargs.get('justificativa', ''),
+                                  email_enviado=kwargs.get('enviar_email', False))
+
 
     class Meta:
         abstract = True

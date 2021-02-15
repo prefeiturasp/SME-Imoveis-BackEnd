@@ -366,9 +366,9 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(detail=False,
             methods=['POST'],
-            url_path='imoveis/finaliza-analise',
+            url_path='imoveis/finaliza',
             permission_classes=(IsAuthenticated,))
-    def finalizar_analise(self, request):
+    def finalizar(self, request):
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         user = request.user
         if (request.query_params.get('enviar_email') == 'true'):
@@ -378,15 +378,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         justificativa = ""
         if 'justificativa' in request.query_params:
             justificativa=request.query_params.get('justificativa')
-        imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
-        if 'resultado_da_analise' in request.query_params:
-            if(request.query_params.get('resultado_da_analise') == '0'):
+        if 'resultado' in request.query_params:
+            if(request.query_params.get('resultado') == '0'):
+                imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_area_insuficiente(user=user, enviar_email=enviar_email)
-            if(request.query_params.get('resultado_da_analise') == '1'):
+            if(request.query_params.get('resultado') == '1'):
+                imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_demanda_insuficiente(user=user, enviar_email=enviar_email)
-            if(request.query_params.get('resultado_da_analise') == '2'):
+            if(request.query_params.get('resultado') == '2'):
+                imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_nao_atende_necessidades(user=user, enviar_email=enviar_email)
-
+            if(request.query_params.get('resultado') == '3'):
+                imovel.finaliza_aprovado(user=user, enviar_email=enviar_email, justificativa=justificativa)
+            if(request.query_params.get('resultado') == '4'):
+                imovel.finaliza_reprovado(user=user, enviar_email=enviar_email, justificativa=justificativa)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -445,6 +450,26 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             imovel.aprova_vistoria(user=user, enviar_email=enviar_email)
         else:
             imovel.reprova_vistoria(user=user, enviar_email=enviar_email)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/envia-dre',
+            permission_classes=(IsAuthenticated,))
+    def enviar_para_dre(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        if (request.query_params.get('enviar_email') == 'true'):
+            enviar_email = True
+        else:
+            enviar_email = False
+        data_agendada = request.query_params.get('data_agendada')
+        processo_sei = request.query_params.get('processo_sei')
+        nome_da_unidade = request.query_params.get('nome_da_unidade')
+        imovel.envia_a_dre(user=user, enviar_email=enviar_email,
+                           processo_sei=processo_sei, nome_da_unidade=nome_da_unidade,
+                           data_agendada=data_agendada)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
