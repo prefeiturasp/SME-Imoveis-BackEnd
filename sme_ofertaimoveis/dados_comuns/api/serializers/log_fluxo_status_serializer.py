@@ -18,7 +18,7 @@ class LogFluxoStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = LogFluxoStatus
         fields = ('id', 'status_evento_explicacao', 'usuario', 'anexos', 'criado_em', 'descricao',
-                    'justificativa', 'data_agendada', 'email_enviado')
+                    'justificativa', 'data_agendada', 'email_enviado', 'processo_sei', 'nome_da_unidade')
 
     def get_format_data(self, obj):
         if obj.data_agendada != None:
