@@ -200,6 +200,8 @@ class Imovel(FluxoImoveis):
         justificativa = kwargs.get('justificativa', '')
         email_enviado = kwargs.get('email_enviado', False)
         data_agendada = kwargs.get('data_agendada', None)
+        processo_sei = kwargs.get('processo_sei', None)
+        nome_da_unidade = kwargs.get('nome_da_unidade', None)
         LogFluxoStatus.objects.create(
             descricao=str(self),
             status_evento=status_evento,
@@ -207,7 +209,9 @@ class Imovel(FluxoImoveis):
             imovel=self,
             justificativa=justificativa,
             email_enviado=email_enviado,
-            data_agendada=data_agendada
+            data_agendada=data_agendada,
+            processo_sei=processo_sei,
+            nome_da_unidade=nome_da_unidade
         )
 
     class Meta:
