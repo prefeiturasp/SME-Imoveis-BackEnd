@@ -87,9 +87,10 @@ class LogFluxoStatus(models.Model):
         VISTORIA_REPROVADA,
         ENVIADO_DRE,
         FINALIZADO_APROVADO,
+        FINALIZADO_REPROVADO,
         CANCELADO,
         REATIVADO
-    ) = range(17)
+    ) = range(18)
 
     STATUS_POSSIVEIS = (
         (SOLICITACAO_REALIZADA, 'Solicitação Realizada'),
@@ -107,6 +108,7 @@ class LogFluxoStatus(models.Model):
         (VISTORIA_REPROVADA, 'Vistoria reprovada'),
         (ENVIADO_DRE, 'Enviado à DRE'),
         (FINALIZADO_APROVADO, 'Finalizado - Aprovado'),
+        (FINALIZADO_REPROVADO, 'Finalizado - Reprovado'),
         (CANCELADO, 'Cancelado'),
         (REATIVADO, 'Reativado')
     )
@@ -121,6 +123,8 @@ class LogFluxoStatus(models.Model):
     data_agendada = models.DateTimeField('Data agendada', blank=True, null=True)
     imovel = models.ForeignKey('imovel.Imovel', on_delete=models.CASCADE, blank=True, null=True, related_name='logs')
     usuario = models.ForeignKey('users.User', on_delete=models.DO_NOTHING)
+    processo_sei = models.TextField('Numero processo SEI', blank=True, null=True)
+    nome_da_unidade = models.TextField('Nome da unidade', blank=True, null=True)
 
     @property
     def status_evento_explicacao(self):
