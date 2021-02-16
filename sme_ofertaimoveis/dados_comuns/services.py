@@ -10,7 +10,7 @@ log  = logging.getLogger(__name__)
 
 def atualiza_dados_comuns():
     try:
-        log.info("Consultando dres.")
+        log.debug("Consultando dres.")
         dres = TerceirizadasClient.dres()
         atualiza_dados_dres(dres)
         log.info("Total dres %s.", len(dres))
