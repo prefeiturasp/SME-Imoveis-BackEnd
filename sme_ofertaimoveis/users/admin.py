@@ -4,7 +4,7 @@ from .models import Perfil, User
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "perfil")
+    list_display = ("username", "first_name", "perfil")
 
     def save_model(self, request, obj, form, change):
         error = False

@@ -4,7 +4,7 @@ from unittest.mock import patch, ANY, MagicMock
 from django.conf import settings
 from django.test import TestCase
 
-from ..utils import send_email, consult_api_fila_creche
+from ..utils import send_email, consult_api_fila_creche, TerceirizadasClient
 
 
 class TestSendEmail(TestCase):
@@ -49,3 +49,41 @@ class TestConsultApiFilaCreche(TestCase):
 
         retorno = consult_api_fila_creche("123456", "654321", "1")
         self.assertEqual(retorno, "OK")
+
+
+class TestTerceirizadasClient(TestCase):
+    @patch("sme_ofertaimoveis.dados_comuns.utils.requests")
+    def test_consulta_dres(self, mk_request):
+
+        TerceirizadasClient.dres()
+        mk_request.get.assert_called_with(
+            f"{TerceirizadasClient.url}/dres",
+            headers=TerceirizadasClient.headers,
+        )
+
+    @patch("sme_ofertaimoveis.dados_comuns.utils.requests")
+    def test_consulta_subprefeituras(self, mk_request):
+
+        TerceirizadasClient.subprefeituras()
+        mk_request.get.assert_called_with(
+            f"{TerceirizadasClient.url}/subprefeituras",
+            headers=TerceirizadasClient.headers,
+        )
+    
+    @patch("sme_ofertaimoveis.dados_comuns.utils.requests")
+    def test_consulta_distritos(self, mk_request):
+
+        TerceirizadasClient.distritos()
+        mk_request.get.assert_called_with(
+            f"{TerceirizadasClient.url}/distritos",
+            headers=TerceirizadasClient.headers,
+        )
+    
+    @patch("sme_ofertaimoveis.dados_comuns.utils.requests")
+    def test_consulta_setores(self, mk_request):
+
+        TerceirizadasClient.setores()
+        mk_request.get.assert_called_with(
+            f"{TerceirizadasClient.url}/setores",
+            headers=TerceirizadasClient.headers,
+        )

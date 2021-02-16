@@ -86,6 +86,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_swagger",
     "des",  # for email configuration in database
     "django_celery_results",  # Celery integration for Django,
+    "django_celery_beat",
     'django_xworkflows',
 ]
 LOCAL_APPS = [
@@ -297,3 +298,6 @@ URL_HOSTNAME = ""
 
 SME_INTEGRACAO_URL = env('SME_INTEGRACAO_URL')
 SME_INTEGRACAO_TOKEN = env('SME_INTEGRACAO_TOKEN')
+
+EOL_API_TERCEIRIZADAS_URL = env('EOL_API_TERCEIRIZADAS_URL')
+EOL_API_TERCEIRIZADAS_TOKEN = env('EOL_API_TERCEIRIZADAS_TOKEN')

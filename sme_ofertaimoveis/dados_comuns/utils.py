@@ -62,7 +62,6 @@ def consult_api_sciedu(latitude, longitude):
     response.raise_for_status()
     return response.json()["results"]
 
-
 def url_configs(variable, content):
     return env('REACT_APP_URL') + URL_CONFIGS[variable].format(**content)
 
@@ -70,3 +69,35 @@ def url_configs(variable, content):
 def ofuscar_email(email):
     m = email.split('@')
     return f'{m[0][0]}{"*" * (len(m[0]) - 2)}{m[0][-1]}@{m[1]}'
+
+
+class TerceirizadasClient:
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Token {settings.EOL_API_TERCEIRIZADAS_TOKEN}"}
+    
+    url = f"{settings.EOL_API_TERCEIRIZADAS_URL}"
+    
+    @classmethod
+    def dres(cls):
+        response = requests.get(f"{cls.url}/dres", headers=cls.headers)
+        response.raise_for_status()
+        return response.json()["results"]
+
+    @classmethod
+    def subprefeituras(cls):
+        response = requests.get(f"{cls.url}/subprefeituras", headers=cls.headers)
+        response.raise_for_status()
+        return response.json()["results"]
+
+    @classmethod
+    def distritos(cls):
+        response = requests.get(f"{cls.url}/distritos", headers=cls.headers)
+        response.raise_for_status()
+        return response.json()["results"]
+
+    @classmethod
+    def setores(cls):
+        response = requests.get(f"{cls.url}/setores", headers=cls.headers)
+        response.raise_for_status()
+        return response.json()["results"]
