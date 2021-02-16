@@ -86,6 +86,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_swagger",
     "des",  # for email configuration in database
     "django_celery_results",  # Celery integration for Django,
+    "django_celery_beat",
     'django_xworkflows',
 ]
 LOCAL_APPS = [
