@@ -86,6 +86,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_swagger",
     "des",  # for email configuration in database
     "django_celery_results",  # Celery integration for Django,
+    "django_celery_beat",
     'django_xworkflows',
 ]
 LOCAL_APPS = [
@@ -282,6 +283,32 @@ FILA_CRECHE_GRUPOS = (
     (28, "Mini grupo II"),
 )
 
+
+# LOGGING
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#logging
+# See https://docs.djangoproject.com/en/dev/topics/logging for
+# more details on how to customize your logging configuration.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(levelname)s %(asctime)s %(module)s "
+            "%(process)d %(thread)d %(message)s"
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        }
+    },
+    "root": {"level": "INFO", "handlers": ["console"]},
+}
+
+
 # CELERY SETTINGS
 CELERY_REDIS_URL = env("CELERY_REDIS_URL")
 CELERY_BROKER_URL = f"{CELERY_REDIS_URL}/0"
@@ -297,3 +324,6 @@ URL_HOSTNAME = ""
 
 SME_INTEGRACAO_URL = env('SME_INTEGRACAO_URL')
 SME_INTEGRACAO_TOKEN = env('SME_INTEGRACAO_TOKEN')
+
+EOL_API_TERCEIRIZADAS_URL = env('EOL_API_TERCEIRIZADAS_URL')
+EOL_API_TERCEIRIZADAS_TOKEN = env('EOL_API_TERCEIRIZADAS_TOKEN')
