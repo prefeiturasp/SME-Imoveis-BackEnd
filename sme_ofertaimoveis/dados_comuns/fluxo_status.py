@@ -65,7 +65,11 @@ class ImoveisWorkflow(xwf_models.Workflow):
         ('envia_a_dre', VISTORIA_APROVADA, ENVIADO_DRE),
         ('finaliza_aprovado', ENVIADO_DRE, FINALIZADO_APROVADO),
         ('finaliza_reprovado', VISTORIA_REPROVADA, FINALIZADO_REPROVADO),
-        ('cancela', VISTORIA_REPROVADA, CANCELADO),
+        ('cancela', [ SOLICITACAO_REALIZADA, AGUARDANDO_ANALISE_PREVIA_SME,
+                      ENVIADO_COMAPRE, AGENDAMENTO_DA_VISTORIA,
+                      AGUARDANDO_RELATORIO_DE_VISTORIA, RELATORIO_VISTORIA,
+                      AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, LAUDO_VALOR_LOCATICIO,
+                      VISTORIA_APROVADA, ENVIADO_DRE ], CANCELADO),
         ('reativa', CANCELADO, REATIVADO)
     )
 
@@ -218,7 +222,14 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   usuario=user,
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False))
-
+    @xworkflows.after_transition('reativa')
+    def _reativa_hook(self, *args, **kwargs):
+        logs = self.logs.all()
+        for log in logs:
+            log.anexos.all().delete()
+        logs.delete()
+        self.status = ImoveisWorkflow.initial_state
+        self.save()
 
     class Meta:
         abstract = True
