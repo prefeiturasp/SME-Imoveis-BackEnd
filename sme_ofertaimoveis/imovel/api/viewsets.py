@@ -473,6 +473,29 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/cancela',
+            permission_classes=(IsAuthenticated,))
+    def cancelar(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        imovel.cancela(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False,
+            methods=['POST'],
+            url_path='imoveis/reativa',
+            permission_classes=(IsAuthenticated,))
+    def reativar(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        user = request.user
+        imovel.reativa(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+
 class DemandaRegiao(APIView):
     """
     Encapsula a chamada a API de demanda
