@@ -1,5 +1,6 @@
 import environ
 import requests
+from datetime import datetime
 
 from des.models import DynamicEmailConfiguration
 
@@ -101,3 +102,4 @@ class TerceirizadasClient:
         response = requests.get(f"{cls.url}/setores", headers=cls.headers)
         response.raise_for_status()
         return response.json()["results"]
+

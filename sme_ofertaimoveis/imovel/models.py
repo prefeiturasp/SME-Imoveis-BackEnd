@@ -267,6 +267,7 @@ class DemandaImovel(models.Model):
     bercario_ii = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
     mini_grupo_i = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
     mini_grupo_ii = models.PositiveSmallIntegerField(blank=True, null=True, default=0)
+    data_atualizacao = models.DateTimeField("Data Atualização", blank=True, null=True)
 
     @property
     def total(self):

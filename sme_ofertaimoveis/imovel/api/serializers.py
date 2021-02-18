@@ -12,6 +12,7 @@ from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto, DemandaImove
 from ...dados_comuns.api.serializers import SetorSerializer
 from ...dados_comuns.api.serializers.log_fluxo_status_serializer import LogFluxoStatusSerializer
 from ...dados_comuns.models import Setor
+from ..utils import data_formatada
 
 
 class ContatoSerializer(serializers.ModelSerializer):
@@ -227,24 +228,29 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(bercario_i.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.bercario_i = 0
         try:
             bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(bercario_ii.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.bercario_ii = 0
         try:
             mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_i.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.mini_grupo_i = 0
         try:
             mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_ii.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
         demanda_imovel.save()
+        
 
         tamanho_total_dos_arquivos = 0
         for anexo in anexos:
@@ -338,21 +344,25 @@ class UpdateImovelSerializer(serializers.ModelSerializer):
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(bercario_i.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.bercario_i = 0
         try:
             bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(bercario_ii.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.bercario_ii = 0
         try:
             mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_i.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.mini_grupo_i = 0
         try:
             mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_ii.get("data_atualizacao"))
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
         demanda_imovel.save()
