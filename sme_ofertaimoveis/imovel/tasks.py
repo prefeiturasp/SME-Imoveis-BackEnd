@@ -37,28 +37,20 @@ def task_send_email_to_sme(imovel_id):
     )
     return "Email para A SME enviado com sucesso"
 
-
 @shared_task
 def task_send_email_to_usuario(email, imovel):
-    log.info(f"Atualizando")
-    log.info(f"email: {email} imovel: {imovel}")
     send_email(
         subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
         template="email_to_usuario",
         data=imovel,
         to_email=email,
     )
-    log.info(f"Enviou para usuário")
     send_email(
         subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
         template="email_to_usuario",
         data=imovel,
         to_email='imoveis@sme.prefeitura.sp.gov.br',
     )
-    log.info(f"Enviou para SME")
-    
-
-
 
 @shared_task
 def send_email_(subject, template, data, to_email):
