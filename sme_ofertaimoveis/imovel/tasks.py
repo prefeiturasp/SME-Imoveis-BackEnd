@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import logging
 
 from django.conf import settings
 from celery import shared_task
@@ -7,6 +8,8 @@ from requests.exceptions import HTTPError
 
 from ..dados_comuns.utils import send_email, consult_api_sciedu
 from .models import Imovel, SME_Contatos
+
+log = logging.getLogger(__name__)
 
 
 @shared_task
@@ -33,7 +36,6 @@ def task_send_email_to_sme(imovel_id):
         to_email=emails,
     )
     return "Email para A SME enviado com sucesso"
-
 
 @shared_task
 def task_send_email_to_usuario(subject, template, data, email):
