@@ -382,6 +382,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if(request.query_params.get('resultado') == '0'):
                 imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_area_insuficiente(user=user, enviar_email=enviar_email)
+                if (enviar_email):
+                    data = imovel.as_dict()
+                    template = "finaliza_area_insuficiente"
+                    subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Área Insuficiente."
+                    email = data['proponente_email']
+                    task_send_email_to_usuario.delay(subject, template, data, email)
             if(request.query_params.get('resultado') == '1'):
                 imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_demanda_insuficiente(user=user, enviar_email=enviar_email)
