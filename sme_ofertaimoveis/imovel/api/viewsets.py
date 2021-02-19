@@ -361,6 +361,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             justificativa=request.query_params.get('justificativa')
         imovel.sme_analisa_previamente(user=user)
         imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email, justificativa=justificativa)
+        if (enviar_email):
+            data = imovel.as_dict()
+            template = "envia_a_comapre"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Agendamento de vistoria."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
