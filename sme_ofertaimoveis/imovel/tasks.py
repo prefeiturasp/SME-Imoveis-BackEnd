@@ -36,13 +36,20 @@ def task_send_email_to_sme(imovel_id):
 
 
 @shared_task
-def task_send_email_to_usuario(email, protocolo=None):
+def task_send_email_to_usuario(email, imovel):
     send_email(
-        subject="Obrigado pelo envio do seu imóvel",
+        subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
         template="email_to_usuario",
-        data={'protocolo': protocolo},
+        data=imovel,
         to_email=email,
     )
+    send_email(
+        subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
+        template="email_to_usuario",
+        data=imovel,
+        to_email='imoveis@sme.prefeitura.sp.gov.br',
+    )
+
 
 
 @shared_task
