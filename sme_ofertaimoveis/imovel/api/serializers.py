@@ -255,7 +255,12 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             PlantaFoto.objects.create(
                 imovel=imovel, **anexo
             )
-        task_send_email_to_usuario.delay(proponente.email, imovel.as_dict())
+
+        data = imovel.as_dict()
+        template = 'email_to_usuario'
+        subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Cadastro realizado."
+        email = proponente.email
+        task_send_email_to_usuario.delay(subject, template, data, email)
         return imovel
 
 class UpdateImovelSerializer(serializers.ModelSerializer):
