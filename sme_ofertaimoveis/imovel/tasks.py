@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import logging
 
 from django.conf import settings
 from celery import shared_task
@@ -7,6 +8,8 @@ from requests.exceptions import HTTPError
 
 from ..dados_comuns.utils import send_email, consult_api_sciedu
 from .models import Imovel, SME_Contatos
+
+log = logging.getLogger(__name__)
 
 
 @shared_task
@@ -37,18 +40,23 @@ def task_send_email_to_sme(imovel_id):
 
 @shared_task
 def task_send_email_to_usuario(email, imovel):
+    log.info(f"Atualizando")
+    log.info(f"email: {email} imovel: {imovel}")
     send_email(
         subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
         template="email_to_usuario",
         data=imovel,
         to_email=email,
     )
+    log.info(f"Enviou para usuário")
     send_email(
         subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
         template="email_to_usuario",
         data=imovel,
         to_email='imoveis@sme.prefeitura.sp.gov.br',
     )
+    log.info(f"Enviou para SME")
+    
 
 
 
