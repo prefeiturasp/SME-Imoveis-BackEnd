@@ -397,7 +397,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 if (enviar_email):
                     data = imovel.as_dict()
                     template = "finaliza_nao_atende_necessidades"
-                    subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Não atende as necessidades da SME."
+                    subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Não atende às necessidades da SME."
                     email = data['proponente_email']
                     task_send_email_to_usuario.delay(subject, template, data, email)
             if(request.query_params.get('resultado') == '3'):
