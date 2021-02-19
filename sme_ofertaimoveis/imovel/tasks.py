@@ -36,21 +36,10 @@ def task_send_email_to_sme(imovel_id):
 
 
 @shared_task
-def task_send_email_to_usuario(email, imovel):
-    send_email(
-        subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
-        template="email_to_usuario",
-        data=imovel,
-        to_email=email,
-    )
-    send_email(
-        subject=f"Assunto: Cadastro de imóvel – Protocolo nº {imovel['protocolo']} – Cadastro realizado.",
-        template="email_to_usuario",
-        data=imovel,
-        to_email='imoveis@sme.prefeitura.sp.gov.br',
-    )
-
-
+def task_send_email_to_usuario(subject, template, data, email):
+    sme_email = 'imoveis@sme.prefeitura.sp.gov.br'
+    send_email(subject=subject, template=template, data=data, to_email=email)
+    send_email(subject=subject, template=template, data=data, to_email=sme_email)
 
 @shared_task
 def send_email_(subject, template, data, to_email):
