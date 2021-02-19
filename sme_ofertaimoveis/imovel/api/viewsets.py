@@ -361,6 +361,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             justificativa=request.query_params.get('justificativa')
         imovel.sme_analisa_previamente(user=user)
         imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email, justificativa=justificativa)
+        if (enviar_email):
+            data = imovel.as_dict()
+            template = "envia_a_comapre"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Agendamento de vistoria."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -382,12 +388,24 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if(request.query_params.get('resultado') == '0'):
                 imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_area_insuficiente(user=user, enviar_email=enviar_email)
+                if (enviar_email):
+                    data = imovel.as_dict()
+                    template = "finaliza_area_insuficiente"
+                    subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Área Insuficiente."
+                    email = data['proponente_email']
+                    task_send_email_to_usuario.delay(subject, template, data, email)
             if(request.query_params.get('resultado') == '1'):
                 imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_demanda_insuficiente(user=user, enviar_email=enviar_email)
             if(request.query_params.get('resultado') == '2'):
                 imovel.sme_analisa_previamente(user=user, justificativa=justificativa)
                 imovel.finaliza_nao_atende_necessidades(user=user, enviar_email=enviar_email)
+                if (enviar_email):
+                    data = imovel.as_dict()
+                    template = "finaliza_nao_atende_necessidades"
+                    subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Não atende às necessidades da SME."
+                    email = data['proponente_email']
+                    task_send_email_to_usuario.delay(subject, template, data, email)
             if(request.query_params.get('resultado') == '3'):
                 imovel.finaliza_aprovado(user=user, enviar_email=enviar_email, justificativa=justificativa)
             if(request.query_params.get('resultado') == '4'):
