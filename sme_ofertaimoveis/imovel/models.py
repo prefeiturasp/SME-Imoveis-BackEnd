@@ -214,6 +214,25 @@ class Imovel(FluxoImoveis):
             nome_da_unidade=nome_da_unidade
         )
 
+    def as_dict(self):
+        return {
+            'protocolo': self.protocolo,
+            'proponente_cpf_cnpj': self.proponente.cpf_cnpj,
+            'proponente_nome': self.proponente.nome,
+            'proponente_email': self.proponente.email,
+            'proponente_telefone': self.proponente.telefone,
+            'proponente_celular': self.proponente.celular,
+            'proponente_tipo': self.proponente.get_tipo_proponente_display(),
+            'area_construida': self.area_construida,
+            'endereco': self.endereco,
+            'numero': self.numero,
+            'bairro': self.bairro,
+            'cep': self.cep,
+            'cidade': self.cidade,
+            'uf': self.uf,
+            'numero_iptu': self.numero_iptu
+        }
+
     class Meta:
         verbose_name = "Imovel"
         verbose_name_plural = "Imoveis"

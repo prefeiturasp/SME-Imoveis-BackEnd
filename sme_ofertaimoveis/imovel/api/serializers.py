@@ -255,7 +255,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             PlantaFoto.objects.create(
                 imovel=imovel, **anexo
             )
-        task_send_email_to_usuario.delay(proponente.email, imovel.protocolo)
+        task_send_email_to_usuario.delay(proponente.email, imovel.as_dict())
         return imovel
 
 class UpdateImovelSerializer(serializers.ModelSerializer):
