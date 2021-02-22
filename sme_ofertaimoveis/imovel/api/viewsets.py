@@ -474,6 +474,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 task_send_email_to_usuario.delay(subject, template, data, email)
         else:
             imovel.reprova_vistoria(user=user, enviar_email=enviar_email)
+            if (enviar_email):
+                data = imovel.as_dict()
+                template = "reprova_vistoria"
+                subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Vistoria Reprovada."
+                email = data['proponente_email']
+                task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
