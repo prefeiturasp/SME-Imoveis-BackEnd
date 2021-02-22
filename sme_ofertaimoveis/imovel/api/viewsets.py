@@ -426,6 +426,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             enviar_email = False
         data_agendada = request.query_params.get('data_agendada')
         imovel.agenda_vistoria(user=user, data_agendada=data_agendada, enviar_email=enviar_email)
+        if (enviar_email):
+            data = imovel.as_dict()
+            template = "agenda_vistoria"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Agendamento de vistoria."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
         imovel.aguarda_relatorio_vistoria(user=user)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
@@ -466,8 +472,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             enviar_email = False
         if (request.query_params.get('resultado_da_vistoria') == '0'):
             imovel.aprova_vistoria(user=user, enviar_email=enviar_email)
+            if (enviar_email):
+                data = imovel.as_dict()
+                template = "aprova_vistoria"
+                subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Vistoria Aprovada."
+                email = data['proponente_email']
+                task_send_email_to_usuario.delay(subject, template, data, email)
         else:
             imovel.reprova_vistoria(user=user, enviar_email=enviar_email)
+            if (enviar_email):
+                data = imovel.as_dict()
+                template = "reprova_vistoria"
+                subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Vistoria Reprovada."
+                email = data['proponente_email']
+                task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
