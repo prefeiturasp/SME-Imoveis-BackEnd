@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from django.db import models
 from django.core import validators
@@ -215,6 +216,8 @@ class Imovel(FluxoImoveis):
         )
 
     def as_dict(self):
+        log_vistoria = self.logs.filter(status_evento=6).first()
+        data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
         return {
             'protocolo': self.protocolo,
             'proponente_cpf_cnpj': self.proponente.cpf_cnpj,
@@ -230,7 +233,8 @@ class Imovel(FluxoImoveis):
             'cep': self.cep,
             'cidade': self.cidade,
             'uf': self.uf,
-            'numero_iptu': self.numero_iptu
+            'numero_iptu': self.numero_iptu,
+            'data_vistoria': data_vistoria
         }
 
     class Meta:
