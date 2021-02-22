@@ -426,6 +426,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             enviar_email = False
         data_agendada = request.query_params.get('data_agendada')
         imovel.agenda_vistoria(user=user, data_agendada=data_agendada, enviar_email=enviar_email)
+        if (enviar_email):
+            data = imovel.as_dict()
+            template = "agenda_vistoria"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Agendamento de vistoria."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
         imovel.aguarda_relatorio_vistoria(user=user)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
