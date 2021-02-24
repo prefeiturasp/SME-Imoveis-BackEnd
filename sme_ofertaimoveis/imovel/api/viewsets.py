@@ -364,7 +364,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         if (enviar_email):
             data = imovel.as_dict()
             template = "envia_a_comapre"
-            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Agendamento de vistoria."
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Solicitação de vistoria."
             email = data['proponente_email']
             task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
