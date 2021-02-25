@@ -506,6 +506,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imovel.envia_a_dre(user=user, enviar_email=enviar_email,
                            processo_sei=processo_sei, nome_da_unidade=nome_da_unidade,
                            data_agendada=data_agendada)
+        if (enviar_email):
+            data = imovel.as_dict()
+            template = "envia_dre"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} –  Encaminhado à Diretoria Regional de Educação {data['diretoria_regional_educacao']}."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
@@ -517,6 +523,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         user = request.user
         imovel.cancela(user=user)
+        data = imovel.as_dict()
+        template = "cancela_cadastro"
+        subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Protocolo Cancelado."
+        email = data['proponente_email']
+        task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
