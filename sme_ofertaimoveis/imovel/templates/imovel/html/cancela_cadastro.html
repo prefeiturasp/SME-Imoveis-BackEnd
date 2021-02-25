@@ -1,0 +1,125 @@
+<html>
+  <head>
+    <meta charset="UTF-8" type="text/html">
+    <title>Cadastro de Oferta de Imóveis</title>
+  </head>
+  <body style="padding:0;margin:0">
+    <table bgcolor="transparent" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+      <tr>
+        <td align="center">
+          <table width="600" border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+      </tr>
+      <tr>
+        <td bgcolor="#ffffff">
+          <table width="600" border="0" cellspacing="0" cellpadding="0">
+            <tbody>
+              <!-- HEADER -->
+              <tr>
+                <td style="font-size: 1px; line-height: 10px;" height="10">&nbsp;</td>
+              </tr>
+              <tr>
+                <td align="center" bgcolor="ffffff"><a href="https://dev-imoveis.sme.prefeitura.sp.gov.br/" style="font-size:12px;color:#5f5f5f;text-decoration:underline" target="_blank">Não consegue visualizar? CLIQUE AQUI<br></a></td>
+              </tr>
+              <tr>
+                <td style="font-size: 1px; line-height: 10px;" height="10">&nbsp;</td>
+              </tr>
+              <tr>
+                <td align="center" bgcolor="FFFFFF"><a href="https://dev-imoveis.sme.prefeitura.sp.gov.br/" target="_blank" rel="noopener"><img src="https://dev-imoveis.sme.prefeitura.sp.gov.br/static/media/Logo.fa22158f.png" width="500" height="auto" /></a></td>
+              </tr>
+              <td>&nbsp;</td>
+              <!-- END HEADER -->
+              <!-- CONTENT -->
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="center" style="padding-top: 10px; padding-bottom: 10px">
+                  <font style="color: #42474A; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 24px;">
+                  Prezado(a) Sr(a). {{proponente_nome}} (proprietário/representante legal)
+                  </font>
+                </td>
+              </tr>
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="justify" style="padding-top: 5px; padding-bottom: 15px">
+                  <font style="text-align: justify; color: #42474A; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px;">
+                  Em atendimento a solicitação de V.Sa. referente ao cadastro de imóvel, <b>protocolo nº {{protocolo}}</b>, conforme dados a seguir, efetuamos o cancelamento do cadastro na presente data <b>{{data_hoje}}</b>.
+                  <br><br>
+                  Obrigado.
+                  </font>
+                </td>
+              </tr>
+              <!-- DADOS CADASTRANTE -->
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="center" style="padding-top: 5px;">
+                  <div style="background-color: #ffffff; border-top: 3px solid #126EB8; border-left: 3px solid #126EB8; border-right: 3px solid #126EB8; padding: 10px;">
+                    <font style="color: #126EB8; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px; font-weight: bold;">
+                    Dados do Cadastrante
+                    </font><br>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="left" style="padding-bottom: 5px;">
+                  <div style="background-color: #ffffff; border-bottom: 3px solid #126EB8; border-left: 3px solid #126EB8; border-right: 3px solid #126EB8; padding: 10px;">
+                    <font style="color: #126EB8; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px; font-weight: bold;">
+                    CPF/CNPJ: {{proponente_cpf_cnpj}}
+                    <br>
+                    Nome: {{proponente_nome}}
+                    <br>
+                    Tipo: {{proponente_tipo}}
+                    <br>
+                    E-mail: {{proponente_email}}
+                    <br>
+                    Telefone Fixo: {{proponente_telefone}}
+                    <br>
+                    Telefone Celular: {{proponente_celular}}</font>
+                  </div>
+                </td>
+              </tr>
+              <td width="67">&nbsp;</td>
+              <!-- DADOS IMÓVEL -->
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="center" style="padding-top: 5px;">
+                  <div style="background-color: #ffffff; border-top: 3px solid #126EB8; border-left: 3px solid #126EB8; border-right: 3px solid #126EB8; padding: 10px;">
+                    <font style="color: #126EB8; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px; font-weight: bold;">
+                    Dados do Imóvel
+                    </font><br>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="left" style="padding-bottom: 5px;">
+                  <div style="background-color: #ffffff; border-bottom: 3px solid #126EB8; border-left: 3px solid #126EB8; border-right: 3px solid #126EB8; padding: 10px;">
+                    <font style="color: #126EB8; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px; font-weight: bold;">
+                    Endereço: {{endereco}}
+                    <br>
+                    Número: {{numero}}
+                    <br>
+                    Bairro: {{bairro}}
+                    <br>
+                    CEP: {{cep}}
+                    <br>
+                    Cidade/Estado: {{cidade}} - {{uf}}
+                    <br>
+                    Número do IPTU: {{numero_iptu}}
+                    <br>
+                    Área Construída (m²): {{area_construida}}</font>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td width="600" height="40" bgcolor="#ffffff" align="center" style="padding-top: 5px; padding-bottom: 15px">
+                  <font style="color: #42474A; font-family: 'Open Sans', Helvetica, Open Sans, Arial, sans-serif; font-size: 16px;">
+                  Agradecemos o contato.
+                  </font>
+                </td>
+              </tr>
+              <!-- END CONTENT -->
+              <td width="67">&nbsp;</td>
+              <tr>
+                <td align="center" bgcolor="FFFFFF"><a href="https://dev-imoveis.sme.prefeitura.sp.gov.br/" target="_blank" rel="noopener"><img src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2019/06/Logo_Educacao.png" width="auto" height="auto" /></a></td>
+              </tr>
+              <td>&nbsp;</td>
+            </tbody>
+          </table>
+  </body>
+</html>
