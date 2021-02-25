@@ -218,6 +218,7 @@ class Imovel(FluxoImoveis):
     def as_dict(self):
         log_vistoria = self.logs.filter(status_evento=6).first()
         data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
+        diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
         return {
             'protocolo': self.protocolo,
             'proponente_cpf_cnpj': self.proponente.cpf_cnpj,
@@ -234,7 +235,7 @@ class Imovel(FluxoImoveis):
             'cidade': self.cidade,
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
-            'data_vistoria': data_vistoria
+            'diretoria_regional_educacao': diretoria_regional_educacao
         }
 
     class Meta:
