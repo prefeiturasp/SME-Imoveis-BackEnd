@@ -523,6 +523,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         user = request.user
         imovel.cancela(user=user)
+        data = imovel.as_dict()
+        template = "cancela_cadastro"
+        subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Protocolo Cancelado."
+        email = data['proponente_email']
+        task_send_email_to_usuario.delay(subject, template, data, email)
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 

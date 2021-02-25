@@ -235,7 +235,8 @@ class Imovel(FluxoImoveis):
             'cidade': self.cidade,
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
-            'diretoria_regional_educacao': diretoria_regional_educacao
+            'diretoria_regional_educacao': diretoria_regional_educacao,
+            'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y")
         }
 
     class Meta:
