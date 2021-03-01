@@ -90,9 +90,14 @@ class AnexoCreateSerializer(serializers.ModelSerializer):
 
 class DemandaImovelSerializer(ModelSerializer):
     total = serializers.SerializerMethodField()
+    data_atualizacao = serializers.SerializerMethodField()
 
     def get_total(self, obj):
         return obj.total
+    
+    def get_data_atualizacao(self, obj):
+        data_formatada = obj.data_atualizacao.strftime('%d/%m/%Y') if obj.data_atualizacao else "Sem data atualização."
+        return f"Atualização COTIC/DIE: {data_formatada}."
 
     class Meta:
         model = DemandaImovel
@@ -225,30 +230,35 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         response = requests.get(url, headers=headers)
         results = response.json().get('results')
         demanda_imovel = DemandaImovel(imovel=imovel)
+        datas = []
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(bercario_i.get("data_atualizacao"))
+            datas.append(data_formatada(bercario_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_i = 0
         try:
             bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(bercario_ii.get("data_atualizacao"))
+            datas.append(data_formatada(bercario_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_ii = 0
         try:
             mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_i.get("data_atualizacao"))
+            datas.append(data_formatada(mini_grupo_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_i = 0
         try:
             mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_ii.get("data_atualizacao"))
+            datas.append(data_formatada(mini_grupo_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
+        
+        if datas:
+            demanda_imovel.data_atualizacao = max(datas)
+
         demanda_imovel.save()
         
 
@@ -341,30 +351,35 @@ class UpdateImovelSerializer(serializers.ModelSerializer):
         results = response.json().get('results')
         DemandaImovel.objects.filter(imovel=imovel).delete()
         demanda_imovel = DemandaImovel(imovel=imovel)
+        datas = []
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(bercario_i.get("data_atualizacao"))
+            datas.append(data_formatada(bercario_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_i = 0
         try:
             bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(bercario_ii.get("data_atualizacao"))
+            datas.append(data_formatada(bercario_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_ii = 0
         try:
             mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_i.get("data_atualizacao"))
+            datas.append(data_formatada(mini_grupo_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_i = 0
         try:
             mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
-            demanda_imovel.data_atualizacao = data_formatada(mini_grupo_ii.get("data_atualizacao"))
+            datas.append(data_formatada(mini_grupo_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
+        
+        if datas:
+            demanda_imovel.data_atualizacao = max(datas)
+        
         demanda_imovel.save()
 
         return imovel
