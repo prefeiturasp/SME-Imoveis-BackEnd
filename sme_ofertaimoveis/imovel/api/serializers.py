@@ -1,3 +1,4 @@
+from datetime import datetime
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 import json
@@ -12,6 +13,7 @@ from ..models import ContatoImovel, Imovel, Proponente, PlantaFoto, DemandaImove
 from ...dados_comuns.api.serializers import SetorSerializer
 from ...dados_comuns.api.serializers.log_fluxo_status_serializer import LogFluxoStatusSerializer
 from ...dados_comuns.models import Setor
+from ..utils import data_formatada
 
 
 class ContatoSerializer(serializers.ModelSerializer):
@@ -89,9 +91,14 @@ class AnexoCreateSerializer(serializers.ModelSerializer):
 
 class DemandaImovelSerializer(ModelSerializer):
     total = serializers.SerializerMethodField()
+    data_atualizacao = serializers.SerializerMethodField()
 
     def get_total(self, obj):
         return obj.total
+    
+    def get_data_atualizacao(self, obj):
+        data_formatada = obj.data_atualizacao.strftime('%d/%m/%Y') if obj.data_atualizacao else "Sem data atualização."
+        return f"Atualização COTIC/DIE: {data_formatada}."
 
     class Meta:
         model = DemandaImovel
@@ -224,6 +231,7 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
         response = requests.get(url, headers=headers)
         results = response.json().get('results')
         demanda_imovel = DemandaImovel(imovel=imovel)
+
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
@@ -244,7 +252,10 @@ class CadastroImovelSerializer(serializers.ModelSerializer):
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
+        
+        demanda_imovel.data_atualizacao = datetime.now()
         demanda_imovel.save()
+        
 
         tamanho_total_dos_arquivos = 0
         for anexo in anexos:
@@ -340,6 +351,7 @@ class UpdateImovelSerializer(serializers.ModelSerializer):
         results = response.json().get('results')
         DemandaImovel.objects.filter(imovel=imovel).delete()
         demanda_imovel = DemandaImovel(imovel=imovel)
+        datas = []
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
@@ -360,6 +372,8 @@ class UpdateImovelSerializer(serializers.ModelSerializer):
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
+
+        demanda_imovel.data_atualizacao = datetime.now()
         demanda_imovel.save()
 
         return imovel

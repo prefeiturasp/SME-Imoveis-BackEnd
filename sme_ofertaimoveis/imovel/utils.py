@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def checa_digito_verificador_iptu(numero_iptu):
     multiplicacoes = [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     soma = 0
@@ -7,3 +9,8 @@ def checa_digito_verificador_iptu(numero_iptu):
         indice += 1
     mod = soma % 11 if soma % 11 != 10 else 1
     return int(numero_iptu[-1]) == mod
+
+def data_formatada(string_data):
+    """Pegar a string isoformat e transformar em uma data no format yyyy-mm-dd"""
+    str_d = datetime.strptime(string_data, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d')
+    return datetime.strptime(str_d, '%Y-%m-%d')
