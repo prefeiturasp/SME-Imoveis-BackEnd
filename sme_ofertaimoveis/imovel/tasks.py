@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+from datetime import datetime
 import requests
 
 from django.conf import settings
@@ -9,7 +10,7 @@ from requests.exceptions import HTTPError
 
 from ..dados_comuns.utils import send_email, consult_api_sciedu
 from .models import DemandaImovel, Imovel, SME_Contatos 
-from .utils import data_formatada
+
 
 @shared_task
 def task_send_email_to_sme(imovel_id):
@@ -69,33 +70,27 @@ def atualiza_demandas():
         response = requests.get(url, headers=headers)
         results = response.json().get('results')
 
-        datas = []
         try:
             bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
             demanda_imovel.bercario_i = bercario_i.get('total')
-            datas.append(data_formatada(bercario_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_i = 0
         try:
             bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
             demanda_imovel.bercario_ii = bercario_ii.get('total')
-            datas.append(data_formatada(bercario_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.bercario_ii = 0
         try:
             mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
             demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
-            datas.append(data_formatada(mini_grupo_i.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_i = 0
         try:
             mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
-            datas.append(data_formatada(mini_grupo_ii.get("data_atualizacao")))
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
         
-        if datas:
-            demanda_imovel.data_atualizacao = max(datas)
         
+        demanda_imovel.data_atualizacao = datetime.now()
         demanda_imovel.save()
