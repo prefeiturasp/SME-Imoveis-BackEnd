@@ -236,7 +236,13 @@ class Imovel(FluxoImoveis):
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
             'diretoria_regional_educacao': diretoria_regional_educacao,
-            'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y")
+            'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y"),
+            'bercario_i': self.demandaimovel.bercario_i,
+            'bercario_ii': self.demandaimovel.bercario_ii,
+            'mini_grupo_i': self.demandaimovel.mini_grupo_i,
+            'mini_grupo_ii': self.demandaimovel.mini_grupo_ii,
+            'total': self.demandaimovel.total,
+            'data_atualizacao_demanda': self.demandaimovel.data_atualizacao
         }
 
     class Meta:
