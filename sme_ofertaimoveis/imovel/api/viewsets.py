@@ -542,6 +542,17 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/get-by-protocolo')
+    def get_by_protocolo(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        if(str(imovel.criado_em.year) == request.query_params.get('criado_em')):
+            serializer = self.get_serializer(imovel, context={'request': request})
+            return Response(status=status.HTTP_200_OK, data=serializer.data)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
 
 class DemandaRegiao(APIView):
     """

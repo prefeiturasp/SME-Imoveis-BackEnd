@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 import logging
 
+from datetime import datetime
+import requests
+
 from django.conf import settings
 from celery import shared_task
 
 from requests.exceptions import HTTPError
 
 from ..dados_comuns.utils import send_email, consult_api_sciedu
-from .models import Imovel, SME_Contatos
+from .models import DemandaImovel, Imovel, SME_Contatos 
 
 log = logging.getLogger(__name__)
 
@@ -51,3 +54,41 @@ def send_email_(subject, template, data, to_email):
         data=data,
         to_email=to_email,
     )
+
+
+@shared_task
+def atualiza_demandas():
+    for demanda_imovel in DemandaImovel.objects.all():
+        imovel = demanda_imovel.imovel
+        url = f'{settings.SCIEDU_URL}/{imovel.latitude}/{imovel.longitude}'
+        headers = {
+            "Authorization": f'Token {settings.SCIEDU_TOKEN}',
+            "Content-Type": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        results = response.json().get('results')
+
+        try:
+            bercario_i = next(item for item in results if item["cd_serie_ensino"] == 1)
+            demanda_imovel.bercario_i = bercario_i.get('total')
+        except StopIteration:
+            demanda_imovel.bercario_i = 0
+        try:
+            bercario_ii = next(item for item in results if item["cd_serie_ensino"] == 4)
+            demanda_imovel.bercario_ii = bercario_ii.get('total')
+        except StopIteration:
+            demanda_imovel.bercario_ii = 0
+        try:
+            mini_grupo_i = next(item for item in results if item["cd_serie_ensino"] == 27)
+            demanda_imovel.mini_grupo_i = mini_grupo_i.get('total')
+        except StopIteration:
+            demanda_imovel.mini_grupo_i = 0
+        try:
+            mini_grupo_ii = next(item for item in results if item["cd_serie_ensino"] == 28)
+            demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
+        except StopIteration:
+            demanda_imovel.mini_grupo_ii = 0
+        
+        
+        demanda_imovel.data_atualizacao = datetime.now()
+        demanda_imovel.save()
