@@ -559,6 +559,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/get-as-dict')
+    def get_as_dict(self, request):
+        imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        return Response(status=status.HTTP_200_OK, data=imovel.as_dict())
+
 
 class DemandaRegiao(APIView):
     """

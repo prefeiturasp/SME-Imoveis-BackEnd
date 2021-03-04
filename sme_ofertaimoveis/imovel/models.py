@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+import environ
 
 from django.db import models
 from django.core import validators
@@ -9,6 +10,7 @@ from .managers import SME_ContatosManager
 from ..dados_comuns.fluxo_status import FluxoImoveis
 from ..dados_comuns.models import Secretaria, Setor, LogFluxoStatus
 
+env = environ.Env()
 
 class SME_Contatos(models.Model):
     nome = models.CharField("Nome", max_length=255)
@@ -220,6 +222,8 @@ class Imovel(FluxoImoveis):
         data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
         diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
         return {
+            'react_url': env('REACT_APP_URL'),
+            'uuid': self.id,
             'protocolo': self.protocolo,
             'proponente_cpf_cnpj': self.proponente.cpf_cnpj,
             'proponente_nome': self.proponente.nome,
