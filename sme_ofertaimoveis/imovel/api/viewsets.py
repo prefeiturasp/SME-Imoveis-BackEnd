@@ -528,7 +528,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
     def cancelar(self, request):
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         user = request.user
-        imovel.cancela(user=user)
+        data_agendada = datetime.datetime.now()
+        imovel.cancela(user=user, data_agendada=data_agendada)
         data = imovel.as_dict()
         template = "cancela_cadastro"
         subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Protocolo Cancelado."

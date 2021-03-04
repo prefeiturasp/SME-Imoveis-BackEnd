@@ -223,7 +223,9 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
         self.salvar_log_transicao(status_evento=LogFluxoStatus.CANCELADO,
                                   usuario=user,
                                   justificativa=kwargs.get('justificativa', ''),
-                                  email_enviado=kwargs.get('enviar_email', False))
+                                  email_enviado=kwargs.get('enviar_email', False),
+                                  data_agendada=kwargs.get('data_agendada', None))
+                                  
     @xworkflows.after_transition('reativa')
     def _reativa_hook(self, *args, **kwargs):
         logs = self.logs.all()
