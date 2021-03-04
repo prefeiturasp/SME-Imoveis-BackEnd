@@ -220,6 +220,8 @@ class Imovel(FluxoImoveis):
     def as_dict(self):
         log_vistoria = self.logs.filter(status_evento=6).first()
         data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
+        log_cancelamento = self.logs.filter(status_evento=16).first()
+        data_cancelamento = datetime.strftime(log_cancelamento.data_agendada, "%d/%m/%Y") if log_cancelamento else ''
         diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
         return {
             'react_url': env('REACT_APP_URL'),
@@ -240,6 +242,8 @@ class Imovel(FluxoImoveis):
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
             'diretoria_regional_educacao': diretoria_regional_educacao,
+            'data_vistoria': data_vistoria,
+            'data_cancelamento': data_cancelamento,
             'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y"),
             'bercario_i': self.demandaimovel.bercario_i,
             'bercario_ii': self.demandaimovel.bercario_ii,
