@@ -222,6 +222,7 @@ class Imovel(FluxoImoveis):
         data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
         log_cancelamento = self.logs.filter(status_evento=16).first()
         data_cancelamento = datetime.strftime(log_cancelamento.data_agendada, "%d/%m/%Y") if log_cancelamento else ''
+        data_atualizacao_demanda = datetime.strftime(self.demandaimovel.data_atualizacao, "%d/%m/%Y") if self.demandaimovel.data_atualizacao else ''
         diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
         return {
             'react_url': env('REACT_APP_URL'),
@@ -233,7 +234,7 @@ class Imovel(FluxoImoveis):
             'proponente_telefone': self.proponente.telefone,
             'proponente_celular': self.proponente.celular,
             'proponente_tipo': self.proponente.get_tipo_proponente_display(),
-            'area_construida': self.area_construida,
+            'area_construida': int(self.area_construida),
             'endereco': self.endereco,
             'numero': self.numero,
             'bairro': self.bairro,
@@ -249,8 +250,8 @@ class Imovel(FluxoImoveis):
             'bercario_ii': self.demandaimovel.bercario_ii,
             'mini_grupo_i': self.demandaimovel.mini_grupo_i,
             'mini_grupo_ii': self.demandaimovel.mini_grupo_ii,
-            'total': self.demandaimovel.total,
-            'data_atualizacao_demanda': self.demandaimovel.data_atualizacao
+            'demanda_total': self.demandaimovel.total,
+            'data_atualizacao_demanda': data_atualizacao_demanda
         }
 
     class Meta:
