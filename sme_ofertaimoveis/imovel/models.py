@@ -193,7 +193,7 @@ class Imovel(FluxoImoveis):
     @property
     def protocolo(self):
         if self.id:
-            return "{:03d}".format(self.id) + "/" + str(self.criado_em.year)
+            return "{:03d}".format(self.id)
         return ""
 
     def __str__(self):
