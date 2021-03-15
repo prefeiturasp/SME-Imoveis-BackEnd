@@ -556,6 +556,71 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         return Response(status=status.HTTP_200_OK, data=imovel.as_dict())
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/anos')
+    def anos_imoveis(self, request):
+        imoveis = Imovel.objects.all()
+        anos = []
+        for imovel in imoveis:
+            ano = datetime.datetime.strftime(imovel.criado_em, "%Y")
+            if ano not in anos:
+                anos.append(ano)
+        return Response(status=status.HTTP_200_OK, data=anos)
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/filtrar-por-status')
+    def filtrar_por_status(self, request):
+        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
+                             'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
+                             'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
+                             'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
+        status_aprovados_vistoria = ['VISTORIA_APROVADA', 'ENVIADO_DRE',
+                                     'FINALIZADO_APROVADO']
+        status_reprovados_vistoria = ['VISTORIA_REPROVADA', 'FINALIZADO_REPROVADO']
+        status_finalizados_reprovados = ['FINALIZADO_AREA_INSUFICIENTE',
+                                         'FINALIZADO_DEMANDA_INSUFICIENTE',
+                                         'FINALIZADO_NAO_ATENDE_NECESSIDADES']
+        status_cancelados = ['CANCELADO']
+        if (request.query_params.getlist('anos') == []):
+            imoveis = Imovel.objects.all()
+        else:
+            imoveis = Imovel.objects.filter(criado_em__year=request.query_params.getlist('anos'))
+
+        total = Imovel.objects.count()
+        em_analise = 0
+        aprovados_na_vistoria = 0
+        reprovados_na_vistoria = 0
+        finalizados_reprovados = 0
+        cancelados = 0
+        if(request.query_params.getlist('status') == []):
+            em_analise = imoveis.filter(status__in=status_em_analise).count()
+            aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+            reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+            finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+            cancelados = imoveis.filter(status__in=status_cancelados).count()
+        else:
+            if '1' in request.query_params.getlist('status'):
+                em_analise = imoveis.filter(status__in=status_em_analise).count()
+            if '2' in request.query_params.getlist('status'):
+                aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+            if '3' in request.query_params.getlist('status'):
+                reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+            if '4' in request.query_params.getlist('status'):
+                finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+            if '5' in request.query_params.getlist('status'):
+                cancelados = imoveis.filter(status__in=status_cancelados).count()
+
+        data = {'total': total,
+                'em_analise': em_analise,
+                'aprovados_na_vistoria': aprovados_na_vistoria,
+                'reprovados_na_vistoria': reprovados_na_vistoria,
+                'finalizados_reprovados': finalizados_reprovados,
+                'cancelados': cancelados}
+
+        return Response(status=status.HTTP_200_OK, data=data)
+
 
 class DemandaRegiao(APIView):
     """
