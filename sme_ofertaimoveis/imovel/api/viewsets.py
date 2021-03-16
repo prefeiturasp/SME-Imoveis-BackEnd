@@ -583,12 +583,10 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_DEMANDA_INSUFICIENTE',
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
-        if (request.query_params.getlist('anos') == []):
-            imoveis = Imovel.objects.all()
-        else:
-            imoveis = Imovel.objects.filter(criado_em__year=request.query_params.getlist('anos'))
-
-        total = Imovel.objects.count()
+        imoveis = Imovel.objects.all()
+        if(request.query_params.getlist('anos') != []):
+            imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
+        total = imoveis.count()
         em_analise = 0
         aprovados_na_vistoria = 0
         reprovados_na_vistoria = 0
