@@ -99,10 +99,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             celula = ws.cell(row=1, column=ind)
             celula.value = title
             ws.column_dimensions[celula.column_letter].width = 20
-            if (ind == 1):
+            if ind in [1, 6]:
                 ws.column_dimensions[celula.column_letter].width = 25
-            if ind in [2, 8, 11, 12]:
+            if ind in [11, 12]:
                 ws.column_dimensions[celula.column_letter].width = 50
+            if ind in [2, 8]:
+                ws.column_dimensions[celula.column_letter].width = 60
 
         for i, imovel in enumerate(imoveis, 2):
             ws.cell(row=i, column=1, value=imovel.protocolo)
