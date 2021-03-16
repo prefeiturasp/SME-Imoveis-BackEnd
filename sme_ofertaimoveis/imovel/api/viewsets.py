@@ -113,10 +113,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 ws.cell(row=i, column=5, value=imovel.setor.codigo)
             ws.cell(row=i, column=6, value=imovel.numero_iptu)
             ws.cell(row=i, column=7, value=imovel.area_construida)
-            ws.cell(row=i, column=8, value=imovel.proponente.nome)
-            ws.cell(row=i, column=9, value=imovel.proponente.telefone)
-            ws.cell(row=i, column=10, value=imovel.proponente.celular)
-            ws.cell(row=i, column=11, value=imovel.proponente.email)
+            if(imovel.proponente != None):
+                ws.cell(row=i, column=8, value=imovel.proponente.nome)
+                ws.cell(row=i, column=9, value=imovel.proponente.telefone)
+                ws.cell(row=i, column=10, value=imovel.proponente.celular)
+                ws.cell(row=i, column=11, value=imovel.proponente.email)
             ws.cell(row=i, column=12, value=imovel.status.title)
 
         for linha in range(1, (count_data + 2)):
