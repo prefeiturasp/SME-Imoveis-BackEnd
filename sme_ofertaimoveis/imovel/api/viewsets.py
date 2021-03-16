@@ -24,6 +24,7 @@ from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 from django.db.models import Q
 from django.db.models import Sum
+from itertools import chain
 
 env = environ.Env()
 
@@ -82,6 +83,57 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                     ]
             queryset = queryset.filter(criado_em__gte=dates[0], criado_em__lte=dates[1])
         return queryset
+
+    def _gerar_planilha(self, imoveis):
+        cabecalho = ['Número do Protocolo', 'Logradouro', 'DRE', 'Distrito',
+                     'Setor', 'Número do IPTU', 'Área por m²',
+                     'Proprietário/Representante', 'Telefone', 'Celular', 'E-mail',
+                     'Status']
+
+        count_fields = len(cabecalho)
+        count_data = len(imoveis)
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Relatório por Status"
+        for ind, title in enumerate(cabecalho, 1):
+            celula = ws.cell(row=1, column=ind)
+            celula.value = title
+            ws.column_dimensions[celula.column_letter].width = 20
+            if (ind == 1):
+                ws.column_dimensions[celula.column_letter].width = 25
+            if ind in [2, 8, 11, 12]:
+                ws.column_dimensions[celula.column_letter].width = 50
+
+        for i, imovel in enumerate(imoveis, 2):
+            ws.cell(row=i, column=1, value=imovel.protocolo)
+            ws.cell(row=i, column=2, value=("%s, %s"%(imovel.endereco, imovel.numero)))
+            if(imovel.setor != None):
+                ws.cell(row=i, column=3, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
+                ws.cell(row=i, column=4, value=imovel.setor.distrito.nome)
+                ws.cell(row=i, column=5, value=imovel.setor.codigo)
+            ws.cell(row=i, column=6, value=imovel.numero_iptu)
+            ws.cell(row=i, column=7, value=imovel.area_construida)
+            ws.cell(row=i, column=8, value=imovel.proponente.nome)
+            ws.cell(row=i, column=9, value=imovel.proponente.telefone)
+            ws.cell(row=i, column=10, value=imovel.proponente.celular)
+            ws.cell(row=i, column=11, value=imovel.proponente.email)
+            ws.cell(row=i, column=12, value=imovel.status.title)
+
+        for linha in range(1, (count_data + 2)):
+            for coluna in range(1, (count_fields + 1)):
+                celula = ws.cell(row=linha, column=coluna)
+                celula.font = Font(color="404040", size="12", bold=True)
+                celula.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+                if linha == 1:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
+                elif(linha % 2) == 0:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='C5C5C5')
+                else:
+                    celula.fill = PatternFill(fill_type='solid', fgColor='EAEAEA')
+                celula.alignment = Alignment(horizontal='center', vertical='center')
+
+        result = BytesIO(save_virtual_workbook(wb))
+        return result
 
     def _agrupa_por_mes_por_solicitacao(self, query_set: list) -> dict:
         # TODO: melhorar performance
@@ -584,7 +636,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
         imoveis = Imovel.objects.all()
-        if(request.query_params.getlist('anos') != []):
+        if (request.query_params.getlist('anos') != []):
             imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
         total = imoveis.count()
         em_analise = 0
@@ -619,6 +671,58 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
         return Response(status=status.HTTP_200_OK, data=data)
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/exportar-relatorio-por-status')
+    def exportar_relatorio_por_status(self, request):
+        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
+                             'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
+                             'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
+                             'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
+        status_aprovados_vistoria = ['VISTORIA_APROVADA', 'ENVIADO_DRE',
+                                     'FINALIZADO_APROVADO']
+        status_reprovados_vistoria = ['VISTORIA_REPROVADA', 'FINALIZADO_REPROVADO']
+        status_finalizados_reprovados = ['FINALIZADO_AREA_INSUFICIENTE',
+                                         'FINALIZADO_DEMANDA_INSUFICIENTE',
+                                         'FINALIZADO_NAO_ATENDE_NECESSIDADES']
+        status_cancelados = ['CANCELADO']
+        imoveis = Imovel.objects.all()
+        em_analise = []
+        aprovados_na_vistoria = []
+        reprovados_na_vistoria = []
+        finalizados_reprovados = []
+        cancelados = []
+        if (request.query_params.getlist('anos') != []):
+            imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
+        if(request.query_params.getlist('status') == []):
+            em_analise = imoveis.filter(status__in=status_em_analise)
+            aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria)
+            reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria)
+            finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados)
+            cancelados = imoveis.filter(status__in=status_cancelados)
+        else:
+            if '1' in request.query_params.getlist('status'):
+                em_analise = imoveis.filter(status__in=status_em_analise)
+            if '2' in request.query_params.getlist('status'):
+                aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria)
+            if '3' in request.query_params.getlist('status'):
+                reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria)
+            if '4' in request.query_params.getlist('status'):
+                finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados)
+            if '5' in request.query_params.getlist('status'):
+                cancelados = imoveis.filter(status__in=status_cancelados)
+        imoveis = list(chain(em_analise, aprovados_na_vistoria))
+        imoveis = list(chain(imoveis, reprovados_na_vistoria))
+        imoveis = list(chain(imoveis, finalizados_reprovados))
+        imoveis = list(chain(imoveis, cancelados))
+        result = self._gerar_planilha(imoveis)
+        filename = 'relatorio-por-status.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
 
 class DemandaRegiao(APIView):
     """
