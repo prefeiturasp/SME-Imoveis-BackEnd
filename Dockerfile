@@ -5,7 +5,7 @@ WORKDIR /code
 
 RUN apt-get update && apt-get install libpq-dev -y tzdata && \
     cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
-      apt-get install --no-cache \
+      apt-get install \
       --virtual=.build-dependencies \
       gcc \
       musl-dev \
