@@ -5,21 +5,25 @@ WORKDIR /code
 
 RUN apk update && apk add postgresql-dev tzdata && \
     cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
-       apk add --no-cache \
+      apk add --no-cache \
       --virtual=.build-dependencies \
       gcc \
       musl-dev \
       git \
       python3-dev \
-      python3-cffi \   
       jpeg-dev \
       # Pillow
       zlib-dev \
-      libcairo2 \
-      libpango-1.0-0 \
-      libpangocairo-1.0-0 \
-      libgdk-pixbuf2.0-0 \   
-      libffi-dev \
+      build-essential  \
+      python3-pip  \
+      python3-setuptools  \
+      python3-wheel  \
+      python3-cffi  \
+      libcairo2  \
+      libpango-1.0-0  \
+      libpangocairo-1.0-0  \
+      libgdk-pixbuf2.0-0 \
+      libffi-dev  \
       shared-mime-info \
       freetype-dev \
       lcms2-dev \
