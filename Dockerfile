@@ -1,11 +1,11 @@
-FROM python:3.6-alpine3.8
+FROM python:3.6-buster
 ENV PYTHONUNBUFFERED 1
 ADD . /code
 WORKDIR /code
 
-RUN apk update && apk add postgresql-dev tzdata && \
+RUN apt-get update && apt-get install postgresql-dev tzdata && \
     cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
-      apk add --no-cache \
+      apt-get install --no-cache \
       --virtual=.build-dependencies \
       gcc \
       musl-dev \
@@ -14,17 +14,7 @@ RUN apk update && apk add postgresql-dev tzdata && \
       jpeg-dev \
       # Pillow
       zlib-dev \
-      build-essential  \
-      python3-pip  \
-      python3-setuptools  \
-      python3-wheel  \
-      python3-cffi  \
-      libcairo2  \
-      libpango-1.0-0  \
-      libpangocairo-1.0-0  \
-      libgdk-pixbuf2.0-0 \
-      libffi-dev  \
-      shared-mime-info \
+      libffi-dev \
       freetype-dev \
       lcms2-dev \
       openjpeg-dev \
@@ -35,6 +25,6 @@ RUN apk update && apk add postgresql-dev tzdata && \
       fribidi-dev && \
     python -m pip --no-cache install -U pip && \
     python -m pip --no-cache --use-feature=2020-resolver install -r requirements/production.txt && \
-    apk del --purge .build-dependencies
+    # apt-get del --purge .build-dependencies
 
 EXPOSE 8000
