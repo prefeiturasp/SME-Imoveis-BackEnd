@@ -3,7 +3,7 @@ ENV PYTHONUNBUFFERED 1
 ADD . /code
 WORKDIR /code
 
-RUN apt-get update && apt-get install postgresql-dev tzdata && \
+RUN apt-get update && apt-get install libpq-dev -y tzdata && \
     cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
       apt-get install --no-cache \
       --virtual=.build-dependencies \
