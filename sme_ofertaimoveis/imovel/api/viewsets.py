@@ -10,6 +10,10 @@ from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Fo
 from django.http import HttpResponse
 from django.conf import settings
 
+from django.template.loader import render_to_string
+from django.core.files.storage import FileSystemStorage
+from weasyprint import HTML
+
 from rest_framework import status, mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -43,6 +47,77 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             return UpdateImovelSerializer
         else:
             return ListaImoveisSeriliazer
+
+    def _filtrar_relatorio_por_status(self, request):
+        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
+                             'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
+                             'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
+                             'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
+        status_aprovados_vistoria = ['VISTORIA_APROVADA', 'ENVIADO_DRE',
+                                     'FINALIZADO_APROVADO']
+        status_reprovados_vistoria = ['VISTORIA_REPROVADA', 'FINALIZADO_REPROVADO']
+        status_finalizados_reprovados = ['FINALIZADO_AREA_INSUFICIENTE',
+                                         'FINALIZADO_DEMANDA_INSUFICIENTE',
+                                         'FINALIZADO_NAO_ATENDE_NECESSIDADES']
+        status_cancelados = ['CANCELADO']
+        imoveis = Imovel.objects.all()
+        anos_selecionados = ""
+        status_selecionados = ""
+        status = []
+        if (request.query_params.getlist('anos') != []):
+            imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
+            anos = request.query_params.getlist('anos')
+            for idx, ano in enumerate(anos, 1):
+                if idx != len(anos):
+                    anos_selecionados = "{} {},".format(anos_selecionados, ano)
+                else:
+                    anos_selecionados = "{} {}".format(anos_selecionados, ano)
+        total = imoveis.count()
+        em_analise = 0
+        aprovados_na_vistoria = 0
+        reprovados_na_vistoria = 0
+        finalizados_reprovados = 0
+        cancelados = 0
+
+        if(request.query_params.getlist('status') == []):
+            em_analise = imoveis.filter(status__in=status_em_analise).count()
+            aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+            reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+            finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+            cancelados = imoveis.filter(status__in=status_cancelados).count()
+        else:
+            if '1' in request.query_params.getlist('status'):
+                status.append('EM ANÁLISE')
+                em_analise = imoveis.filter(status__in=status_em_analise).count()
+            if '2' in request.query_params.getlist('status'):
+                status.append('VISTORIA APROVADA')
+                aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+            if '3' in request.query_params.getlist('status'):
+                status.append('VISTORIA REPROVADA')
+                reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+            if '4' in request.query_params.getlist('status'):
+                status.append('FINALIZADOS REPROVADOS')
+                finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+            if '5' in request.query_params.getlist('status'):
+                status.append('CANCELADOS')
+                cancelados = imoveis.filter(status__in=status_cancelados).count()
+
+            status_selecionados = ", ".join(status)
+
+        data = {'total': total,
+                'em_analise': em_analise,
+                'aprovados_na_vistoria': aprovados_na_vistoria,
+                'reprovados_na_vistoria': reprovados_na_vistoria,
+                'finalizados_reprovados': finalizados_reprovados,
+                'cancelados': cancelados,
+                'nome': request.user.first_name,
+                'sobrenome': request.user.last_name,
+                'rf': request.user.username,
+                'anos_selecionados': anos_selecionados,
+                'status_selecionados': status_selecionados,
+                'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y")}
+
+        return data
 
     def _filtrar_cadastros(self, request):
         queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
@@ -627,57 +702,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='imoveis/filtrar-por-status')
     def filtrar_por_status(self, request):
-        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
-                             'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
-                             'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
-                             'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
-        status_aprovados_vistoria = ['VISTORIA_APROVADA', 'ENVIADO_DRE',
-                                     'FINALIZADO_APROVADO']
-        status_reprovados_vistoria = ['VISTORIA_REPROVADA', 'FINALIZADO_REPROVADO']
-        status_finalizados_reprovados = ['FINALIZADO_AREA_INSUFICIENTE',
-                                         'FINALIZADO_DEMANDA_INSUFICIENTE',
-                                         'FINALIZADO_NAO_ATENDE_NECESSIDADES']
-        status_cancelados = ['CANCELADO']
-        imoveis = Imovel.objects.all()
-        if (request.query_params.getlist('anos') != []):
-            imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
-        total = imoveis.count()
-        em_analise = 0
-        aprovados_na_vistoria = 0
-        reprovados_na_vistoria = 0
-        finalizados_reprovados = 0
-        cancelados = 0
-        if(request.query_params.getlist('status') == []):
-            em_analise = imoveis.filter(status__in=status_em_analise).count()
-            aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
-            reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
-            finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
-            cancelados = imoveis.filter(status__in=status_cancelados).count()
-        else:
-            if '1' in request.query_params.getlist('status'):
-                em_analise = imoveis.filter(status__in=status_em_analise).count()
-            if '2' in request.query_params.getlist('status'):
-                aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
-            if '3' in request.query_params.getlist('status'):
-                reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
-            if '4' in request.query_params.getlist('status'):
-                finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
-            if '5' in request.query_params.getlist('status'):
-                cancelados = imoveis.filter(status__in=status_cancelados).count()
-
-        data = {'total': total,
-                'em_analise': em_analise,
-                'aprovados_na_vistoria': aprovados_na_vistoria,
-                'reprovados_na_vistoria': reprovados_na_vistoria,
-                'finalizados_reprovados': finalizados_reprovados,
-                'cancelados': cancelados}
-
+        data = self._filtrar_relatorio_por_status(request)
         return Response(status=status.HTTP_200_OK, data=data)
 
     @action(detail=False,
             methods=['get'],
-            url_path='imoveis/exportar-relatorio-por-status')
-    def exportar_relatorio_por_status(self, request):
+            url_path='imoveis/relatorio-por-status-xls')
+    def relatorio_por_status_xls(self, request):
         status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
                              'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
                              'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
@@ -725,6 +756,25 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-por-status-pdf')
+    def relatorio_por_status_pdf(self, request, *args, **kwargs):
+        data = self._filtrar_relatorio_por_status(request)
+
+        html_string = render_to_string('imovel/relatorios/relatorio_por_status.html', {'data': data})
+        html = HTML(string=html_string)
+
+        html.write_pdf(target='/tmp/relatorio_por_status.pdf');
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_por_status.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_por_status.pdf"'
+            return response
+
         return response
 
 class DemandaRegiao(APIView):
