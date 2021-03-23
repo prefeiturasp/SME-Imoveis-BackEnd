@@ -5,13 +5,10 @@ from sme_ofertaimoveis.imovel.models import Imovel
 
 from enum import Enum
 
-class SituacaoDuplicidade(Enum):
-    MANTIDO = ''
-    DUPLICIDADE_IPTU = "Registro com duplicidade de IPTU."
-    DUPLICIDADE_ENDERECO = "Registro com duplicidade de Endereço."
+from ...utils import SituacaoDuplicidade
 
 class Command(BaseCommand):
-    help = "Identificar o imóveis com iptu duplicado marcando os devem ser excluídos e o que vai ser válido."
+    help = "Identificar o imóveis com iptu duplicado marcando os que devem ser excluídos e o que vai ser válido."
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Marcando imóveis com iptus duplicados.")
