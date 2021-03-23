@@ -186,6 +186,11 @@ class Imovel(FluxoImoveis):
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
+    # Valores String vazia, Registro com duplicidade de IPTU, Registro com duplicidade de Endereço 
+    situacao_duplicidade = models.CharField("Situação Duplicidade", max_length=255, null=True, blank=True, default='')
+    excluido = models.BooleanField(default=False)
+
+
     @property
     def anexos(self):
         return self.plantafoto_set.all()
