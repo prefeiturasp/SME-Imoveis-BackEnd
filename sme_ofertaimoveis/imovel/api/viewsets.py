@@ -37,7 +37,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                              mixins.UpdateModelMixin,
                              mixins.ListModelMixin):
     permission_classes = (AllowAny,)
-    queryset = Imovel.objects.all()
+    queryset = Imovel.objects.filter(excluido=False).all()
     serializer_class = ListaImoveisSeriliazer
 
     def get_serializer_class(self):
@@ -60,7 +60,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_DEMANDA_INSUFICIENTE',
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         anos_selecionados = ""
         status_selecionados = ""
         status = []
@@ -120,7 +120,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         return data
 
     def _filtrar_cadastros(self, request):
-        queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        queryset = Imovel.objects.filter(excluido=False).annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
         if 'protocolo' in request.query_params:
             queryset = queryset.filter(id=request.query_params.get('protocolo'))
         if 'endereco' in request.query_params:
@@ -230,7 +230,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'ultimos-30-dias',
         permission_classes=(IsAuthenticated,))
     def ultimos_30_dias(self, request):
-        query_set = Imovel.objects.all()
+        query_set = Imovel.objects.filter(excluido=False).all()
         resumo_do_mes = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
         return Response(resumo_do_mes, status=status.HTTP_200_OK)
 
@@ -240,7 +240,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/novos-cadastros',
         permission_classes=(IsAuthenticated,))
     def imoveis_novos_cadastros(self, request):
-        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25))
+        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25), excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -254,7 +254,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         _25_dias_atras = datetime.date.today() - datetime.timedelta(days=25)
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
         query_set = Imovel.objects.filter(criado_em__lt=_25_dias_atras,
-                                          criado_em__gte=_30_dias_atras)
+                                          criado_em__gte=_30_dias_atras,
+                                          excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -266,7 +267,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,))
     def imoveis_atrasados(self, request):
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
-        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras)
+        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras, excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -292,7 +293,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/update-status',
         permission_classes=(IsAuthenticated,))
     def update_status(self, request):
-        imovel = Imovel.objects.all().get(id=request.query_params.get('id'))
+        imovel = Imovel.objects.filter(excluido=False).all().get(id=request.query_params.get('id'))
         imovel.situacao = request.query_params.get('situacao')
         imovel.escola = request.query_params.get('escola')
         imovel.codigo_eol = request.query_params.get('codigo_eol')
@@ -456,7 +457,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='checa-iptu-ja-existe/(?P<numero_iptu>.*)')
     def checa_iptu_ja_existe(self, request, numero_iptu=None):
-        iptu_existe = numero_iptu in Imovel.objects.all().values_list('numero_iptu', flat=True)
+        iptu_existe = numero_iptu in Imovel.objects.filter(excluido=False).all().values_list('numero_iptu', flat=True)
         iptu_valido = checa_digito_verificador_iptu(numero_iptu)
         return Response(
             {'iptu_existe': iptu_existe, 'iptu_valido': iptu_valido}, status=status.HTTP_200_OK
@@ -468,7 +469,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             cep=request.data.get('cep'),
             endereco=request.data.get('endereco'),
             bairro=request.data.get('bairro'),
-            numero=request.data.get('numero')
+            numero=request.data.get('numero'),
+            excluido=False
         ).exists()
         return Response(
             {'endereco_existe': endereco_existe}, status=status.HTTP_200_OK
@@ -690,7 +692,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='imoveis/anos')
     def anos_imoveis(self, request):
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         anos = []
         for imovel in imoveis:
             ano = datetime.datetime.strftime(imovel.criado_em, "%Y")
@@ -720,7 +722,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_DEMANDA_INSUFICIENTE',
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         em_analise = []
         aprovados_na_vistoria = []
         reprovados_na_vistoria = []
