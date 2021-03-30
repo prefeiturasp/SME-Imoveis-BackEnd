@@ -21,7 +21,7 @@ class DistritoViewset(mixins.ListModelMixin, GenericViewSet):
         url_path=f'get_distritos_por_dre',
         permission_classes=(IsAuthenticated,))
     def get_distritos_por_dre(self, request):
-        subprefeituras = Subprefeitura.objects.filter(dre__id=request.query_params.get('dre'))
+        subprefeituras = Subprefeitura.objects.filter(dre__id__in=request.query_params.getlist('dre'))
         subprefeituras_ids = []
         for subprefeitura in subprefeituras:
             subprefeituras_ids.append(subprefeitura.id)
