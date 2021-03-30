@@ -21,7 +21,7 @@ class SetorViewset(mixins.ListModelMixin, GenericViewSet):
         url_path=f'get_setores_por_distrito',
         permission_classes=(IsAuthenticated,))
     def get_setores_por_distrito(self, request):
-        queryset = Setor.objects.filter(distrito__id=request.query_params.get('distrito'))
+        queryset = Setor.objects.filter(distrito__id__in=request.query_params.getlist('distrito'))
         serializer = self.get_serializer(queryset, many=True)
         return Response(
             data=serializer.data, status=status.HTTP_200_OK
