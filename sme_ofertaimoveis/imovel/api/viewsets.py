@@ -890,6 +890,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
         return response
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-por-demanda-xls')
+    def relatorio_por_demanada_xls(self, request):
+        imoveis = self._filtrar_relatorio_demanda_territorial(request)
+        result = self._gerar_planilha(imoveis)
+        filename = 'relatorio-por-demanda-territorial.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
+
 class DemandaRegiao(APIView):
     """
     Encapsula a chamada a API de demanda
