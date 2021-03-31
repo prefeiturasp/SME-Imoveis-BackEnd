@@ -122,22 +122,21 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     def _filtrar_relatorio_demanda_territorial(self, request):
         imoveis = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        if request.query_params.get('demandas') not in ['todos', None]:
+            if '1' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__lt=40)
+            if '2' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
+            if '3' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__gt=100)
         if (request.query_params.getlist('anos') != []):
             imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
         if request.query_params.getlist('setores') != []:
             imoveis = imoveis.filter(setor__codigo__in=request.query_params.getlist('setores'))
         if request.query_params.getlist('distritos') != []:
             imoveis = imoveis.filter(setor__distrito__id__in=request.query_params.getlist('distritos'))
-        if request.query_params.get('dres') not in ['todas', None] :
+        if request.query_params.get('dres') not in ['todas', None]:
             imoveis = imoveis.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dres'))
-        if request.query_params.getlist('demandas') != [] and len(request.query_params.getlist('demandas')) != 3:
-            if '1' in request.query_params.getlist('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__lt=40) | imoveis
-            if '2' in request.query_params.getlist('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100) | imoveis
-            if '3' in request.query_params.getlist('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__gt=100) | imoveis
-
         return imoveis
 
     def _get_resultado_por_dre(self, imoveis, dres, todas_demandas, request):
