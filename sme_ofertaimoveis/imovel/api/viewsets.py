@@ -23,6 +23,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
 from ..models import Imovel, PlantaFoto
+from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
@@ -118,6 +119,102 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y")}
 
         return data
+
+    def _filtrar_relatorio_demanda_territorial(self, request):
+        imoveis = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        if request.query_params.get('demandas') not in ['todos', None]:
+            if '1' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__lt=40)
+            if '2' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
+            if '3' == request.query_params.get('demandas'):
+                imoveis = imoveis.filter(demandaimovel__total__gt=100)
+        if (request.query_params.getlist('anos') != []):
+            imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
+        if request.query_params.getlist('setores') != []:
+            imoveis = imoveis.filter(setor__codigo__in=request.query_params.getlist('setores'))
+        if request.query_params.getlist('distritos') != []:
+            imoveis = imoveis.filter(setor__distrito__id__in=request.query_params.getlist('distritos'))
+        if request.query_params.get('dres') not in ['todas', None]:
+            imoveis = imoveis.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dres'))
+        return imoveis
+
+    def _get_resultado_por_dre(self, imoveis, dres, todas_demandas, request):
+        resultado_por_dre = {}
+        for dre in dres:
+            imoveis_filtrados = imoveis.filter(setor__distrito__subprefeitura__dre__nome=dre.nome)
+            if todas_demandas:
+                demanda_1 = imoveis_filtrados.filter(demandaimovel__total__lt=40).count()
+                demanda_2 = imoveis_filtrados.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100).count()
+                demanda_3 = imoveis_filtrados.filter(demandaimovel__total__gt=100).count()
+                resultado_por_dre[f"{dre.nome}"] = {'demanda_1': demanda_1, 'demanda_2': demanda_2, 'demanda_3': demanda_3}
+                if request.query_params.get('dres') not in ["todas", None]:
+                    if resultado_por_dre[dre.nome] == {'demanda_1': 0, 'demanda_2': 0, 'demanda_3': 0,}:
+                        del resultado_por_dre[dre.nome]
+            else:
+                resultado_por_dre[f"{dre.nome}"] = imoveis_filtrados.count()
+                if request.query_params.get('dres') not in ["todas", None] :
+                    if resultado_por_dre[dre.nome] == 0:
+                        del resultado_por_dre[dre.nome]
+        return resultado_por_dre
+
+    def _get_resultado_por_distrito(self, imoveis, dres, todas_demandas):
+        resultado_por_distrito = {}
+        for dre in dres:
+            imoveis_filtrados = imoveis.filter(setor__distrito__subprefeitura__dre__nome=dre.nome)
+            resultado_por_distrito[f"{dre.nome}"] = {}
+            if todas_demandas:
+                for imovel in imoveis_filtrados:
+                    demanda_1 = imoveis_filtrados.filter(demandaimovel__total__lt=40,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    demanda_2 = imoveis_filtrados.filter(demandaimovel__total__gte=40,
+                                                         demandaimovel__total__lte=100,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    demanda_3 = imoveis_filtrados.filter(demandaimovel__total__gt=100,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    resultado_por_distrito[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] = {'demanda_1': demanda_1,
+                                                                                              'demanda_2': demanda_2,
+                                                                                              'demanda_3': demanda_3}
+                if resultado_por_distrito[dre.nome] == {}:
+                    del resultado_por_distrito[dre.nome]
+            else:
+                for imovel in imoveis_filtrados:
+                    if resultado_por_distrito[f"{dre.nome}"].get(f"{imovel.setor.distrito.nome}") == None:
+                        resultado_por_distrito[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] = 1
+                    else:
+                        count_distrito = resultado_por_distrito[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] + 1
+                        resultado_por_distrito[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] = count_distrito
+                if resultado_por_distrito[dre.nome] == {}:
+                    del resultado_por_distrito[dre.nome]
+        return resultado_por_distrito
+
+    def _get_resultado_por_setor(self, imoveis, dres, todas_demandas):
+        resultado_por_setor = {}
+        for dre in dres:
+            imoveis_filtrados = imoveis.filter(setor__distrito__subprefeitura__dre__nome=dre.nome)
+            resultado_por_setor[f"{dre.nome}"] = {}
+            if todas_demandas:
+                for imovel in imoveis_filtrados:
+                    demanda_1 = imoveis_filtrados.filter(demandaimovel__total__lt=40,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    demanda_2 = imoveis_filtrados.filter(demandaimovel__total__gte=40,
+                                                         demandaimovel__total__lte=100,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    demanda_3 = imoveis_filtrados.filter(demandaimovel__total__gt=100,
+                                                         setor__distrito__id=imovel.setor.distrito.id).count()
+                    resultado = {'demanda_1': demanda_1,
+                                 'demanda_2': demanda_2,
+                                 'demanda_3': demanda_3}
+                    resultado_por_setor[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] = {f"{imovel.setor.codigo}": resultado}
+                if resultado_por_setor[dre.nome] == {}:
+                    del resultado_por_setor[dre.nome]
+            else:
+                for imovel in imoveis_filtrados:
+                    count_setor = Imovel.objects.filter(setor__codigo=imovel.setor.codigo).count()
+                    resultado_por_setor[f"{dre.nome}"][f"{imovel.setor.distrito.nome}"] = {f"{imovel.setor.codigo}": count_setor}
+                if resultado_por_setor[dre.nome] == {}:
+                    del resultado_por_setor[dre.nome]
+        return resultado_por_setor
 
     def _filtrar_cadastros(self, request):
         queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
@@ -707,6 +804,22 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(detail=False,
             methods=['get'],
+            url_path='imoveis/filtrar-por-demanda-territorial')
+    def filtrar_demanda_territorial(self, request):
+        data = self._filtrar_relatorio_demanda_territorial(request)
+        dres = DiretoriaRegional.objects.all()
+        total = Imovel.objects.all().count()
+        todas_demandas = (len(request.query_params.getlist('demandas')) == 3)
+        if request.query_params.get('tipo_resultado') == 'dre':
+            data = self._get_resultado_por_dre(data, dres, todas_demandas, request)
+        if request.query_params.get('tipo_resultado') == 'distrito':
+            data = self._get_resultado_por_distrito(data, dres, todas_demandas)
+        if request.query_params.get('tipo_resultado') == 'setor':
+            data = self._get_resultado_por_setor(data, dres, todas_demandas)
+        return Response(status=status.HTTP_200_OK, data={'data': data, 'total': total})
+
+    @action(detail=False,
+            methods=['get'],
             url_path='imoveis/relatorio-por-status-xls')
     def relatorio_por_status_xls(self, request):
         status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
@@ -775,6 +888,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             response['Content-Disposition'] = 'attachment; filename="relatorio_por_status.pdf"'
             return response
 
+        return response
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-por-demanda-xls')
+    def relatorio_por_demanada_xls(self, request):
+        imoveis = self._filtrar_relatorio_demanda_territorial(request)
+        result = self._gerar_planilha(imoveis)
+        filename = 'relatorio-por-demanda-territorial.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
 
 class DemandaRegiao(APIView):
