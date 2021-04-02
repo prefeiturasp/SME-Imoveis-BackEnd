@@ -139,6 +139,24 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             imoveis = imoveis.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dres'))
         return imoveis
 
+    def _filtrar_relatorio_area_construida(self, request):
+        imoveis = Imovel.objects.all()
+        resultado = {
+            'ate_200': 0,
+            '200_a_500': 0,
+            'maior_500': 0,
+        }
+        if request.query_params.get('ano') not in ['todos', None]:
+            imoveis = imoveis.filter(criado_em__year=request.query_params.get('ano'))
+        if '1' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['ate_200'] = imoveis.filter(area_construida__lt=200).count()
+        if '2' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['200_a_500'] = imoveis.filter(area_construida__gte=200, area_construida__lte=500).count()
+        if '3' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['maior_500'] = imoveis.filter(area_construida__gt=500).count()
+        resultado['total_filtrado'] = (resultado['ate_200'] + resultado['200_a_500'] + resultado['maior_500'] )
+        return resultado
+
     def _get_resultado_por_dre(self, imoveis, dres, todas_demandas, request):
         resultado_por_dre = {}
         for dre in dres:
@@ -875,6 +893,14 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         if request.query_params.get('tipo_resultado') == 'setor':
             data = self._get_resultado_por_setor(data, dres, todas_demandas)
         return Response(status=status.HTTP_200_OK, data={'data': data, 'total': total})
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/filtrar-por-area-construida')
+    def filtrar_area_construida(self, request):
+        data = self._filtrar_relatorio_area_construida(request)
+        data['total_imoveis'] = Imovel.objects.all().count()
+        return Response(status=status.HTTP_200_OK, data=data)
 
     @action(detail=False,
             methods=['get'],
