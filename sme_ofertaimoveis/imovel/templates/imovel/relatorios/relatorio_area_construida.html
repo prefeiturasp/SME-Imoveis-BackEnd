@@ -1,0 +1,186 @@
+<html>
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <style>
+    @page {
+      size: A4;
+      margin: 0 0 5% 0;
+      @bottom-right {
+        background: #F5F6F8;
+        color: #000000;
+        content: "Página " counter(page) " de " counter(pages);
+        font-size: 11px;
+        width: 20%;
+        padding: 1em 2em 1em 2em;
+        margin-top: 2em;
+      }
+      @bottom-center {
+        background: #F5F6F8;
+        color: #000000;
+        content: "http://imoveis.sme.prefeitura.sp.gov.br/";
+        font-size: 11px;
+        width: 60%;
+        padding: 1em 2em 1em 2em;
+        margin-top: 2em;
+      }
+      @bottom-left {
+        background: #F5F6F8;
+        color: #000000;
+        content: "";
+        font-size: 11px;
+        width: 20%;
+        padding: 1em 2em 1em 2em;
+        margin-top: 2em;
+      }
+    }
+    header {
+      width: 100%;
+      background: #F5F6F8;
+      padding-top: 5%;
+      padding-bottom: 3%;
+    }
+    .logo-imoveis {
+      width: 100%;
+      height: auto;
+    }
+    .logo-secretaria{
+      margin-left: 55px;
+      width: 131px;
+      height: 54px;
+    }
+    .cabecalho {
+      margin-top: 2%;
+      background-color: #ffffff;
+      border-radius: 5px;
+      border-color: #000000;
+      font-size: 10px;
+      font-weight: 400;
+      font-family: sans-serif;
+    }
+    .wrapper {
+      margin-top: 3%;
+      padding: 3% 5% 0 5%;
+      width: 100%;
+
+    }
+    .relatorio {
+      text-align: center;
+      width: 100%;
+      border: 1px solid #e9eaea;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .relatorio-row {
+      text-align: center;
+      border: 1px solid #e9eaea;
+      background-color: #f5f6f8;
+    }
+    .relatorio-coluna-cabecalho {
+      padding: 15px;
+      border-right: 1px solid #e9eaea;
+      font-family: sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 15px;
+      border-right: 1px solid #e9eaea;
+    }
+    .relatorio-corpo {
+      border: 1px solid #e9eaea;
+    }
+    .relatorio-coluna-corpo {
+      font-family: sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 15px;
+      border-right: 1px solid #e9eaea;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="col-3">
+          <img class="logo-imoveis" src="https://dev-imoveis.sme.prefeitura.sp.gov.br/static/media/Logo.fa22158f.png"/>
+        </div>
+        <div class="col-6"></div>
+        <div class="col-3">
+          <img class="logo-secretaria" src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2019/06/Logo_Educacao.png"/>
+        </div>
+        <div class="col-12">
+          <table class="table table-bordered border-dark cabecalho">
+            <thead>
+              <tr>
+                <td class="bg-white" colspan="3">
+                  RELATÓRIO DE CADASTRO DE IMÓVEIS POR ÁREA CONSTRUÍDA
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-white">
+                  Data: {{header.data_hoje}}
+                </td>
+                <td class="bg-white">
+                  Usuário: {{header.nome}} {{header.sobrenome}}
+                </td>
+                <td class="bg-white">
+                  RF: {{header.rf}}
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-white">
+                  Anos: {{header.anos_selecionados}}
+                </td>
+                <td class="bg-white" colspan="2">
+                  Áreas Construída Por: {{header.areas_selecionadas}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="wrapper">
+    <table class="relatorio">
+      <thead>
+        <tr class="relatorio-row">
+          <th class="relatorio-coluna-cabecalho"></th>
+          <th class="relatorio-coluna-cabecalho">Cadastrados</th>
+          {% if data.ate_200 > 0 %}
+            <th class="relatorio-coluna-cabecalho">Abaixo de 200m²</th>
+          {% endif %}
+          {% if data.200_a_500 > 0 %}
+            <th class="relatorio-coluna-cabecalho">Entre 200m² e 500m²</th>
+          {% endif %}
+          {% if data.maior_500 > 0 %}
+            <th class="relatorio-coluna-cabecalho">Acima de 500m²</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="relatorio-corpo">
+          <td class="relatorio-coluna-corpo">Quantidade de Imóveis</td>
+          <td class="relatorio-coluna-corpo">{{ data.total_imoveis }}</td>
+          {% if data.ate_200 > 0 %}
+            <td class="relatorio-coluna-corpo">{{ data.ate_200 }}</td>
+          {% endif %}
+          {% if data.200_a_500 > 0 %}
+            <td class="relatorio-coluna-corpo">{{ data.200_a_500 }}</td>
+          {% endif %}
+          {% if data.maior_500 > 0 %}
+            <td class="relatorio-coluna-corpo">{{ data.maior_500 }}</td>
+          {% endif %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</body>
+</html>
