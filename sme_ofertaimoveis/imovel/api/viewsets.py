@@ -904,6 +904,42 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(detail=False,
             methods=['get'],
+            url_path='imoveis/relatorio-area-construida-xls')
+    def relatorio_area_construida_xls(self, request):
+        imoveis = None
+        imoveis_1 = Imovel.objects.filter(area_construida__lt=200)
+        imoveis_2 = Imovel.objects.filter(area_construida__gte=200, area_construida__lte=500)
+        imoveis_3 = Imovel.objects.filter(area_construida__gt=500)
+        if '1' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            imoveis = imoveis_1
+        if '2' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            try:
+                imoveis = imoveis | imoveis_2
+            except:
+                imoveis = imoveis_2
+        if '3' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            try:
+                imoveis = imoveis | imoveis_3
+            except:
+                imoveis = imoveis_3
+        if request.query_params.get('ano') not in ['todos', None]:
+            try:
+                imoveis = imoveis.filter(criado_em__year=request.query_params.get('ano'))
+            except:
+                imoveis = Imovel.objects.filter(criado_em__year=request.query_params.get('ano'))
+        if imoveis == None:
+            imoveis = Imovel.objects.all()
+        result = self._gerar_planilha(imoveis)
+        filename = 'relatorio-por-area-construida.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
+
+    @action(detail=False,
+            methods=['get'],
             url_path='imoveis/relatorio-por-status-xls')
     def relatorio_por_status_xls(self, request):
         status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
