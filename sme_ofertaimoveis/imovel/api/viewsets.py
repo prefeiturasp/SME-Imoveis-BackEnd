@@ -239,12 +239,15 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         anos_selecionados = ""
         distritos_selecionados = ""
         setores_selecionados = ""
+        areas_selecionadas = ""
         for idx, ano in enumerate(anos, 1):
             if idx != len(anos):
                 anos_selecionados = "{} {},".format(anos_selecionados, ano)
             else:
                 anos_selecionados = "{} {}".format(anos_selecionados, ano)
 
+        if anos_selecionados == "":
+            anos_selecionados = ' - '
         if request.query_params.get('dres') in [None, 'todas']:
             dre = 'Todas'
         else:
@@ -278,6 +281,21 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         else:
             setores_selecionados = " - "
 
+        if ((request.query_params.getlist('areas') != []) and (len(request.query_params.getlist('areas')) != 3)):
+            for idx, area in enumerate(request.query_params.getlist('areas'), 1):
+                if area == '1':
+                    area_selecionada = "Abaixo de 200m²"
+                if area == '2':
+                    area_selecionada = "Abaixo de 200m²"
+                if area == '3':
+                    area_selecionada = "Abaixo de 200m²"
+                if idx != len(setores):
+                    areas_selecionadas = "{} {},".format(areas_selecionadas, area_selecionada)
+                else:
+                    areas_selecionadas = "{} {}".format(areas_selecionadas, area_selecionada)
+        else:
+            areas_selecionadas = "Todas"
+
         header = {
             'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y"),
             'nome': request.user.first_name,
@@ -288,6 +306,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             'demandas_selecionadas': demandas,
             'distritos_selecionados': distritos_selecionados,
             'setores_selecionados': setores_selecionados,
+            'areas_selecionadas': areas_selecionadas,
         }
         resultado = {'header': header, 'data': data }
         return resultado
@@ -905,6 +924,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
     @action(detail=False,
             methods=['get'],
             url_path='imoveis/relatorio-area-construida-xls')
+
     def relatorio_area_construida_xls(self, request):
         imoveis = None
         imoveis_1 = Imovel.objects.filter(area_construida__lt=200)
@@ -1051,6 +1071,26 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         with fs.open('relatorio_por_demanda.pdf') as pdf:
             response = HttpResponse(pdf, content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="relatorio_por_demanda.pdf"'
+            return response
+
+        return response
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-area-construida-pdf')
+    def relatorio_area_construida_pdf(self, request, *args, **kwargs):
+        data = self._filtrar_relatorio_area_construida(request)
+        data['total_imoveis'] = Imovel.objects.all().count()
+        resultado = self._formatar_header(request, data)
+        html_string = render_to_string('imovel/relatorios/relatorio_area_construida.html', resultado)
+
+        html = HTML(string=html_string)
+        html.write_pdf(target='/tmp/relatorio_area_construida.pdf');
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_area_construida.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_area_construida.pdf"'
             return response
 
         return response
