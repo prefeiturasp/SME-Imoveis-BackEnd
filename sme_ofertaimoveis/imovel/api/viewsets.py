@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
 from ..models import Imovel, PlantaFoto
-from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional
+from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
@@ -139,6 +139,24 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             imoveis = imoveis.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dres'))
         return imoveis
 
+    def _filtrar_relatorio_area_construida(self, request):
+        imoveis = Imovel.objects.all()
+        resultado = {
+            'ate_200': 0,
+            '200_a_500': 0,
+            'maior_500': 0,
+        }
+        if request.query_params.get('ano') not in ['todos', None]:
+            imoveis = imoveis.filter(criado_em__year=request.query_params.get('ano'))
+        if '1' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['ate_200'] = imoveis.filter(area_construida__lt=200).count()
+        if '2' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['200_a_500'] = imoveis.filter(area_construida__gte=200, area_construida__lte=500).count()
+        if '3' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            resultado['maior_500'] = imoveis.filter(area_construida__gt=500).count()
+        resultado['total_filtrado'] = (resultado['ate_200'] + resultado['200_a_500'] + resultado['maior_500'] )
+        return resultado
+
     def _get_resultado_por_dre(self, imoveis, dres, todas_demandas, request):
         resultado_por_dre = {}
         for dre in dres:
@@ -215,6 +233,83 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 if resultado_por_setor[dre.nome] == {}:
                     del resultado_por_setor[dre.nome]
         return resultado_por_setor
+
+    def _formatar_header(self, request, data):
+        anos = request.query_params.getlist('anos')
+        anos_selecionados = ""
+        distritos_selecionados = ""
+        setores_selecionados = ""
+        areas_selecionadas = ""
+        for idx, ano in enumerate(anos, 1):
+            if idx != len(anos):
+                anos_selecionados = "{} {},".format(anos_selecionados, ano)
+            else:
+                anos_selecionados = "{} {}".format(anos_selecionados, ano)
+
+        if anos_selecionados == "":
+            anos_selecionados = ' - '
+        if request.query_params.get('dres') in [None, 'todas']:
+            dre = 'Todas'
+        else:
+            dre = DiretoriaRegional.objects.filter(id=request.query_params.get('dres')).first().nome
+        if request.query_params.get('demandas') in [None, 'todas']:
+            demandas = 'Todas'
+        else:
+            if request.query_params.get('demandas') == '1':
+                demandas = "Baixa"
+            if request.query_params.get('demandas') == '2':
+                demandas = "Média"
+            if request.query_params.get('demandas') == '3':
+                demandas = "Alta"
+        if request.query_params.getlist('distritos') != []:
+            distritos = Distrito.objects.filter(id__in=request.query_params.getlist('distritos'))
+            for idx, distrito in enumerate(distritos, 1):
+                if idx != len(distritos):
+                    distritos_selecionados = "{} {},".format(distritos_selecionados, distrito.nome)
+                else:
+                    distritos_selecionados = "{} {}".format(distritos_selecionados, distrito.nome)
+        else:
+            distritos_selecionados = " - "
+
+        if request.query_params.getlist('setores') != []:
+            setores = Setor.objects.filter(codigo__in=request.query_params.getlist('setores'))
+            for idx, setor in enumerate(setores, 1):
+                if idx != len(setores):
+                    setores_selecionados = "{} {},".format(setores_selecionados, setor.codigo)
+                else:
+                    setores_selecionados = "{} {}".format(setores_selecionados, setor.codigo)
+        else:
+            setores_selecionados = " - "
+
+        if ((request.query_params.getlist('areas') != []) and (len(request.query_params.getlist('areas')) != 3)):
+            for idx, area in enumerate(request.query_params.getlist('areas'), 1):
+                if area == '1':
+                    area_selecionada = "Abaixo de 200m²"
+                if area == '2':
+                    area_selecionada = "Abaixo de 200m²"
+                if area == '3':
+                    area_selecionada = "Abaixo de 200m²"
+                if idx != len(setores):
+                    areas_selecionadas = "{} {},".format(areas_selecionadas, area_selecionada)
+                else:
+                    areas_selecionadas = "{} {}".format(areas_selecionadas, area_selecionada)
+        else:
+            areas_selecionadas = "Todas"
+
+        header = {
+            'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y"),
+            'nome': request.user.first_name,
+            'sobrenome': request.user.last_name,
+            'rf': request.user.username,
+            'anos_selecionados': anos_selecionados,
+            'dres_selecionadas': dre,
+            'demandas_selecionadas': demandas,
+            'distritos_selecionados': distritos_selecionados,
+            'setores_selecionados': setores_selecionados,
+            'areas_selecionadas': areas_selecionadas,
+        }
+        resultado = {'header': header, 'data': data }
+        return resultado
 
     def _filtrar_cadastros(self, request):
         queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
@@ -820,6 +915,51 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(detail=False,
             methods=['get'],
+            url_path='imoveis/filtrar-por-area-construida')
+    def filtrar_area_construida(self, request):
+        data = self._filtrar_relatorio_area_construida(request)
+        data['total_imoveis'] = Imovel.objects.all().count()
+        return Response(status=status.HTTP_200_OK, data=data)
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-area-construida-xls')
+
+    def relatorio_area_construida_xls(self, request):
+        imoveis = None
+        imoveis_1 = Imovel.objects.filter(area_construida__lt=200)
+        imoveis_2 = Imovel.objects.filter(area_construida__gte=200, area_construida__lte=500)
+        imoveis_3 = Imovel.objects.filter(area_construida__gt=500)
+        if '1' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            imoveis = imoveis_1
+        if '2' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            try:
+                imoveis = imoveis | imoveis_2
+            except:
+                imoveis = imoveis_2
+        if '3' in request.query_params.getlist('areas') or request.query_params.getlist('areas') == []:
+            try:
+                imoveis = imoveis | imoveis_3
+            except:
+                imoveis = imoveis_3
+        if request.query_params.get('ano') not in ['todos', None]:
+            try:
+                imoveis = imoveis.filter(criado_em__year=request.query_params.get('ano'))
+            except:
+                imoveis = Imovel.objects.filter(criado_em__year=request.query_params.get('ano'))
+        if imoveis == None:
+            imoveis = Imovel.objects.all()
+        result = self._gerar_planilha(imoveis)
+        filename = 'relatorio-por-area-construida.xlsx'
+        response = HttpResponse(
+            result,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+        return response
+
+    @action(detail=False,
+            methods=['get'],
             url_path='imoveis/relatorio-por-status-xls')
     def relatorio_por_status_xls(self, request):
         status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
@@ -903,6 +1043,58 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         )
         response['Content-Disposition'] = 'attachment; filename=%s' % filename
         return response
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-por-demanda-pdf')
+    def relatorio_por_demanda_pdf(self, request, *args, **kwargs):
+        imoveis = self._filtrar_relatorio_demanda_territorial(request)
+        dres = DiretoriaRegional.objects.all()
+        total = Imovel.objects.all().count()
+        if request.query_params.get('tipo_resultado') == 'dre':
+            data = self._get_resultado_por_dre(imoveis, dres, False, request)
+            resultado = self._formatar_header(request, data)
+            html_string = render_to_string('imovel/relatorios/demanda_territorial_por_dre.html', resultado)
+        if request.query_params.get('tipo_resultado') == 'distrito':
+            data = self._get_resultado_por_distrito(imoveis, dres, False)
+            resultado = self._formatar_header(request, data)
+            html_string = render_to_string('imovel/relatorios/demanda_territorial_por_distrito.html', resultado)
+        if request.query_params.get('tipo_resultado') == 'setor':
+            data = self._get_resultado_por_setor(imoveis, dres, False)
+            resultado = self._formatar_header(request, data)
+            html_string = render_to_string('imovel/relatorios/demanda_territorial_por_setor.html', resultado)
+
+        html = HTML(string=html_string)
+        html.write_pdf(target='/tmp/relatorio_por_demanda.pdf');
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_por_demanda.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_por_demanda.pdf"'
+            return response
+
+        return response
+
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-area-construida-pdf')
+    def relatorio_area_construida_pdf(self, request, *args, **kwargs):
+        data = self._filtrar_relatorio_area_construida(request)
+        data['total_imoveis'] = Imovel.objects.all().count()
+        resultado = self._formatar_header(request, data)
+        html_string = render_to_string('imovel/relatorios/relatorio_area_construida.html', resultado)
+
+        html = HTML(string=html_string)
+        html.write_pdf(target='/tmp/relatorio_area_construida.pdf');
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_area_construida.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_area_construida.pdf"'
+            return response
+
+        return response
+
 
 class DemandaRegiao(APIView):
     """
