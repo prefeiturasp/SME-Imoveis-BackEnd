@@ -126,9 +126,17 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if '1' == request.query_params.get('demandas'):
                 imoveis = imoveis.filter(demandaimovel__total__lt=40)
             if '2' == request.query_params.get('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
+                demanda_media = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
+                try:
+                    imoveis = imoveis | demanda_media
+                except:
+                    imoveis = demanda_media
             if '3' == request.query_params.get('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__gt=100)
+                demanda_alta = imoveis.filter(demandaimovel__total__gt=100)
+                try:
+                    imoveis = imoveis | demanda_alta
+                except:
+                    imoveis = demanda_alta
         if (request.query_params.getlist('anos') != []):
             imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
         if request.query_params.getlist('setores') != []:
@@ -282,17 +290,24 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             setores_selecionados = " - "
 
         if ((request.query_params.getlist('areas') != []) and (len(request.query_params.getlist('areas')) != 3)):
-            for idx, area in enumerate(request.query_params.getlist('areas'), 1):
+            areas = request.query_params.getlist('areas')
+            area_selecionada = ""
+            for idx, area in enumerate(areas, 1):
                 if area == '1':
-                    area_selecionada = "Abaixo de 200m²"
+                    if idx != len(areas):
+                        areas_selecionadas = "{} {},".format(areas_selecionadas, "Abaixo de 200m²" )
+                    else:
+                        areas_selecionadas = "{} {}".format(areas_selecionadas, "Abaixo de 200m²")
                 if area == '2':
-                    area_selecionada = "Abaixo de 200m²"
+                    if idx != len(areas):
+                        areas_selecionadas = "{} {},".format(areas_selecionadas, "Entre 200m² e 500m²" )
+                    else:
+                        areas_selecionadas = "{} {}".format(areas_selecionadas, "Entre 200m² e 500m²")
                 if area == '3':
-                    area_selecionada = "Abaixo de 200m²"
-                if idx != len(setores):
-                    areas_selecionadas = "{} {},".format(areas_selecionadas, area_selecionada)
-                else:
-                    areas_selecionadas = "{} {}".format(areas_selecionadas, area_selecionada)
+                    if idx != len(areas):
+                        areas_selecionadas = "{} {},".format(areas_selecionadas, "Acima de 500m²" )
+                    else:
+                        areas_selecionadas = "{} {}".format(areas_selecionadas, "Acima de 500m²")
         else:
             areas_selecionadas = "Todas"
 
