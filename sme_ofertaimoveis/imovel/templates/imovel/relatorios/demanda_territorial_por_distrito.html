@@ -82,6 +82,9 @@
     .relatorio-coluna-cabecalho {
       padding: 15px;
       border-right: 1px solid #e9eaea;
+      font-family: sans-serif;
+      font-size: 10px;
+      font-weight: 600;
     }
     .relatorio-corpo {
       border: 1px solid #e9eaea;
@@ -163,14 +166,26 @@
             <thead>
               <tr class="relatorio-row">
                 <th class="relatorio-coluna-cabecalho">Distritos</th>
-                <th class="relatorio-coluna-cabecalho">Cadastrados</th>
+                {% if header.demandas_selecionadas != "Todas" %}
+                  <th class="relatorio-coluna-cabecalho">Cadastrados</th>
+                {% else %}
+                  <th class="relatorio-coluna-cabecalho">Demanda Baixa 0 - 40</th>
+                  <th class="relatorio-coluna-cabecalho">Demanda Média 41 - 100</th>
+                  <th class="relatorio-coluna-cabecalho">Demanda Alta + 100</th>
+                {% endif %}
               </tr>
             </thead>
             <tbody>
               {% for key, value in distritos.items %}
                 <tr class="relatorio-corpo">
                   <td class="relatorio-coluna-corpo">{{ key }}</td>
-                  <td class="relatorio-coluna-corpo">{{ value }}</td>
+                  {% if header.demandas_selecionadas != "Todas" %}
+                    <td class="relatorio-coluna-corpo">{{ value }}</td>
+                  {% else %}
+                    <td class="relatorio-coluna-corpo">{{ value.demanda_1 }}</td>
+                    <td class="relatorio-coluna-corpo">{{ value.demanda_2 }}</td>
+                    <td class="relatorio-coluna-corpo">{{ value.demanda_3 }}</td>
+                  {% endif %}
                 </tr>
               {% endfor %}
             </tbody>

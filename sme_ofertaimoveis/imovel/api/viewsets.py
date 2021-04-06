@@ -260,15 +260,28 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             dre = 'Todas'
         else:
             dre = DiretoriaRegional.objects.filter(id=request.query_params.get('dres')).first().nome
-        if request.query_params.get('demandas') in [None, 'todas']:
-            demandas = 'Todas'
+        if request.query_params.getlist('demandas') == [] or len(request.query_params.getlist('demandas')) == 3 :
+            demadas_selecionadas = 'Todas'
         else:
-            if request.query_params.get('demandas') == '1':
-                demandas = "Baixa"
-            if request.query_params.get('demandas') == '2':
-                demandas = "Média"
-            if request.query_params.get('demandas') == '3':
-                demandas = "Alta"
+            demandas = request.query_params.getlist('demandas')
+            demadas_selecionadas = ""
+            for idx, demanda in enumerate(demandas, 1):
+                if demanda == '1':
+                    if idx != len(demandas):
+                        demadas_selecionadas = "{} {},".format(demadas_selecionadas, "Baixa" )
+                    else:
+                        demadas_selecionadas = "{} {}".format(demadas_selecionadas, "Baixa")
+                if demanda == '2':
+                    if idx != len(demandas):
+                        demadas_selecionadas = "{} {},".format(demadas_selecionadas, "Média" )
+                    else:
+                        demadas_selecionadas = "{} {}".format(demadas_selecionadas, "Média")
+                if demanda == '3':
+                    if idx != len(demandas):
+                        demadas_selecionadas = "{} {},".format(demadas_selecionadas, "Alta" )
+                    else:
+                        demadas_selecionadas = "{} {}".format(demadas_selecionadas, "Alta")
+
         if request.query_params.getlist('distritos') != []:
             distritos = Distrito.objects.filter(id__in=request.query_params.getlist('distritos'))
             for idx, distrito in enumerate(distritos, 1):
@@ -291,7 +304,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
         if ((request.query_params.getlist('areas') != []) and (len(request.query_params.getlist('areas')) != 3)):
             areas = request.query_params.getlist('areas')
-            area_selecionada = ""
+            areas_selecionadas = ""
             for idx, area in enumerate(areas, 1):
                 if area == '1':
                     if idx != len(areas):
@@ -318,7 +331,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             'rf': request.user.username,
             'anos_selecionados': anos_selecionados,
             'dres_selecionadas': dre,
-            'demandas_selecionadas': demandas,
+            'demandas_selecionadas': demadas_selecionadas,
             'distritos_selecionados': distritos_selecionados,
             'setores_selecionados': setores_selecionados,
             'areas_selecionadas': areas_selecionadas,
@@ -1066,16 +1079,17 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imoveis = self._filtrar_relatorio_demanda_territorial(request)
         dres = DiretoriaRegional.objects.all()
         total = Imovel.objects.all().count()
+        todas_demandas = (len(request.query_params.getlist('demandas')) == 3)
         if request.query_params.get('tipo_resultado') == 'dre':
-            data = self._get_resultado_por_dre(imoveis, dres, False, request)
+            data = self._get_resultado_por_dre(imoveis, dres, todas_demandas, request)
             resultado = self._formatar_header(request, data)
             html_string = render_to_string('imovel/relatorios/demanda_territorial_por_dre.html', resultado)
         if request.query_params.get('tipo_resultado') == 'distrito':
-            data = self._get_resultado_por_distrito(imoveis, dres, False)
+            data = self._get_resultado_por_distrito(imoveis, dres, todas_demandas)
             resultado = self._formatar_header(request, data)
             html_string = render_to_string('imovel/relatorios/demanda_territorial_por_distrito.html', resultado)
         if request.query_params.get('tipo_resultado') == 'setor':
-            data = self._get_resultado_por_setor(imoveis, dres, False)
+            data = self._get_resultado_por_setor(imoveis, dres, todas_demandas)
             resultado = self._formatar_header(request, data)
             html_string = render_to_string('imovel/relatorios/demanda_territorial_por_setor.html', resultado)
 
