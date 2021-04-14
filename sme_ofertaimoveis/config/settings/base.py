@@ -85,7 +85,6 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_swagger",
     "des",  # for email configuration in database
-    "django_celery_results",  # Celery integration for Django,
     "django_celery_beat",
     'django_xworkflows',
 ]
@@ -313,7 +312,7 @@ LOGGING = {
 CELERY_REDIS_URL = env("CELERY_REDIS_URL")
 CELERY_BROKER_URL = f"{CELERY_REDIS_URL}/0"
 CELERY_BACKEND = f"{CELERY_REDIS_URL}/1"
-CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
