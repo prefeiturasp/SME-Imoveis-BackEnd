@@ -10,7 +10,8 @@ from celery import shared_task
 from requests.exceptions import HTTPError
 
 from ..dados_comuns.utils import send_email, consult_api_sciedu
-from .models import DemandaImovel, Imovel, SME_Contatos 
+from .models import DemandaImovel, Imovel, SME_Contatos
+from smtplib import SMTPServerDisconnected
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +41,11 @@ def task_send_email_to_sme(imovel_id):
     )
     return "Email para A SME enviado com sucesso"
 
-@shared_task
+@shared_task(
+    autoretry_for=(SMTPServerDisconnected,),
+    retry_backoff=2,
+    retry_kwargs={'max_retries': 8},
+)
 def task_send_email_to_usuario(subject, template, data, email):
     sme_email = 'imoveis@sme.prefeitura.sp.gov.br'
     send_email(subject=subject, template=template, data=data, to_email=email)
@@ -88,7 +93,7 @@ def atualiza_demandas():
             demanda_imovel.mini_grupo_ii = mini_grupo_ii.get('total')
         except StopIteration:
             demanda_imovel.mini_grupo_ii = 0
-        
-        
+
+
         demanda_imovel.data_atualizacao = datetime.now()
         demanda_imovel.save()
