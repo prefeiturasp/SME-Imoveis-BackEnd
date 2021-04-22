@@ -1124,6 +1124,26 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
         return response
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-cadastro-pdf')
+    def relatorio_cadastro_pdf(self, request, *args, **kwargs):
+        data = Imovel.objects.get(id=request.query_params.get('id')).as_dict()
+        data['solicitante_nome'] = f"{request.user.first_name} {request.user.last_name}"
+        data['solicitante_rf'] = request.user.username
+
+        html_string = render_to_string('imovel/relatorios/relatorio_cadastro.html', data)
+
+        html = HTML(string=html_string)
+        html.write_pdf(target='/tmp/relatorio_cadastro.pdf');
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_cadastro.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_cadastro.pdf"'
+            return response
+
+        return response
 
 class DemandaRegiao(APIView):
     """

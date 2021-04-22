@@ -236,13 +236,18 @@ class Imovel(FluxoImoveis):
             'proponente_tipo': self.proponente.get_tipo_proponente_display(),
             'area_construida': int(self.area_construida),
             'endereco': self.endereco,
+            # 'complemento': self.complemento,
             'numero': self.numero,
             'bairro': self.bairro,
             'cep': self.cep,
             'cidade': self.cidade,
+            # 'criado_em': self.criado_em.strftime("%d/%m/%Y"),
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
+            # 'observacoes': self.observacoes,
             'diretoria_regional_educacao': diretoria_regional_educacao,
+            # 'distrito': self.setor.distrito.nome.capitalize(),
+            # 'codigo_setor': self.setor.codigo,
             'data_vistoria': data_vistoria,
             'data_cancelamento': data_cancelamento,
             'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y"),
@@ -251,7 +256,8 @@ class Imovel(FluxoImoveis):
             'mini_grupo_i': self.demandaimovel.mini_grupo_i,
             'mini_grupo_ii': self.demandaimovel.mini_grupo_ii,
             'demanda_total': self.demandaimovel.total,
-            'data_atualizacao_demanda': data_atualizacao_demanda
+            # 'data_atualizacao_demanda': data_atualizacao_demanda,
+            # 'logs': self.logs,
         }
 
     class Meta:
