@@ -526,6 +526,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/exportar',
         permission_classes=(IsAuthenticated,))
     def exportar(self, request):
+        import time
+        from django.db.models import Count, Q
+        from django.db import connection
+
+        start_time = time.time()
         imoveis = self._filtrar_cadastros(request)
         count_anexos = 0
         count_fachada = 0
@@ -533,24 +538,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         count_externo = 0
         count_iptu_itr = 0
         count_planta = 0
-        for imovel in imoveis:
-            fachada = 0
-            interno = 0
-            externo = 0
-            iptu_itr = 0
-            planta = 0
-            for anexo in imovel.anexos:
-                tipo = anexo.get_tipo_documento_display()
-                if tipo == "Fotos da Fachada":
-                    fachada = (fachada + 1)
-                if tipo == "Fotos do Ambiente Interno":
-                    interno = (interno + 1)
-                if tipo == "Fotos de Área Externa":
-                    externo = (externo + 1)
-                if tipo == "Cópia do IPTU ou ITR":
-                    iptu_itr = (iptu_itr + 1)
-                if tipo == "Cópia da Planta ou Croqui":
-                    planta = (planta + 1)
+
+        tipo_0 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='0'))
+        tipo_1 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='1'))
+        tipo_2 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='2'))
+        tipo_3 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='3'))
+        tipo_4 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='4'))    
+
+        for imovel in imoveis.annotate(tipo0=tipo_0).annotate(tipo1=tipo_1).annotate(tipo2=tipo_2).annotate(tipo3=tipo_3).annotate(tipo4=tipo_4):
+            fachada = imovel.tipo0
+            interno = imovel.tipo1
+            externo = imovel.tipo2
+            iptu_itr = imovel.tipo3
+            planta = imovel.tipo4
+
             if count_fachada < fachada:
                 count_fachada = fachada
             if count_interno < interno:
@@ -588,12 +589,23 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         wb = Workbook()
         ws = wb.active
         ws.title = "Cadastros Realizados"
+
+        border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+        alignment = Alignment(horizontal='center', vertical='center')
+        font = Font(color="404040", size="12", bold=True)
+
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
             ws.column_dimensions[celula.column_letter].width = 40
+        
+        # Colorindo o cabeçalho
+        for rows in ws.iter_rows(min_row=1, max_row=1, min_col=1):
+            for cell in rows:
+                cell.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
 
-        for ind, imovel in enumerate(imoveis, 2):
+
+        for ind, imovel in enumerate(imoveis.select_related('proponente', 'setor', 'demandaimovel').prefetch_related("plantafoto_set"), 2):
             ws.cell(row=ind, column=1, value=imovel.protocolo)
             ws.cell(row=ind, column=2, value=imovel.criado_em)
             if(imovel.proponente != None):
@@ -650,18 +662,16 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 link = "%s%s"%(env.str("URL_HOSTNAME_WITHOUT_SLASH_API", default=""), anexo.arquivo.url)
                 celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
 
-        for linha in range(1, (count_data + 2)):
-            for coluna in range(1, (count_fields + 1)):
-                celula = ws.cell(row=linha, column=coluna)
-                celula.font = Font(color="404040", size="12", bold=True)
-                celula.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
-                if linha == 1:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
-                elif(linha % 2) == 0:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='C5C5C5')
-                else:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='EAEAEA')
-                celula.alignment = Alignment(horizontal='center', vertical='center')
+
+            # Colorindo as linhas            
+            fill = PatternFill(fill_type='solid', fgColor='C5C5C5') if (ind % 2) == 0 else PatternFill(fill_type='solid', fgColor='EAEAEA')
+
+            for rows in ws.iter_rows(min_row=ind, max_row=ind, min_col=1):
+                for cell in rows:
+                    cell.fill = fill
+        
+        print(f"Tempo total: {(time.time()-start_time)} em segundos")
+        print(f"Quantidade de conexões {len(connection.queries)}")
 
         result = BytesIO(save_virtual_workbook(wb))
         filename = 'cadastros-realizados.xlsx'
