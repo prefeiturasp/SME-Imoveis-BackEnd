@@ -23,14 +23,14 @@ pipeline {
       
     stage('Analise Codigo') {
           when {
-            branch 'development'
+            branch 'homolog'
           }
             steps {
-                sh 'sonar-scanner \
-                    -Dsonar.projectKey=SME-Imoveis-BackEnd \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
-                    -Dsonar.login=aad582cdfd5a6f174f87fcd53e52291198ac0728'
+                sh 'echo "[ INFO ] Iniciando analise Sonar..." && sonar-scanner \
+                  -Dsonar.projectKey=SME-Imoveis-BackEnd \
+                  -Dsonar.sources=. \
+                  -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
+                  -Dsonar.login=f37e3eef58223a56add11c0a29f26c9e84297938'
             }
        }
          
