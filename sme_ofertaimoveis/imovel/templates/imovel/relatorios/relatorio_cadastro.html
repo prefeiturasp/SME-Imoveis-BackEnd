@@ -1,24 +1,32 @@
+{% load static %}
+{% load sass_tags %}
+{% load index %}
+
 <html>
+
 <head>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="../css/fluxo_status.scss" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% sass_src 'imovel/css/fluxo_status.scss' %} " />
   <style>
     @page {
       size: A4;
       margin: 0 0 5% 0;
+
       @bottom-right {
         background: #F5F6F8;
         color: #000000;
-        content: "Página " counter(page) " de " counter(pages);
+        content: "Página "counter(page) " de "counter(pages);
         font-size: 11px;
         width: 20%;
         padding: 1em 2em 1em 2em;
         margin-top: 2em;
       }
+
       @bottom-center {
         background: #F5F6F8;
         color: #000000;
@@ -28,6 +36,7 @@
         padding: 1em 2em 1em 2em;
         margin-top: 2em;
       }
+
       @bottom-left {
         background: #F5F6F8;
         color: #000000;
@@ -38,21 +47,25 @@
         margin-top: 2em;
       }
     }
+
     header {
       width: 100%;
       background: #F5F6F8;
       padding-top: 5%;
       padding-bottom: 3%;
     }
+
     .logo-imoveis {
       width: 100%;
       height: auto;
     }
-    .logo-secretaria{
+
+    .logo-secretaria {
       margin-left: 55px;
       width: 131px;
       height: 54px;
     }
+
     .cabecalho {
       margin-top: 2%;
       background-color: #ffffff;
@@ -62,12 +75,14 @@
       font-weight: 400;
       font-family: sans-serif;
     }
+
     .wrapper {
       margin-top: 3%;
       padding: 3% 5% 0 5%;
       width: 100%;
 
     }
+
     .relatorio {
       text-align: center;
       width: 100%;
@@ -75,11 +90,13 @@
       border-radius: 4px;
       font-size: 12px;
     }
+
     .relatorio-row {
       text-align: center;
       border: 1px solid #e9eaea;
       background-color: #f5f6f8;
     }
+
     .relatorio-coluna-cabecalho {
       padding: 15px;
       border-right: 1px solid #e9eaea;
@@ -87,9 +104,11 @@
       font-size: 10px;
       font-weight: 600;
     }
+
     .relatorio-corpo {
       border: 1px solid #e9eaea;
     }
+
     .relatorio-coluna-corpo {
       font-family: sans-serif;
       font-size: 10px;
@@ -97,6 +116,7 @@
       padding: 15px;
       border-right: 1px solid #e9eaea;
     }
+
     .input-value {
       border: 1px solid #ced4da;
       border-radius: .25rem;
@@ -111,6 +131,7 @@
       padding-left: 10px;
       padding-right: 10px;
     }
+
     .form-label {
       font-family: Roboto;
       font-style: normal;
@@ -118,10 +139,12 @@
       font-size: 10px;
       line-height: 16px;
     }
+
     .form-group {
       padding-left: 3px;
       padding-right: 3px;
     }
+
     .title {
       font-family: Roboto;
       font-style: normal;
@@ -130,9 +153,11 @@
       line-height: 16px;
       color: #196CBD;
     }
-    .observacoes{
+
+    .observacoes {
       min-height: 90px;
     }
+
     .data-atualizacao {
       font-family: Roboto;
       font-style: normal;
@@ -141,6 +166,7 @@
       float: right;
       margin-top: 15px;
     }
+
     .auditoria {
       font-family: Roboto;
       font-style: normal;
@@ -149,16 +175,18 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="container">
       <div class="row">
         <div class="col-3">
-          <img class="logo-imoveis" src="https://dev-imoveis.sme.prefeitura.sp.gov.br/static/media/Logo.fa22158f.png"/>
+          <img class="logo-imoveis" src="https://dev-imoveis.sme.prefeitura.sp.gov.br/static/media/Logo.fa22158f.png" />
         </div>
         <div class="col-6"></div>
         <div class="col-3">
-          <img class="logo-secretaria" src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2019/06/Logo_Educacao.png"/>
+          <img class="logo-secretaria"
+            src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2019/06/Logo_Educacao.png" />
         </div>
         <div class="col-12">
           <table class="table table-bordered border-dark cabecalho">
@@ -187,34 +215,41 @@
   <div class="wrapper">
     <div class="container">
       <div class="row">
-        <div class="progress-bar-main-div">
-          <div>
-            <ul class="progressbar-titles">
-              {% for status in fluxo|or_logs:logs %}
-              <li style="width: 12.5%">
-                {% if logs|index_exists:forloop.counter %}
-                {{ logs|get_element_by_index:forloop.counter0|get_attribute:'status_evento_explicacao' }}
-                {% else %}{{ status.titulo }}{% endif %}
+        <div class="col-12 p-0">
+          <div class="progress-bar-main-div">
+            <div>
+              <ul class="progressbar-titles fluxos">
+                {% for status in fluxo|or_logs:logs %}
+                <li style="width: 10%">
+                  {% if logs|index_exists:forloop.counter %}
+                  {{ logs|get_element_by_index:forloop.counter0|get_attribute:'status_evento' }}
+                  {% else %}
+                  {{ status.titulo }}
+                  {% endif %}
+                  {% endfor %}
+                </li>
+              </ul>
+              <ul class="progressbar">
+                {% for status in fluxo|or_logs:logs %}
+                <li class="{% if logs|index_exists:forloop.counter %}
+                          {{ logs|get_element_by_index:forloop.counter0|class_css }}
+                          {% else %}{% if logs|fim_de_fluxo %} {% else %}pending{% endif %}{% endif %}"
+                  style="width: 10%">
+                  {% if logs|index_exists:forloop.counter %}
+                  {{ logs|get_element_by_index:forloop.counter0|get_attribute:'criado_em' }}
+                  <br />
+                  <span>
+                    RF: {{
+                    logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'registro_funcional'
+                    }}
+                    <br />
+                    {{ logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'nome' }}
+                  </span>
+                  {% endif %}
+                </li>
                 {% endfor %}
-            </ul>
-            <ul class="progressbar">
-              {% for status in fluxo|or_logs:logs %}
-              <li class="{% if logs|index_exists:forloop.counter %}
-                        {{ logs|get_element_by_index:forloop.counter0|class_css }}
-                        {% else %}{% if logs|fim_de_fluxo %} {% else %}pending{% endif %}{% endif %}"
-                  style="width: 12.5%">
-                {% if logs|index_exists:forloop.counter %}
-                {{ logs|get_element_by_index:forloop.counter0|get_attribute:'criado_em' }}
-                <br/>
-                <span>
-                          RF: {{ logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'registro_funcional' }}
-                          <br/>
-                          {{ logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'nome' }}
-                        </span>
-                {% endif %}
-              </li>
-              {% endfor %}
-            </ul>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -259,7 +294,8 @@
           </div>
         </div>
       </div>
-      <hr></hr>
+      <hr>
+      </hr>
       <div class="row">
         <div class="col-12">
           <p class="title">Dados do Imóvel</p>
@@ -320,7 +356,7 @@
         </div>
         <div class="col-8">
           <div class="form-group">
-            
+
           </div>
         </div>
         <div class="col-12">
@@ -348,7 +384,8 @@
           </div>
         </div>
       </div>
-      <hr></hr>
+      <hr>
+      </hr>
       <div class="row">
         <div class="col-12">
           <p class="title">Informações sobre demanda</p>
@@ -391,7 +428,9 @@
     </div>
   </div>
   <!-- Option 1: Bootstrap Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+    crossorigin="anonymous"></script>
 </body>
-</html>
 
+</html>

@@ -524,7 +524,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         detail=False,
         methods=['GET'],
         url_path=f'imoveis/exportar',
-        permission_classes=(IsAuthenticated,))
+        permission_classes=(IsAuthenticated,)
+        )
     def exportar(self, request):
         imoveis = self._filtrar_cadastros(request)
         count_anexos = 0
@@ -1129,13 +1130,15 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             url_path='imoveis/relatorio-cadastro-pdf')
     def relatorio_cadastro_pdf(self, request, *args, **kwargs):
         data = Imovel.objects.get(id=request.query_params.get('id')).as_dict()
-        data['solicitante_nome'] = f"{request.user.first_name} {request.user.last_name}"
-        data['solicitante_rf'] = request.user.username
+        data['solicitante_nome'] = "Anderson Marques" #f"{request.user.first_name} {request.user.last_name}"
+        data['solicitante_rf'] =  '26102018' # request.user.username
 
-        html_string = render_to_string('imovel/relatorios/relatorio_cadastro.html', data)
+        from ..relatorio import relatorio_cadastro
 
-        html = HTML(string=html_string)
-        html.write_pdf(target='/tmp/relatorio_cadastro.pdf');
+        html_string = relatorio_cadastro(data)
+
+        html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+        html.write_pdf(target='/tmp/relatorio_cadastro.pdf')
 
         fs = FileSystemStorage('/tmp')
         with fs.open('relatorio_cadastro.pdf') as pdf:

@@ -29,7 +29,8 @@ urlpatterns = [
     path("api-token-refresh/", refresh_jwt_token),
     path("login/", LoginView.as_view()),
     path("", include("apps.home.urls"))
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 
 # ADDING ROUTERS FROM ALL APPS
 urlpatterns += imovel_urls

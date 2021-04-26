@@ -7,6 +7,7 @@ from django.core import validators
 
 from .validators import phone_validation, cep_validation, cpf_cnpj_validation
 from .managers import SME_ContatosManager
+from .utils import get_width
 from ..dados_comuns.fluxo_status import FluxoImoveis
 from ..dados_comuns.models import Secretaria, Setor, LogFluxoStatus
 
@@ -218,6 +219,8 @@ class Imovel(FluxoImoveis):
         )
 
     def as_dict(self):
+        from .relatorio.constants import FLUXO
+
         log_vistoria = self.logs.filter(status_evento=6).first()
         data_vistoria = datetime.strftime(log_vistoria.data_agendada, "%d/%m/%Y") if log_vistoria else ''
         log_cancelamento = self.logs.filter(status_evento=16).first()
@@ -256,8 +259,10 @@ class Imovel(FluxoImoveis):
             'mini_grupo_i': self.demandaimovel.mini_grupo_i,
             'mini_grupo_ii': self.demandaimovel.mini_grupo_ii,
             'demanda_total': self.demandaimovel.total,
+            'fluxo': FLUXO,
             # 'data_atualizacao_demanda': data_atualizacao_demanda,
-            # 'logs': self.logs,
+            'width': get_width(FLUXO, self.logs.all()),
+            'logs': self.logs.all(),
         }
 
     class Meta:
