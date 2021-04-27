@@ -79,6 +79,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         reprovados_na_vistoria = 0
         finalizados_reprovados = 0
         cancelados = 0
+        legenda = {
+          'em_analise': False,
+          'aprovados_na_vistoria': False,
+          'reprovados_na_vistoria': False,
+          'finalizados_reprovados': False,
+          'cancelados': False
+        }
 
         if(request.query_params.getlist('status') == []):
             em_analise = imoveis.filter(status__in=status_em_analise).count()
@@ -90,18 +97,23 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if '1' in request.query_params.getlist('status'):
                 status.append('EM ANÁLISE')
                 em_analise = imoveis.filter(status__in=status_em_analise).count()
+                legenda['em_analise'] = True
             if '2' in request.query_params.getlist('status'):
                 status.append('VISTORIA APROVADA')
                 aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+                legenda['aprovados_na_vistoria'] = True
             if '3' in request.query_params.getlist('status'):
                 status.append('VISTORIA REPROVADA')
                 reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+                legenda['reprovados_na_vistoria'] = True
             if '4' in request.query_params.getlist('status'):
                 status.append('FINALIZADOS REPROVADOS')
                 finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+                legenda['finalizados_reprovados'] = True
             if '5' in request.query_params.getlist('status'):
                 status.append('CANCELADOS')
                 cancelados = imoveis.filter(status__in=status_cancelados).count()
+                legenda['cancelados'] = True
 
             status_selecionados = ", ".join(status)
 
@@ -116,7 +128,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 'rf': request.user.username,
                 'anos_selecionados': anos_selecionados,
                 'status_selecionados': status_selecionados,
-                'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y")}
+                'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y"),
+                'legenda': legenda}
 
         return data
 
@@ -543,7 +556,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         tipo_1 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='1'))
         tipo_2 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='2'))
         tipo_3 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='3'))
-        tipo_4 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='4'))    
+        tipo_4 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='4'))
 
         for imovel in imoveis.annotate(tipo0=tipo_0).annotate(tipo1=tipo_1).annotate(tipo2=tipo_2).annotate(tipo3=tipo_3).annotate(tipo4=tipo_4):
             fachada = imovel.tipo0
@@ -598,7 +611,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             celula = ws.cell(row=1, column=ind)
             celula.value = title
             ws.column_dimensions[celula.column_letter].width = 40
-        
+
         # Colorindo o cabeçalho
         for rows in ws.iter_rows(min_row=1, max_row=1, min_col=1):
             for cell in rows:
@@ -663,13 +676,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
 
 
-            # Colorindo as linhas            
+            # Colorindo as linhas
             fill = PatternFill(fill_type='solid', fgColor='C5C5C5') if (ind % 2) == 0 else PatternFill(fill_type='solid', fgColor='EAEAEA')
 
             for rows in ws.iter_rows(min_row=ind, max_row=ind, min_col=1):
                 for cell in rows:
                     cell.fill = fill
-        
+
         print(f"Tempo total: {(time.time()-start_time)} em segundos")
         print(f"Quantidade de conexões {len(connection.queries)}")
 
