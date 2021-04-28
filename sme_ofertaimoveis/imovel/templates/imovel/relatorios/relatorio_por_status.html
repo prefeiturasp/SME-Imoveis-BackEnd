@@ -237,18 +237,6 @@
     {% endif %}
     {% if data.legenda.reprovados_na_vistoria %}
       <p class="title-legend">
-        Finalizados reprovados: refere-se a todos os
-        cadastros nos quais estão finalizados onde
-        contempla os seguintes status de cadastros:
-      </p>
-      <ul>
-        <li class='legend-items'>Finalizado - Área Insuficiente</li>
-        <li class='legend-items'>Finalizado - Demanda Insuficiente</li>
-        <li class='legend-items'>Finalizado - Não atende as necessidades da SME</li>
-      </ul>
-    {% endif %}
-    {% if data.legenda.finalizados_reprovados %}
-      <p class="title-legend">
         Reprovados vistoria: refere-se a todos os cadastros de
         imóveis reprovados de vistoria onde contempla os
         seguintes status de cadastros:
@@ -257,6 +245,18 @@
         <li class='legend-items'>Vistoria Reprovada</li>
         <li class='legend-items'>Finalizado Reprovado</li>
       </ul>
+    {% endif %}
+    {% if data.legenda.finalizados_reprovados %}
+    <p class="title-legend">
+      Finalizados reprovados: refere-se a todos os
+      cadastros nos quais estão finalizados onde
+      contempla os seguintes status de cadastros:
+    </p>
+    <ul>
+      <li class='legend-items'>Finalizado - Área Insuficiente</li>
+      <li class='legend-items'>Finalizado - Demanda Insuficiente</li>
+      <li class='legend-items'>Finalizado - Não atende as necessidades da SME</li>
+    </ul>
     {% endif %}
     {% if data.legenda.cancelados %}
       <p class="title-legend">
