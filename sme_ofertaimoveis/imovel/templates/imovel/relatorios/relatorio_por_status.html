@@ -104,8 +104,7 @@
       font-style: italic;
     }
     .wrapper-legend {
-      margin-top: 3%;
-      padding: 3% 5% 0 5%;
+      padding: 0 5% 0 5%;
       width: 60%;
     }
   </style>
@@ -202,6 +201,13 @@
       </tbody>
     </table>
   </div>
+  <div class="wrapper">
+    {% if data.legenda.em_analise or data.legenda.aprovados_na_vistoria or data.legenda.reprovados_na_vistoria or data.legenda.finalizados_reprovados or data.legenda.cancelados %}
+        <p class="title-legend">
+          Os filtros de status selecionados para extração do resumo referem-se aos seguintes status:
+        </p>
+    {% endif %}
+  </div>
   <div class="wrapper-legend">
     {% if data.legenda.em_analise %}
       <p class="title-legend">
@@ -219,18 +225,6 @@
     {% endif %}
     {% if data.legenda.aprovados_na_vistoria %}
       <p class="title-legend">
-        Finalizados reprovados: refere-se a todos os
-        cadastros nos quais estão finalizados onde
-        contempla os seguintes status de cadastros:
-      </p>
-      <ul>
-        <li class='legend-items'>Finalizado - Área Insuficiente</li>
-        <li class='legend-items'>Finalizado - Demanda Insuficiente</li>
-        <li class='legend-items'>Finalizado - Não atende as necessidades da SME</li>
-      </ul>
-    {% endif %}
-    {% if data.legenda.reprovados_na_vistoria %}
-      <p class="title-legend">
         Aprovados vistoria: refere-se a todos os cadastros
         de imóveis aprovados de vistoria onde contempla os
         seguintes status de cadastros:
@@ -239,6 +233,18 @@
         <li class='legend-items'>Vistoria Aprovada</li>
         <li class='legend-items'>Enviado à DRE</li>
         <li class='legend-items'>Finalizado Aprovado</li>
+      </ul>
+    {% endif %}
+    {% if data.legenda.reprovados_na_vistoria %}
+      <p class="title-legend">
+        Finalizados reprovados: refere-se a todos os
+        cadastros nos quais estão finalizados onde
+        contempla os seguintes status de cadastros:
+      </p>
+      <ul>
+        <li class='legend-items'>Finalizado - Área Insuficiente</li>
+        <li class='legend-items'>Finalizado - Demanda Insuficiente</li>
+        <li class='legend-items'>Finalizado - Não atende as necessidades da SME</li>
       </ul>
     {% endif %}
     {% if data.legenda.finalizados_reprovados %}
