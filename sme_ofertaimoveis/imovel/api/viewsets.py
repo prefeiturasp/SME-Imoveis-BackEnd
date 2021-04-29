@@ -617,14 +617,27 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         for rows in ws.iter_rows(min_row=1, max_row=1, min_col=1):
             for cell in rows:
                 cell.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
-
-
+                cell.font = Font(color="404040", size="12", bold=True)
+                cell.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+        nome_width = 0
+        email_width = 0
         for ind, imovel in enumerate(imoveis.select_related('proponente', 'setor', 'demandaimovel').prefetch_related("plantafoto_set"), 2):
             ws.cell(row=ind, column=1, value=imovel.protocolo)
             ws.cell(row=ind, column=2, value=imovel.criado_em)
             if(imovel.proponente != None):
                 ws.cell(row=ind, column=3, value=imovel.proponente.nome)
+                if (len(imovel.proponente.nome) > nome_width):
+                    nome_width = len(imovel.proponente.nome) + 20
+                    celula = ws.cell(row=1, column=3)
+                    ws.column_dimensions[celula.column_letter].width = nome_width
+
                 ws.cell(row=ind, column=4, value=imovel.proponente.email)
+                if (len(imovel.proponente.email) > email_width):
+                    email_width = len(imovel.proponente.email) + 20
+                    celula = ws.cell(row=1, column=4)
+                    ws.column_dimensions[celula.column_letter].width = email_width
+
                 ws.cell(row=ind, column=5, value=imovel.proponente.celular)
                 ws.cell(row=ind, column=6, value=imovel.proponente.telefone)
                 ws.cell(row=ind, column=7, value=imovel.proponente.cpf_cnpj)
@@ -683,6 +696,9 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             for rows in ws.iter_rows(min_row=ind, max_row=ind, min_col=1):
                 for cell in rows:
                     cell.fill = fill
+                    cell.font = Font(color="404040", size="12", bold=True)
+                    cell.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+                    cell.alignment = Alignment(horizontal='center', vertical='center')
 
         print(f"Tempo total: {(time.time()-start_time)} em segundos")
         print(f"Quantidade de conexões {len(connection.queries)}")
