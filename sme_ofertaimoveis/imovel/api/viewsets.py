@@ -22,7 +22,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
-from ..models import Imovel, PlantaFoto
+from ..models import Imovel, PlantaFoto, Proponente
 from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
@@ -541,7 +541,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,))
     def exportar(self, request):
         import time
-        from django.db.models import Count, Q
+        from django.db.models import Count, Q, Max
+        from django.db.models.functions import Length
         from django.db import connection
 
         start_time = time.time()
@@ -607,6 +608,9 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
         alignment = Alignment(horizontal='center', vertical='center')
         font = Font(color="404040", size="12", bold=True)
+        
+        fill_par = PatternFill(fill_type='solid', fgColor='C5C5C5')
+        fill_impar = PatternFill(fill_type='solid', fgColor='EAEAEA')
 
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
@@ -620,46 +624,54 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 cell.font = Font(color="404040", size="12", bold=True)
                 cell.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
                 cell.alignment = Alignment(horizontal='center', vertical='center')
-        nome_width = 0
-        email_width = 0
+
+        name_length = Proponente.objects.values('nome').aggregate(name_length=Max(Length('nome')))['name_length']
+        email_length = Proponente.objects.values('email').aggregate(email_length=Max(Length('email')))['email_length']
+        endereco_length = Imovel.objects.values('endereco').aggregate(endereco_length=Max(Length('endereco')))['endereco_length']
+        
+        ws.column_dimensions["C"].width = name_length + 6
+        ws.column_dimensions["D"].width = email_length + 8
+        ws.column_dimensions["J"].width = endereco_length + 20
+        
+        def trata_celula(row, column, fill, value=None):
+            celula = ws.cell(row=row, column=column, value=value)
+            celula.fill = fill
+            celula.font = font
+            celula.border = border
+            celula.alignment = alignment
+
+            return celula
+ 
         for ind, imovel in enumerate(imoveis.select_related('proponente', 'setor', 'demandaimovel').prefetch_related("plantafoto_set"), 2):
-            ws.cell(row=ind, column=1, value=imovel.protocolo)
-            ws.cell(row=ind, column=2, value=imovel.criado_em)
+            fill = fill_par if (ind % 2) == 0 else fill_impar
+
+            trata_celula(row=ind, column=1, value=imovel.protocolo, fill=fill)
+            trata_celula(row=ind, column=2, value=imovel.criado_em, fill=fill)
             if(imovel.proponente != None):
-                ws.cell(row=ind, column=3, value=imovel.proponente.nome)
-                if( imovel.proponente.nome != None and len(imovel.proponente.nome) > nome_width):
-                    nome_width = len(imovel.proponente.nome) + 20
-                    celula = ws.cell(row=1, column=3)
-                    ws.column_dimensions[celula.column_letter].width = nome_width
-
-                ws.cell(row=ind, column=4, value=imovel.proponente.email)
-                if(imovel.proponente.email != None and len(imovel.proponente.email) > email_width):
-                    email_width = len(imovel.proponente.email) + 20
-                    celula = ws.cell(row=1, column=4)
-                    ws.column_dimensions[celula.column_letter].width = email_width
-
-                ws.cell(row=ind, column=5, value=imovel.proponente.celular)
-                ws.cell(row=ind, column=6, value=imovel.proponente.telefone)
-                ws.cell(row=ind, column=7, value=imovel.proponente.cpf_cnpj)
-            ws.cell(row=ind, column=8, value=imovel.cep)
-            ws.cell(row=ind, column=9, value=imovel.numero_iptu)
-            ws.cell(row=ind, column=10, value=("%s, %s"%(imovel.endereco, imovel.numero)))
-            ws.cell(row=ind, column=11, value=imovel.bairro)
-            ws.cell(row=ind, column=12, value=imovel.cidade)
-            ws.cell(row=ind, column=13, value=imovel.uf)
-            ws.cell(row=ind, column=14, value=imovel.area_construida)
+                trata_celula(row=ind, column=3, fill=fill, value=imovel.proponente.nome)
+                trata_celula(row=ind, column=4, fill=fill, value=imovel.proponente.email)
+                trata_celula(row=ind, column=5, fill=fill, value=imovel.proponente.celular)
+                trata_celula(row=ind, column=6, fill=fill, value=imovel.proponente.telefone)
+                trata_celula(row=ind, column=7, fill=fill, value=imovel.proponente.cpf_cnpj)
+            trata_celula(row=ind, fill=fill, column=8, value=imovel.cep)
+            trata_celula(row=ind, fill=fill, column=9, value=imovel.numero_iptu)
+            trata_celula(row=ind, fill=fill, column=10, value=("%s, %s"%(imovel.endereco, imovel.numero)))
+            trata_celula(row=ind, fill=fill, column=11, value=imovel.bairro)
+            trata_celula(row=ind, fill=fill, column=12, value=imovel.cidade)
+            trata_celula(row=ind, fill=fill, column=13, value=imovel.uf)
+            trata_celula(row=ind, fill=fill, column=14, value=imovel.area_construida)
             if(imovel.setor != None):
-                ws.cell(row=ind, column=15, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
-                ws.cell(row=ind, column=16, value=imovel.setor.distrito.nome)
-                ws.cell(row=ind, column=17, value=imovel.setor.codigo)
+                trata_celula(row=ind, column=15, fill=fill, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
+                trata_celula(row=ind, column=16, fill=fill, value=imovel.setor.distrito.nome)
+                trata_celula(row=ind, column=17, fill=fill, value=imovel.setor.codigo)
             if(imovel.status != None):
-                ws.cell(row=ind, column=18, value=imovel.status.title)
+                trata_celula(row=ind, column=18, fill=fill, value=imovel.status.title)
             if(hasattr(imovel, 'demandaimovel')):
-                ws.cell(row=ind, column=19, value=imovel.demandaimovel.bercario_i)
-                ws.cell(row=ind, column=20, value=imovel.demandaimovel.bercario_ii)
-                ws.cell(row=ind, column=21, value=imovel.demandaimovel.mini_grupo_i)
-                ws.cell(row=ind, column=22, value=imovel.demandaimovel.mini_grupo_ii)
-                ws.cell(row=ind, column=23, value=imovel.demandaimovel.total)
+                trata_celula(row=ind, column=19, fill=fill, value=imovel.demandaimovel.bercario_i)
+                trata_celula(row=ind, column=20, fill=fill, value=imovel.demandaimovel.bercario_ii)
+                trata_celula(row=ind, column=21, fill=fill, value=imovel.demandaimovel.mini_grupo_i)
+                trata_celula(row=ind, column=22, fill=fill, value=imovel.demandaimovel.mini_grupo_ii)
+                trata_celula(row=ind, column=23, fill=fill, value=imovel.demandaimovel.total)
             fachada = 0
             interno = 0
             externo = 0
@@ -669,36 +681,26 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 tipo = anexo.get_tipo_documento_display()
                 if tipo == "Fotos da Fachada":
                     fachada = (fachada + 1)
-                    celula = ws.cell(row=ind, column=(23 + fachada))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + fachada))
 
                 if tipo == "Fotos do Ambiente Interno":
                     interno = (interno + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + interno))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + interno))
 
                 if tipo == "Fotos de Área Externa":
                     externo = (externo + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno +externo))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno +externo))
 
                 if tipo == "Cópia do IPTU ou ITR":
                     iptu_itr = (iptu_itr + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + iptu_itr))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno + count_externo + iptu_itr))
 
                 if tipo == "Cópia da Planta ou Croqui":
                     planta = (planta + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
                 link = "%s%s"%(env.str("URL_HOSTNAME_WITHOUT_SLASH_API", default=""), anexo.arquivo.url)
                 celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
-
-
-            # Colorindo as linhas
-            fill = PatternFill(fill_type='solid', fgColor='C5C5C5') if (ind % 2) == 0 else PatternFill(fill_type='solid', fgColor='EAEAEA')
-
-            for rows in ws.iter_rows(min_row=ind, max_row=ind, min_col=1):
-                for cell in rows:
-                    cell.fill = fill
-                    cell.font = Font(color="404040", size="12", bold=True)
-                    cell.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
-                    cell.alignment = Alignment(horizontal='center', vertical='center')
+            
 
         print(f"Tempo total: {(time.time()-start_time)} em segundos")
         print(f"Quantidade de conexões {len(connection.queries)}")
