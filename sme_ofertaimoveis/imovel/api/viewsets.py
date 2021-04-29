@@ -627,13 +627,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             ws.cell(row=ind, column=2, value=imovel.criado_em)
             if(imovel.proponente != None):
                 ws.cell(row=ind, column=3, value=imovel.proponente.nome)
-                if (len(imovel.proponente.nome) > nome_width):
+                if( imovel.proponente.nome != None and len(imovel.proponente.nome) > nome_width):
                     nome_width = len(imovel.proponente.nome) + 20
                     celula = ws.cell(row=1, column=3)
                     ws.column_dimensions[celula.column_letter].width = nome_width
 
                 ws.cell(row=ind, column=4, value=imovel.proponente.email)
-                if (len(imovel.proponente.email) > email_width):
+                if(imovel.proponente.email != None and len(imovel.proponente.email) > email_width):
                     email_width = len(imovel.proponente.email) + 20
                     celula = ws.cell(row=1, column=4)
                     ws.column_dimensions[celula.column_letter].width = email_width
