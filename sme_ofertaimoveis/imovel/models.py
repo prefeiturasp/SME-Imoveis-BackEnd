@@ -258,7 +258,7 @@ class Imovel(FluxoImoveis):
             'proponente_telefone': self.proponente.telefone,
             'proponente_celular': self.proponente.celular,
             'proponente_tipo': self.proponente.get_tipo_proponente_display(),
-            'area_construida': int(self.area_construida),
+            'area_construida': self.area_construida,
             'endereco': self.endereco,
             'complemento': self.complemento,
             'numero': self.numero,
