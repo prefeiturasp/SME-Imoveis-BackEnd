@@ -1130,8 +1130,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             url_path='imoveis/relatorio-cadastro-pdf')
     def relatorio_cadastro_pdf(self, request, *args, **kwargs):
         data = Imovel.objects.get(id=request.query_params.get('id')).as_dict()
-        data['solicitante_nome'] = "Anderson Marques" #f"{request.user.first_name} {request.user.last_name}"
-        data['solicitante_rf'] =  '26102018' # request.user.username
+        data['solicitante_nome'] = f"{request.user.first_name} {request.user.last_name}"
+        data['solicitante_rf'] = request.user.username
 
         from ..relatorio import relatorio_cadastro
 
