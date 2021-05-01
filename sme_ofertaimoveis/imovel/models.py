@@ -217,6 +217,8 @@ class Imovel(FluxoImoveis):
             processo_sei=processo_sei,
             nome_da_unidade=nome_da_unidade
         )
+    
+    
 
     def as_dict(self):
         from .relatorio.constants import FLUXO
@@ -227,6 +229,20 @@ class Imovel(FluxoImoveis):
         data_cancelamento = datetime.strftime(log_cancelamento.data_agendada, "%d/%m/%Y") if log_cancelamento else ''
         data_atualizacao_demanda = datetime.strftime(self.demandaimovel.data_atualizacao, "%d/%m/%Y") if self.demandaimovel.data_atualizacao else ''
         diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
+
+        def logs_as_dict(logs):
+            _logs = []
+            for log in logs:
+                _logs.append({
+                    'criado_em': datetime.strftime(log.criado_em, "%d/%m/%Y"),
+                    'status_evento_explicacao': log.status_evento_explicacao,
+                    'usuario': {
+                        'nome': log.usuario.get_full_name(),
+                        'username': log.usuario.username,
+                    }
+                })
+            return _logs
+
         return {
             'react_url': env('REACT_APP_URL'),
             'uuid': self.id,
@@ -239,18 +255,18 @@ class Imovel(FluxoImoveis):
             'proponente_tipo': self.proponente.get_tipo_proponente_display(),
             'area_construida': int(self.area_construida),
             'endereco': self.endereco,
-            # 'complemento': self.complemento,
+            'complemento': self.complemento,
             'numero': self.numero,
             'bairro': self.bairro,
             'cep': self.cep,
             'cidade': self.cidade,
-            # 'criado_em': self.criado_em.strftime("%d/%m/%Y"),
+            'criado_em': datetime.strftime(self.criado_em, "%d/%m/%Y"),
             'uf': self.uf,
             'numero_iptu': self.numero_iptu,
-            # 'observacoes': self.observacoes,
+            'observacoes': self.observacoes,
             'diretoria_regional_educacao': diretoria_regional_educacao,
-            # 'distrito': self.setor.distrito.nome.capitalize(),
-            # 'codigo_setor': self.setor.codigo,
+            'distrito': self.setor.distrito.nome.capitalize(),
+            'codigo_setor': self.setor.codigo,
             'data_vistoria': data_vistoria,
             'data_cancelamento': data_cancelamento,
             'data_hoje': datetime.strftime(datetime.now(), "%d/%m/%Y"),
@@ -260,9 +276,9 @@ class Imovel(FluxoImoveis):
             'mini_grupo_ii': self.demandaimovel.mini_grupo_ii,
             'demanda_total': self.demandaimovel.total,
             'fluxo': FLUXO,
-            # 'data_atualizacao_demanda': data_atualizacao_demanda,
+            'data_atualizacao_demanda': data_atualizacao_demanda,
             'width': get_width(FLUXO, self.logs.all()),
-            'logs': self.logs.all(),
+            'logs': logs_as_dict(self.logs.all()),
         }
 
     class Meta:
