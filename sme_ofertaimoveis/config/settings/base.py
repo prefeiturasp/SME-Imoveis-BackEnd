@@ -87,6 +87,7 @@ THIRD_PARTY_APPS = [
     "des",  # for email configuration in database
     "django_celery_beat",
     'django_xworkflows',
+    'sass_processor',
 ]
 LOCAL_APPS = [
     "apps.home",
@@ -96,6 +97,9 @@ LOCAL_APPS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+# Font Awesome
+INSTALLED_APPS += ["fontawesome-free"]
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -154,6 +158,7 @@ STATICFILES_DIRS = [str(APPS_DIR.path("static"))]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    'sass_processor.finders.CssFinder',
 ]
 
 # MEDIA
