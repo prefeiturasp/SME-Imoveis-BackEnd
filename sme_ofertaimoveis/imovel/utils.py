@@ -1,5 +1,6 @@
 from datetime import datetime
 import math
+from enum import Enum
 
 def checa_digito_verificador_iptu(numero_iptu):
     multiplicacoes = [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -25,3 +26,8 @@ def get_width(fluxo, logs):
     if len(fluxo_utilizado) == 1:
         return '100%'
     return str(math.floor(99 / len(fluxo_utilizado))) + '%'
+
+  class SituacaoDuplicidade(Enum):
+    MANTIDO = ''
+    DUPLICIDADE_IPTU = "Registro com duplicidade de IPTU."
+    DUPLICIDADE_ENDERECO = "Registro com duplicidade de Endereço."

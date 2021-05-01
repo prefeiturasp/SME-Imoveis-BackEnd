@@ -21,10 +21,11 @@ class ProponenteAdmin(admin.ModelAdmin):
 
 @admin.register(Imovel)
 class ImovelAdmin(admin.ModelAdmin):
-    list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco')
+    list_display = ("protocolo", 'proponente', 'contato', 'cep', 'endereco', 'excluido')
     search_fields = ('cep', 'endereco')
     fields = ("protocolo", 'show_proponente', 'show_contato', 'area_construida', 'cidade', 'uf', 'cep', "endereco", "bairro", 'numero', 'complemento',
-              'numero_iptu', 'criado_em', 'observacoes', 'setor', 'secretaria', 'status', 'latitude', 'longitude')
+              'numero_iptu', 'criado_em', 'observacoes', 'setor', 'secretaria', 'status', 'latitude', 'longitude', 'excluido', 'situacao_duplicidade')
+    list_filter = ('excluido', 'situacao_duplicidade')
     readonly_fields = ("protocolo", 'show_proponente', 'show_contato', 'criado_em')
 
     def show_proponente(self, obj):

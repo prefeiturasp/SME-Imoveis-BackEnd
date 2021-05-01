@@ -22,7 +22,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
-from ..models import Imovel, PlantaFoto
+from ..models import Imovel, PlantaFoto, Proponente
 from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
@@ -38,7 +38,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                              mixins.UpdateModelMixin,
                              mixins.ListModelMixin):
     permission_classes = (AllowAny,)
-    queryset = Imovel.objects.all()
+    queryset = Imovel.objects.filter(excluido=False).all()
     serializer_class = ListaImoveisSeriliazer
 
     def get_serializer_class(self):
@@ -61,7 +61,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_DEMANDA_INSUFICIENTE',
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         anos_selecionados = ""
         status_selecionados = ""
         status = []
@@ -79,6 +79,13 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         reprovados_na_vistoria = 0
         finalizados_reprovados = 0
         cancelados = 0
+        legenda = {
+          'em_analise': False,
+          'aprovados_na_vistoria': False,
+          'reprovados_na_vistoria': False,
+          'finalizados_reprovados': False,
+          'cancelados': False
+        }
 
         if(request.query_params.getlist('status') == []):
             em_analise = imoveis.filter(status__in=status_em_analise).count()
@@ -90,18 +97,23 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if '1' in request.query_params.getlist('status'):
                 status.append('EM ANÁLISE')
                 em_analise = imoveis.filter(status__in=status_em_analise).count()
+                legenda['em_analise'] = True
             if '2' in request.query_params.getlist('status'):
                 status.append('VISTORIA APROVADA')
                 aprovados_na_vistoria = imoveis.filter(status__in=status_aprovados_vistoria).count()
+                legenda['aprovados_na_vistoria'] = True
             if '3' in request.query_params.getlist('status'):
                 status.append('VISTORIA REPROVADA')
                 reprovados_na_vistoria = imoveis.filter(status__in=status_reprovados_vistoria).count()
+                legenda['reprovados_na_vistoria'] = True
             if '4' in request.query_params.getlist('status'):
                 status.append('FINALIZADOS REPROVADOS')
                 finalizados_reprovados = imoveis.filter(status__in=status_finalizados_reprovados).count()
+                legenda['finalizados_reprovados'] = True
             if '5' in request.query_params.getlist('status'):
                 status.append('CANCELADOS')
                 cancelados = imoveis.filter(status__in=status_cancelados).count()
+                legenda['cancelados'] = True
 
             status_selecionados = ", ".join(status)
 
@@ -116,7 +128,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 'rf': request.user.username,
                 'anos_selecionados': anos_selecionados,
                 'status_selecionados': status_selecionados,
-                'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y")}
+                'data_hoje': datetime.datetime.strftime(datetime.datetime.now(), "%d/%m/%Y"),
+                'legenda': legenda}
 
         return data
 
@@ -340,7 +353,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         return resultado
 
     def _filtrar_cadastros(self, request):
-        queryset = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        queryset = Imovel.objects.filter(excluido=False).annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
         if 'protocolo' in request.query_params:
             queryset = queryset.filter(id=request.query_params.get('protocolo'))
         if 'endereco' in request.query_params:
@@ -450,7 +463,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'ultimos-30-dias',
         permission_classes=(IsAuthenticated,))
     def ultimos_30_dias(self, request):
-        query_set = Imovel.objects.all()
+        query_set = Imovel.objects.filter(excluido=False).all()
         resumo_do_mes = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
         return Response(resumo_do_mes, status=status.HTTP_200_OK)
 
@@ -460,7 +473,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/novos-cadastros',
         permission_classes=(IsAuthenticated,))
     def imoveis_novos_cadastros(self, request):
-        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25))
+        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25), excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -474,7 +487,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         _25_dias_atras = datetime.date.today() - datetime.timedelta(days=25)
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
         query_set = Imovel.objects.filter(criado_em__lt=_25_dias_atras,
-                                          criado_em__gte=_30_dias_atras)
+                                          criado_em__gte=_30_dias_atras,
+                                          excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -486,7 +500,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,))
     def imoveis_atrasados(self, request):
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
-        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras)
+        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras, excluido=False)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -512,7 +526,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/update-status',
         permission_classes=(IsAuthenticated,))
     def update_status(self, request):
-        imovel = Imovel.objects.all().get(id=request.query_params.get('id'))
+        imovel = Imovel.objects.filter(excluido=False).all().get(id=request.query_params.get('id'))
         imovel.situacao = request.query_params.get('situacao')
         imovel.escola = request.query_params.get('escola')
         imovel.codigo_eol = request.query_params.get('codigo_eol')
@@ -527,6 +541,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,)
         )
     def exportar(self, request):
+        import time
+        from django.db.models import Count, Q, Max
+        from django.db.models.functions import Length
+        from django.db import connection
+
+        start_time = time.time()
         imoveis = self._filtrar_cadastros(request)
         count_anexos = 0
         count_fachada = 0
@@ -534,24 +554,20 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         count_externo = 0
         count_iptu_itr = 0
         count_planta = 0
-        for imovel in imoveis:
-            fachada = 0
-            interno = 0
-            externo = 0
-            iptu_itr = 0
-            planta = 0
-            for anexo in imovel.anexos:
-                tipo = anexo.get_tipo_documento_display()
-                if tipo == "Fotos da Fachada":
-                    fachada = (fachada + 1)
-                if tipo == "Fotos do Ambiente Interno":
-                    interno = (interno + 1)
-                if tipo == "Fotos de Área Externa":
-                    externo = (externo + 1)
-                if tipo == "Cópia do IPTU ou ITR":
-                    iptu_itr = (iptu_itr + 1)
-                if tipo == "Cópia da Planta ou Croqui":
-                    planta = (planta + 1)
+
+        tipo_0 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='0'))
+        tipo_1 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='1'))
+        tipo_2 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='2'))
+        tipo_3 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='3'))
+        tipo_4 = Count('plantafoto', filter=Q(plantafoto__tipo_documento__iexact='4'))
+
+        for imovel in imoveis.annotate(tipo0=tipo_0).annotate(tipo1=tipo_1).annotate(tipo2=tipo_2).annotate(tipo3=tipo_3).annotate(tipo4=tipo_4):
+            fachada = imovel.tipo0
+            interno = imovel.tipo1
+            externo = imovel.tipo2
+            iptu_itr = imovel.tipo3
+            planta = imovel.tipo4
+
             if count_fachada < fachada:
                 count_fachada = fachada
             if count_interno < interno:
@@ -589,39 +605,74 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         wb = Workbook()
         ws = wb.active
         ws.title = "Cadastros Realizados"
+
+        border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+        alignment = Alignment(horizontal='center', vertical='center')
+        font = Font(color="404040", size="12", bold=True)
+        
+        fill_par = PatternFill(fill_type='solid', fgColor='C5C5C5')
+        fill_impar = PatternFill(fill_type='solid', fgColor='EAEAEA')
+
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
             ws.column_dimensions[celula.column_letter].width = 40
 
-        for ind, imovel in enumerate(imoveis, 2):
-            ws.cell(row=ind, column=1, value=imovel.protocolo)
-            ws.cell(row=ind, column=2, value=imovel.criado_em)
+        # Colorindo o cabeçalho
+        for rows in ws.iter_rows(min_row=1, max_row=1, min_col=1):
+            for cell in rows:
+                cell.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
+                cell.font = Font(color="404040", size="12", bold=True)
+                cell.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
+                cell.alignment = Alignment(horizontal='center', vertical='center')
+
+        name_length = Proponente.objects.values('nome').aggregate(name_length=Max(Length('nome')))['name_length']
+        email_length = Proponente.objects.values('email').aggregate(email_length=Max(Length('email')))['email_length']
+        endereco_length = Imovel.objects.values('endereco').aggregate(endereco_length=Max(Length('endereco')))['endereco_length']
+        
+        ws.column_dimensions["C"].width = name_length + 6
+        ws.column_dimensions["D"].width = email_length + 8
+        ws.column_dimensions["J"].width = endereco_length + 20
+        
+        def trata_celula(row, column, fill, value=None):
+            celula = ws.cell(row=row, column=column, value=value)
+            celula.fill = fill
+            celula.font = font
+            celula.border = border
+            celula.alignment = alignment
+
+            return celula
+ 
+        for ind, imovel in enumerate(imoveis.select_related('proponente', 'setor', 'demandaimovel').prefetch_related("plantafoto_set"), 2):
+            fill = fill_par if (ind % 2) == 0 else fill_impar
+
+            trata_celula(row=ind, column=1, value=imovel.protocolo, fill=fill)
+            trata_celula(row=ind, column=2, value=imovel.criado_em, fill=fill)
             if(imovel.proponente != None):
-                ws.cell(row=ind, column=3, value=imovel.proponente.nome)
-                ws.cell(row=ind, column=4, value=imovel.proponente.email)
-                ws.cell(row=ind, column=5, value=imovel.proponente.celular)
-                ws.cell(row=ind, column=6, value=imovel.proponente.telefone)
-                ws.cell(row=ind, column=7, value=imovel.proponente.cpf_cnpj)
-            ws.cell(row=ind, column=8, value=imovel.cep)
-            ws.cell(row=ind, column=9, value=imovel.numero_iptu)
-            ws.cell(row=ind, column=10, value=("%s, %s"%(imovel.endereco, imovel.numero)))
-            ws.cell(row=ind, column=11, value=imovel.bairro)
-            ws.cell(row=ind, column=12, value=imovel.cidade)
-            ws.cell(row=ind, column=13, value=imovel.uf)
-            ws.cell(row=ind, column=14, value=imovel.area_construida)
+                trata_celula(row=ind, column=3, fill=fill, value=imovel.proponente.nome)
+                trata_celula(row=ind, column=4, fill=fill, value=imovel.proponente.email)
+                trata_celula(row=ind, column=5, fill=fill, value=imovel.proponente.celular)
+                trata_celula(row=ind, column=6, fill=fill, value=imovel.proponente.telefone)
+                trata_celula(row=ind, column=7, fill=fill, value=imovel.proponente.cpf_cnpj)
+            trata_celula(row=ind, fill=fill, column=8, value=imovel.cep)
+            trata_celula(row=ind, fill=fill, column=9, value=imovel.numero_iptu)
+            trata_celula(row=ind, fill=fill, column=10, value=("%s, %s"%(imovel.endereco, imovel.numero)))
+            trata_celula(row=ind, fill=fill, column=11, value=imovel.bairro)
+            trata_celula(row=ind, fill=fill, column=12, value=imovel.cidade)
+            trata_celula(row=ind, fill=fill, column=13, value=imovel.uf)
+            trata_celula(row=ind, fill=fill, column=14, value=imovel.area_construida)
             if(imovel.setor != None):
-                ws.cell(row=ind, column=15, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
-                ws.cell(row=ind, column=16, value=imovel.setor.distrito.nome)
-                ws.cell(row=ind, column=17, value=imovel.setor.codigo)
+                trata_celula(row=ind, column=15, fill=fill, value=imovel.setor.distrito.subprefeitura.dre.first().sigla)
+                trata_celula(row=ind, column=16, fill=fill, value=imovel.setor.distrito.nome)
+                trata_celula(row=ind, column=17, fill=fill, value=imovel.setor.codigo)
             if(imovel.status != None):
-                ws.cell(row=ind, column=18, value=imovel.status.title)
+                trata_celula(row=ind, column=18, fill=fill, value=imovel.status.title)
             if(hasattr(imovel, 'demandaimovel')):
-                ws.cell(row=ind, column=19, value=imovel.demandaimovel.bercario_i)
-                ws.cell(row=ind, column=20, value=imovel.demandaimovel.bercario_ii)
-                ws.cell(row=ind, column=21, value=imovel.demandaimovel.mini_grupo_i)
-                ws.cell(row=ind, column=22, value=imovel.demandaimovel.mini_grupo_ii)
-                ws.cell(row=ind, column=23, value=imovel.demandaimovel.total)
+                trata_celula(row=ind, column=19, fill=fill, value=imovel.demandaimovel.bercario_i)
+                trata_celula(row=ind, column=20, fill=fill, value=imovel.demandaimovel.bercario_ii)
+                trata_celula(row=ind, column=21, fill=fill, value=imovel.demandaimovel.mini_grupo_i)
+                trata_celula(row=ind, column=22, fill=fill, value=imovel.demandaimovel.mini_grupo_ii)
+                trata_celula(row=ind, column=23, fill=fill, value=imovel.demandaimovel.total)
             fachada = 0
             interno = 0
             externo = 0
@@ -631,38 +682,29 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                 tipo = anexo.get_tipo_documento_display()
                 if tipo == "Fotos da Fachada":
                     fachada = (fachada + 1)
-                    celula = ws.cell(row=ind, column=(23 + fachada))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + fachada))
 
                 if tipo == "Fotos do Ambiente Interno":
                     interno = (interno + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + interno))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + interno))
 
                 if tipo == "Fotos de Área Externa":
                     externo = (externo + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno +externo))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno +externo))
 
                 if tipo == "Cópia do IPTU ou ITR":
                     iptu_itr = (iptu_itr + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + iptu_itr))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno + count_externo + iptu_itr))
 
                 if tipo == "Cópia da Planta ou Croqui":
                     planta = (planta + 1)
-                    celula = ws.cell(row=ind, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
+                    celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
                 link = "%s%s"%(env.str("URL_HOSTNAME_WITHOUT_SLASH_API", default=""), anexo.arquivo.url)
                 celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
+            
 
-        for linha in range(1, (count_data + 2)):
-            for coluna in range(1, (count_fields + 1)):
-                celula = ws.cell(row=linha, column=coluna)
-                celula.font = Font(color="404040", size="12", bold=True)
-                celula.border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
-                if linha == 1:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='8EAADC')
-                elif(linha % 2) == 0:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='C5C5C5')
-                else:
-                    celula.fill = PatternFill(fill_type='solid', fgColor='EAEAEA')
-                celula.alignment = Alignment(horizontal='center', vertical='center')
+        print(f"Tempo total: {(time.time()-start_time)} em segundos")
+        print(f"Quantidade de conexões {len(connection.queries)}")
 
         result = BytesIO(save_virtual_workbook(wb))
         filename = 'cadastros-realizados.xlsx'
@@ -677,7 +719,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='checa-iptu-ja-existe/(?P<numero_iptu>.*)')
     def checa_iptu_ja_existe(self, request, numero_iptu=None):
-        iptu_existe = numero_iptu in Imovel.objects.all().values_list('numero_iptu', flat=True)
+        iptu_existe = numero_iptu in Imovel.objects.filter(excluido=False).all().values_list('numero_iptu', flat=True)
         iptu_valido = checa_digito_verificador_iptu(numero_iptu)
         return Response(
             {'iptu_existe': iptu_existe, 'iptu_valido': iptu_valido}, status=status.HTTP_200_OK
@@ -689,7 +731,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             cep=request.data.get('cep'),
             endereco=request.data.get('endereco'),
             bairro=request.data.get('bairro'),
-            numero=request.data.get('numero')
+            numero=request.data.get('numero'),
+            excluido=False
         ).exists()
         return Response(
             {'endereco_existe': endereco_existe}, status=status.HTTP_200_OK
@@ -911,7 +954,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='imoveis/anos')
     def anos_imoveis(self, request):
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         anos = []
         for imovel in imoveis:
             ano = datetime.datetime.strftime(imovel.criado_em, "%Y")
@@ -1002,7 +1045,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                                          'FINALIZADO_DEMANDA_INSUFICIENTE',
                                          'FINALIZADO_NAO_ATENDE_NECESSIDADES']
         status_cancelados = ['CANCELADO']
-        imoveis = Imovel.objects.all()
+        imoveis = Imovel.objects.filter(excluido=False).all()
         em_analise = []
         aprovados_na_vistoria = []
         reprovados_na_vistoria = []
