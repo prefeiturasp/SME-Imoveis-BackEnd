@@ -538,7 +538,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         detail=False,
         methods=['GET'],
         url_path=f'imoveis/exportar',
-        permission_classes=(IsAuthenticated,))
+        permission_classes=(IsAuthenticated,)
+        )
     def exportar(self, request):
         import time
         from django.db.models import Count, Q, Max
@@ -1167,6 +1168,28 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
         return response
 
+    @action(detail=False,
+            methods=['get'],
+            url_path='imoveis/relatorio-cadastro-pdf')
+    def relatorio_cadastro_pdf(self, request, *args, **kwargs):
+        data = Imovel.objects.get(id=request.query_params.get('id')).as_dict()
+        data['solicitante_nome'] = f"{request.user.first_name} {request.user.last_name}"
+        data['solicitante_rf'] = request.user.username
+
+        from ..relatorio import relatorio_cadastro
+
+        html_string = relatorio_cadastro(data)
+
+        html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+        html.write_pdf(target='/tmp/relatorio_cadastro.pdf')
+
+        fs = FileSystemStorage('/tmp')
+        with fs.open('relatorio_cadastro.pdf') as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="relatorio_cadastro.pdf"'
+            return response
+
+        return response
 
 class DemandaRegiao(APIView):
     """
