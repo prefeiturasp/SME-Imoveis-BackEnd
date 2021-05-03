@@ -46,7 +46,7 @@ ADMIN_URL = f"{FORCE_SCRIPT_NAME}/admin/"
 
 STATIC_ROOT = "/code/static"
 MEDIA_ROOT = "/code/media"
-STATICFILES_DIRS = []
+STATICFILES_DIRS = [str(APPS_DIR.path("static"))]
 
 URL_HOSTNAME = "http://hom.imoveis.sme.prefeitura.sp.gov.br/api"
 
