@@ -1,0 +1,274 @@
+{% load static %}
+{% load sass_tags %}
+{% load index %}
+
+<html>
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <script src="{% static 'fontawesome_free/js/all.min.js' %}"></script>
+  <link href="{% static 'fontawesome_free/css/all.min.css' %}" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" type="text/css" href="{% sass_src 'imovel/css/fluxo_status.scss' %} " />
+  <link rel="stylesheet" type="text/css" href="{% sass_src 'imovel/css/header.scss' %} " />
+  <link rel="stylesheet" type="text/css" href="{% sass_src 'imovel/css/relatorio_cadastro.scss' %} " />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="row">
+        <div class="col-3">
+          <img class="logo-imoveis" src="https://dev-imoveis.sme.prefeitura.sp.gov.br/static/media/Logo.fa22158f.png" />
+        </div>
+        <div class="col-6"></div>
+        <div class="col-3">
+          <img class="logo-secretaria"
+            src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2019/06/Logo_Educacao.png" />
+        </div>
+        <div class="col-12">
+          <table class="table table-bordered border-dark cabecalho">
+            <thead>
+              <tr>
+                <td class="bg-white" colspan="2">
+                  DETALHAMENTO DE CADASTRO DE IMOVEL
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="bg-white">
+                  DATA DE CADASTRO: {{criado_em}}
+                </td>
+                <td class="bg-white">
+                  PROTOCOLO: {{protocolo}}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="progress-bar-main-div">
+      <div>
+        <ul class="progressbar-titles fluxos">
+          {% for status in fluxo|or_logs:logs %}
+          <li style="width: 10%">
+            {% if logs|index_exists:forloop.counter %}
+            {{ logs|get_element_by_index:forloop.counter0|get_attribute:'status_evento_explicacao'}}
+            {% else %}
+            {{ status.titulo }}
+            {% endif %}
+            {% endfor %}
+          </li>
+        </ul>
+        <ul class="progressbar">
+          {% for status in fluxo|or_logs:logs %}
+            <li class="{% if logs|index_exists:forloop.counter %}
+                      {{ logs|get_element_by_index:forloop.counter0|class_css }}
+                      {% else %}{% if logs|fim_de_fluxo %} {% else %}pending{% endif %}{% endif %}"
+              style="width: 10%">
+              {% if logs|index_exists:forloop.counter %}
+                <span class="criado_em">
+                  {{ logs|get_element_by_index:forloop.counter0|get_attribute:'criado_em' }}
+                  <br />
+                  RF: {{logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'username'}}
+                  <br />
+                  {{ logs|get_element_by_index:forloop.counter0|get_attribute:'usuario'|get_attribute:'nome' }}
+                </span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="wrapper">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <p class="title">Dados do Cadastrante</p>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Nome</label>
+            <p class="input-value">{{proponente_nome}}</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-label">CPF/CNPJ</label>
+            <p class="input-value">{{proponente_cpf_cnpj}}</p>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <p class="input-value">{{proponente_email}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Telefone Fixo</label>
+            <p class="input-value">{{proponente_telefone}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Telefone Móvel</label>
+            <p class="input-value">{{proponente_celular}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <p class="input-value">{{proponente_tipo}}</p>
+          </div>
+        </div>
+        <hr>
+        </hr>
+        <div class="col-12">
+          <p class="title">Dados do Imóvel</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-9">
+          <div class="form-group">
+            <label class="form-label">Endereço</label>
+            <p class="input-value">{{endereco}}</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-label">Número</label>
+            <p class="input-value">{{numero}}</p>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="form-group">
+            <label class="form-label">Complemento</label>
+            <p class="input-value">{{complemento}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Bairro</label>
+            <p class="input-value">{{bairro}}</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-label">CEP</label>
+            <p class="input-value">{{cep}}</p>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="form-group">
+            <label class="form-label">Cidade</label>
+            <p class="input-value">{{cidade}}</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <p class="input-value">{{uf}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Área construída m²</label>
+            <p class="input-value">{{area_construida}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">IPTU</label>
+            <p class="input-value">{{numero_iptu}}</p>
+          </div>
+        </div>
+        <div class="col-8">
+          <div class="form-group">
+
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-label">Observações</label>
+            <p class="input-value observacoes">{{observacoes}}</p>
+          </div>
+        </div>
+        <div class="col-5">
+          <div class="form-group">
+            <label class="form-label">DRE</label>
+            <p class="input-value">{{diretoria_regional_educacao}}</p>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="form-group">
+            <label class="form-label">Distrito</label>
+            <p class="input-value">{{distrito}}</p>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-label">Setor</label>
+            <p class="input-value">{{codigo_setor}}</p>
+          </div>
+        </div>
+      </div>
+      <hr>
+      </hr>
+      <div class="row">
+        <br></br>
+        <div class="col-12">
+          <p class="title">Informações sobre demanda</p>
+        </div>
+        <div class="col-12 mt-3">
+          <table class="relatorio">
+            <thead>
+              <tr class="relatorio-row">
+                <th class="relatorio-coluna-cabecalho"></th>
+                <th class="relatorio-coluna-cabecalho">Berçário 1</th>
+                <th class="relatorio-coluna-cabecalho">Berçário 2</th>
+                <th class="relatorio-coluna-cabecalho">Mini Grupo 1</th>
+                <th class="relatorio-coluna-cabecalho">Mini Grupo 1</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="relatorio-corpo">
+                <td class="relatorio-coluna-corpo">Demanda por modalidade</td>
+                <td class="relatorio-coluna-corpo">{{ bercario_i }}</td>
+                <td class="relatorio-coluna-corpo">{{ bercario_ii }}</td>
+                <td class="relatorio-coluna-corpo">{{ mini_grupo_i }}</td>
+                <td class="relatorio-coluna-corpo">{{ mini_grupo_ii }}</td>
+              </tr>
+              <tr class="relatorio-corpo">
+                <td class="relatorio-coluna-corpo" colspan="2">Demanda Total</td>
+                <td class="relatorio-coluna-corpo" colspan="3">{{ demanda_total }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-12">
+          <p class="data-atualizacao">Atualização DIE: {{data_atualizacao_demanda}}</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          <p class="auditoria">Auditoria feita por: {{solicitante_nome}}, {{solicitante_rf}} - {{data_hoje}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

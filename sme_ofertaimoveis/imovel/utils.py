@@ -1,5 +1,7 @@
 from datetime import datetime
+import math
 from enum import Enum
+import math
 
 def checa_digito_verificador_iptu(numero_iptu):
     multiplicacoes = [10, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -15,6 +17,16 @@ def data_formatada(string_data):
     """Pegar a string isoformat e transformar em uma data no format yyyy-mm-dd"""
     str_d = datetime.strptime(string_data, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d')
     return datetime.strptime(str_d, '%Y-%m-%d')
+
+def get_width(fluxo, logs):
+    logs_formatado = logs
+    fluxo_utilizado = fluxo if len(fluxo) > len(
+        logs_formatado) else logs_formatado
+    if not fluxo_utilizado:
+        return '55%'
+    if len(fluxo_utilizado) == 1:
+        return '100%'
+    return str(math.floor(99 / len(fluxo_utilizado))) + '%'
 
 class SituacaoDuplicidade(Enum):
     MANTIDO = ''

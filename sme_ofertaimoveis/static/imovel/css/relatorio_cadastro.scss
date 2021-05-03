@@ -1,0 +1,90 @@
+.relatorio {
+  text-align: center;
+  width: 100%;
+  border: 1px solid #e9eaea;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.relatorio-row {
+  text-align: center;
+  border: 1px solid #e9eaea;
+  background-color: #f5f6f8;
+}
+
+.relatorio-coluna-cabecalho {
+  padding: 15px;
+  border-right: 1px solid #e9eaea;
+  font-family: sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.relatorio-corpo {
+  border: 1px solid #e9eaea;
+}
+
+.relatorio-coluna-corpo {
+  font-family: sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 15px;
+  border-right: 1px solid #e9eaea;
+}
+
+.input-value {
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  color: #212529;
+  background-color: #e9ecef;
+  opacity: 1;
+  font-family: Roboto;
+  font-style: normal;
+  font-size: 10px;
+  line-height: 2.3;
+  min-height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.form-label {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 16px;
+}
+
+.form-group {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.title {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 10px;
+  line-height: 16px;
+  color: #196CBD;
+}
+
+.observacoes {
+  min-height: 90px;
+}
+
+.data-atualizacao {
+  font-family: Roboto;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 16px;
+  float: right;
+  margin-top: 15px;
+}
+
+.auditoria {
+  font-family: Roboto;
+  font-style: normal;
+  font-size: 12px;
+  line-height: 16px;
+}
