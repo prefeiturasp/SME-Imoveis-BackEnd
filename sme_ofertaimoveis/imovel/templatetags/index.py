@@ -50,3 +50,8 @@ def index_exists(indexable, i):
 @register.filter
 def or_logs(fluxo, logs):
     return logs if len(logs) > len(fluxo) else fluxo
+
+# verifica se o fluxo usado é maior que a linha do tempo
+@register.filter
+def is_bigger_than_flow(logs, fluxo):
+    return True if len(logs) > len(fluxo) else False
