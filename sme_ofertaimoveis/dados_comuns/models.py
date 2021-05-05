@@ -134,6 +134,8 @@ class LogFluxoStatus(models.Model):
         data = datetime.strftime(self.criado_em, '%Y-%m-%d %H:%M:%S')
         return (f'{self.usuario.first_name} {self.usuario.last_name} executou {self.get_status_evento_display()} no dia {data}')
 
+    class Meta:
+        ordering = ('id',)
 
 class AnexoLog(models.Model):
     TIPO_DOCUMENTO = (
