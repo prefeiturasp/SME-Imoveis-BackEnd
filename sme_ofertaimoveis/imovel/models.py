@@ -284,6 +284,7 @@ class Imovel(FluxoImoveis):
             'data_atualizacao_demanda': data_atualizacao_demanda,
             'width': get_width(FLUXO, self.logs.all()),
             'logs': logs_as_dict(self.logs.all()),
+            'nao_possui_iptu': self.nao_possui_iptu,
         }
 
     class Meta:

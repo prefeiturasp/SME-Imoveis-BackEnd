@@ -18,7 +18,7 @@
   <link rel="stylesheet" type="text/css" href="{% sass_src 'imovel/css/relatorio_cadastro.scss' %} " />
 </head>
 <body>
-  <header>
+  <header class="content-header mb-2">
     <div class="container">
       <div class="row">
         <div class="col-3">
@@ -130,8 +130,7 @@
             <p class="input-value">{{proponente_tipo}}</p>
           </div>
         </div>
-        <hr>
-        </hr>
+        <hr class="linha"></hr>
         <div class="col-12">
           <p class="title">Dados do Imóvel</p>
         </div>
@@ -191,9 +190,12 @@
             <p class="input-value">{{numero_iptu}}</p>
           </div>
         </div>
-        <div class="col-8">
-          <div class="form-group">
-
+        <div class="col-2">
+        </div>
+        <div class="col-6">
+          <div class="form-check mt-4 ml-3">
+              <input type="checkbox" checked {% if nao_possui_iptu %} checked {% endif %} class="form-check-input" id="exampleCheck1">
+            <label class="form-label" for="exampleCheck1">Este imóvel não possui IPTU</label>
           </div>
         </div>
         <div class="col-12">
@@ -220,15 +222,13 @@
             <p class="input-value">{{codigo_setor}}</p>
           </div>
         </div>
+        <hr class="linha"></hr>
       </div>
-      <hr>
-      </hr>
       <div class="row">
-        <br></br>
         <div class="col-12">
           <p class="title">Informações sobre demanda</p>
         </div>
-        <div class="col-12 mt-3">
+        <div class="col-12">
           <table class="relatorio">
             <thead>
               <tr class="relatorio-row">
@@ -254,13 +254,13 @@
             </tbody>
           </table>
         </div>
-        <div class="col-12">
-          <p class="data-atualizacao">Atualização DIE: {{data_atualizacao_demanda}}</p>
-        </div>
       </div>
       <div class="row">
-        <div class="col-12">
-          <p class="auditoria">Auditoria feita por: {{solicitante_nome}}, {{solicitante_rf}} - {{data_hoje}}</p>
+        <div class="col-6 auditoria">
+          <label class="mt-3 ">Auditoria feita por: {{solicitante_nome}}, {{solicitante_rf}} - {{data_hoje}}</label>
+        </div>
+        <div class="col-6">
+          <label class="data-atualizacao">Atualização DIE: {{data_atualizacao_demanda}}</label>
         </div>
       </div>
     </div>
