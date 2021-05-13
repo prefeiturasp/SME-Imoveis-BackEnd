@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwrgs):
         self.stdout.write("Atualizando base de dados.")
         # Trocar para nome da planilha correto
-        dados_planilha = self.get_dados_planilha('planilha_duplicadas.xlsx')
+        dados_planilha = self.get_dados_planilha('Protocolos_Sistema Cadastro de Imóveis 12-05-2021.xlsx')
         self.atualizar_status(dados_planilha)
 
         self.stdout.write("Processo de atualização finalizado.")
@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def get_dados_planilha(self, nome_arquivo):
         wb = load_workbook(filename = nome_arquivo)
         # Trocar para sheet correto
-        sheet_ranges = wb['Plan1']
+        sheet_ranges = wb['Relatório por Status']
         linhas = sheet_ranges.max_row
         colunas = sheet_ranges.max_column
         dados_planilha = []
@@ -33,10 +33,11 @@ class Command(BaseCommand):
 
     def atualizar_status(self, dados_planilha):
         # Trocar para o Usuário correto.
-        admin = User.objects.first()
+        admin = User.objects.get(username="XXXXXXX")
         data_cancelamento = datetime.datetime.now()
 
         for dado in dados_planilha:
+            print(f"======================================================== Atualizando Cadastro {dado['Protocolo']} ========================================================\n\n")
             imovel = Imovel.objects.get(id=dado['Protocolo'])
             self.atualizar_dados(dado, imovel)
             if dado['Tipo Status'] == "Aprovado":
@@ -45,6 +46,12 @@ class Command(BaseCommand):
                 imovel.envia_a_dre(user=admin, enviar_email=False,
                                    processo_sei=dado['Processo SEI'], nome_da_unidade=dado['Nome da Unidade'])
                 imovel.finaliza_aprovado(user=admin, enviar_email=False)
+            elif dado['Tipo Status'] == "Demanda Insuficiente":
+                imovel.sme_analisa_previamente(user=admin, enviar_email=False)
+                imovel.finaliza_demanda_insuficiente(user=admin, enviar_email=False)
+            elif dado['Tipo Status'] == "Área insuficiente":
+                imovel.sme_analisa_previamente(user=admin, enviar_email=False)
+                imovel.finaliza_area_insuficiente(user=admin, enviar_email=False)
             elif dado['Tipo Status'] == "Reprovado":
                 self.criar_logs_anteriores(dado, imovel, admin)
                 imovel.reprova_vistoria(user=admin, enviar_email=False)
@@ -52,6 +59,7 @@ class Command(BaseCommand):
             else:
                 imovel.cancela(user=admin, data_agendada=data_cancelamento)
             imovel.save()
+            print(f"======================================================== Cadastro {dado['Protocolo']} Atualizado ========================================================\n\n")
 
     def atualizar_dados(self, dado, imovel):
         imovel.status = Imovel.workflow_class.SOLICITACAO_REALIZADA
@@ -65,9 +73,9 @@ class Command(BaseCommand):
         imovel.latitude = dado['Longitude']
         imovel.longitude = dado['Latitude']
         if imovel.proponente:
-            imovel.proponente.nome = dado['Nome Proprietário']
+            imovel.proponente.nome = dado['Nome do Proprietário']
         else:
-            imovel.proponente = Proponente.objects.create(nome=dado['Nome Proprietário'])
+            imovel.proponente = Proponente.objects.create(nome=dado['Nome do Proprietário'])
         if dado['Número do IPTU']:
             imovel.nao_possui_iptu = False
             imovel.numero_iptu = dado['Número do IPTU']
@@ -76,9 +84,12 @@ class Command(BaseCommand):
             imovel.observacoes = "Migrado do imóveis 1.0"
         if dado['Área Construída (m²)']:
             area = dado['Área Construída (m²)']
-            area = [int(s) for s in area if s.isdigit() and s != '²']
-            area_formatada = ''.join([str(elem) for elem in area])
-            imovel.area_construida = int(area_formatada)
+            if type(area) != int:
+                area = [int(s) for s in area if s.isdigit() and s != '²']
+                area_formatada = ''.join([str(elem) for elem in area])
+                imovel.area_construida = int(area_formatada)
+            else:
+                imovel.area_construida = int(area)
 
     def criar_logs_anteriores(self, dado, imovel, admin):
         imovel.sme_analisa_previamente(user=admin, enviar_email=False)
