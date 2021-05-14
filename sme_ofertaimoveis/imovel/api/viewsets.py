@@ -609,7 +609,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         border = Border(right=Side(border_style='thin', color='24292E'), left=Side(border_style='thin', color='24292E'), top=Side(border_style='thin', color='24292E'), bottom=Side(border_style='thin', color='24292E'))
         alignment = Alignment(horizontal='center', vertical='center')
         font = Font(color="404040", size="12", bold=True)
-        
+
         fill_par = PatternFill(fill_type='solid', fgColor='C5C5C5')
         fill_impar = PatternFill(fill_type='solid', fgColor='EAEAEA')
 
@@ -629,11 +629,11 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         name_length = Proponente.objects.values('nome').aggregate(name_length=Max(Length('nome')))['name_length']
         email_length = Proponente.objects.values('email').aggregate(email_length=Max(Length('email')))['email_length']
         endereco_length = Imovel.objects.values('endereco').aggregate(endereco_length=Max(Length('endereco')))['endereco_length']
-        
+
         ws.column_dimensions["C"].width = name_length + 6
         ws.column_dimensions["D"].width = email_length + 8
         ws.column_dimensions["J"].width = endereco_length + 20
-        
+
         def trata_celula(row, column, fill, value=None):
             celula = ws.cell(row=row, column=column, value=value)
             celula.fill = fill
@@ -642,7 +642,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             celula.alignment = alignment
 
             return celula
- 
+
         for ind, imovel in enumerate(imoveis.select_related('proponente', 'setor', 'demandaimovel').prefetch_related("plantafoto_set"), 2):
             fill = fill_par if (ind % 2) == 0 else fill_impar
 
@@ -701,7 +701,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                     celula = trata_celula(row=ind, fill=fill, column=(23 + count_fachada + count_interno + count_externo + count_iptu_itr + planta))
                 link = "%s%s"%(env.str("URL_HOSTNAME_WITHOUT_SLASH_API", default=""), anexo.arquivo.url)
                 celula.value = '=HYPERLINK("{}", "{}")'.format(link, anexo.get_tipo_documento_display())
-            
+
 
         print(f"Tempo total: {(time.time()-start_time)} em segundos")
         print(f"Quantidade de conexões {len(connection.queries)}")
@@ -975,7 +975,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
     def filtrar_demanda_territorial(self, request):
         data = self._filtrar_relatorio_demanda_territorial(request)
         dres = DiretoriaRegional.objects.all()
-        total = Imovel.objects.all().count()
+        total = Imovel.objects.filter(excluido=False).all().count()
         todas_demandas = (len(request.query_params.getlist('demandas')) == 3)
         if request.query_params.get('tipo_resultado') == 'dre':
             data = self._get_resultado_por_dre(data, dres, todas_demandas, request)
@@ -990,7 +990,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             url_path='imoveis/filtrar-por-area-construida')
     def filtrar_area_construida(self, request):
         data = self._filtrar_relatorio_area_construida(request)
-        data['total_imoveis'] = Imovel.objects.all().count()
+        data['total_imoveis'] = Imovel.objects.filter(excluido=False).all().count()
         return Response(status=status.HTTP_200_OK, data=data)
 
     @action(detail=False,
@@ -1122,7 +1122,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
     def relatorio_por_demanda_pdf(self, request, *args, **kwargs):
         imoveis = self._filtrar_relatorio_demanda_territorial(request)
         dres = DiretoriaRegional.objects.all()
-        total = Imovel.objects.all().count()
+        total = Imovel.objects.filter(excluido=False).all().count()
         todas_demandas = (len(request.query_params.getlist('demandas')) == 3)
         if request.query_params.get('tipo_resultado') == 'dre':
             data = self._get_resultado_por_dre(imoveis, dres, todas_demandas, request)
@@ -1153,7 +1153,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             url_path='imoveis/relatorio-area-construida-pdf')
     def relatorio_area_construida_pdf(self, request, *args, **kwargs):
         data = self._filtrar_relatorio_area_construida(request)
-        data['total_imoveis'] = Imovel.objects.all().count()
+        data['total_imoveis'] = Imovel.objects.filter(excluido=False).all().count()
         resultado = self._formatar_header(request, data)
         html_string = render_to_string('imovel/relatorios/relatorio_area_construida.html', resultado)
 
