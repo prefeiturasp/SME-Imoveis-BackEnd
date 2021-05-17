@@ -463,7 +463,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'ultimos-30-dias',
         permission_classes=(IsAuthenticated,))
     def ultimos_30_dias(self, request):
-        query_set = Imovel.objects.filter(excluido=False).all()
+        query_set = Imovel.objects.filter(excluido=False, status=Imovel.workflow_class.initial_state).all()
         resumo_do_mes = self._agrupa_por_mes_por_solicitacao(query_set=query_set)
         return Response(resumo_do_mes, status=status.HTTP_200_OK)
 
@@ -473,7 +473,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         url_path=f'imoveis/novos-cadastros',
         permission_classes=(IsAuthenticated,))
     def imoveis_novos_cadastros(self, request):
-        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25), excluido=False)
+        query_set = Imovel.objects.filter(criado_em__gt=datetime.date.today() - datetime.timedelta(days=25), excluido=False, status=Imovel.workflow_class.initial_state)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -488,7 +488,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
         query_set = Imovel.objects.filter(criado_em__lt=_25_dias_atras,
                                           criado_em__gte=_30_dias_atras,
-                                          excluido=False)
+                                          excluido=False, status=Imovel.workflow_class.initial_state)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -500,7 +500,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         permission_classes=(IsAuthenticated,))
     def imoveis_atrasados(self, request):
         _30_dias_atras = datetime.date.today() - datetime.timedelta(days=30)
-        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras, excluido=False)
+        query_set = Imovel.objects.filter(criado_em__lt=_30_dias_atras, excluido=False, status=Imovel.workflow_class.initial_state)
         page = self.paginate_queryset(query_set)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)

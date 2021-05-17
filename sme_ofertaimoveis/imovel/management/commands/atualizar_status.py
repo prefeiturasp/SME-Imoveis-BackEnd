@@ -70,8 +70,8 @@ class Command(BaseCommand):
         imovel.cidade = dado['Cidade']
         imovel.uf = dado['UF']
         imovel.cep = dado['Cep']
-        imovel.latitude = dado['Longitude']
-        imovel.longitude = dado['Latitude']
+        imovel.latitude = dado['Latitude']
+        imovel.longitude = dado['Longitude']
         if imovel.proponente:
             imovel.proponente.nome = dado['Nome do Proprietário']
         else:
