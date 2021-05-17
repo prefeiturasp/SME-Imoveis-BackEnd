@@ -52,8 +52,8 @@ class Command(BaseCommand):
                             log.criado_em = data_retorno_email
                             log.email_enviado = True if (idx == 7) else False
                         else:
-                            log.criado_em = data_vistoria
+                            log.criado_em = data_vistoria if (data_vistoria != None) else imovel.criado_em
                             log.email_enviado = False
                 else:
                     pass
-                    log.save()
+                log.save()
