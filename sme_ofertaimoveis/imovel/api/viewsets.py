@@ -134,7 +134,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         return data
 
     def _filtrar_relatorio_demanda_territorial(self, request):
-        imoveis = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
+        imoveis = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii')).filter(excluido=False)
         if request.query_params.get('demandas') not in ['todos', None]:
             if '1' == request.query_params.get('demandas'):
                 imoveis = imoveis.filter(demandaimovel__total__lt=40)
