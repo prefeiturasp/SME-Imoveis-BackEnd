@@ -134,22 +134,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         return data
 
     def _filtrar_relatorio_demanda_territorial(self, request):
-        imoveis = Imovel.objects.annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii')).filter(excluido=False)
-        if request.query_params.get('demandas') not in ['todos', None]:
-            if '1' == request.query_params.get('demandas'):
-                imoveis = imoveis.filter(demandaimovel__total__lt=40)
-            if '2' == request.query_params.get('demandas'):
-                demanda_media = imoveis.filter(demandaimovel__total__gte=40, demandaimovel__total__lte=100)
-                try:
-                    imoveis = imoveis | demanda_media
-                except:
-                    imoveis = demanda_media
-            if '3' == request.query_params.get('demandas'):
-                demanda_alta = imoveis.filter(demandaimovel__total__gt=100)
-                try:
-                    imoveis = imoveis | demanda_alta
-                except:
-                    imoveis = demanda_alta
+        imoveis = Imovel.objects.filter(excluido=False).annotate(demandaimovel__total=Sum('demandaimovel__bercario_i') + Sum('demandaimovel__bercario_ii') + Sum('demandaimovel__mini_grupo_i') + Sum('demandaimovel__mini_grupo_ii'))
         if (request.query_params.getlist('anos') != []):
             imoveis = imoveis.filter(criado_em__year__in=request.query_params.getlist('anos'))
         if request.query_params.getlist('setores') != []:
@@ -158,6 +143,15 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             imoveis = imoveis.filter(setor__distrito__id__in=request.query_params.getlist('distritos'))
         if request.query_params.get('dres') not in ['todas', None]:
             imoveis = imoveis.filter(setor__distrito__subprefeitura__dre__id=request.query_params.get('dres'))
+        if request.query_params.getlist('demandas') != []:
+            expressoes = {"1": Q(demandaimovel__total__lt=40), "2": Q(demandaimovel__total__gte=40, demandaimovel__total__lte=100), "3": Q(demandaimovel__total__gt=100)}
+            expressao = None
+            for d in request.query_params.getlist('demandas'):
+                if expressao:
+                    expressao = expressao | expressoes[d]
+                else:
+                    expressao = expressoes[d]
+            imoveis = imoveis.filter(expressao)
         return imoveis
 
     def _filtrar_relatorio_area_construida(self, request):
