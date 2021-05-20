@@ -34,7 +34,7 @@ class Command(BaseCommand):
             if len(imovel.numero_iptu) == 11:
                 imovel.numero_iptu = '{}{}{}.{}{}{}.{}{}{}{}.{}'.format(*imovel.numero_iptu)
             if len(imovel.numero_iptu) == "":
-                imovel.nao_possui_iptu = False
+                imovel.nao_possui_iptu = True
                 imovel.observacoes = "Cadastro oriundo da base Imóveis 1.0"
             imovel.save()
 
