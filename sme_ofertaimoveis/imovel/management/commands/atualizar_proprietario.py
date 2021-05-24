@@ -7,7 +7,7 @@ from django.db import connection
 import datetime
 
 class Command(BaseCommand):
-    help = "Atualizar campor Proprietário na Planilha recibida do PO."
+    help = "Atualizar campo proprietário dos imóveis cadastrados com base na planilha."
 
     def handle(self, *args, **kwrgs):
         self.stdout.write("Atualizando planilha.")

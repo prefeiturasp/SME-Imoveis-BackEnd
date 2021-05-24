@@ -4,7 +4,7 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
 class Command(BaseCommand):
-    help = "Atualizar campor Proprietário na Planilha recibida do PO."
+    help = "Atualizar campo latitude e longitude dos imóveis cadastrados com base na planilha."
 
     def handle(self, *args, **kwrgs):
         self.stdout.write("Lendo dados da planilha.")
