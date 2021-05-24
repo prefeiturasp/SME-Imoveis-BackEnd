@@ -9,7 +9,7 @@ import pytz
 import datetime
 import pdb
 class Command(BaseCommand):
-    help = "Atualizar campor Proprietário na Planilha recibida do PO."
+    help = "Corrigir logs de envio de email."
 
     def handle(self, *args, **kwrgs):
         self.stdout.write("Lendo dados da planilha.")
