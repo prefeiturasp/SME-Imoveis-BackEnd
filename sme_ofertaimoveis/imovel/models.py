@@ -187,7 +187,7 @@ class Imovel(FluxoImoveis):
 
     criado_em = models.DateTimeField("Criado em", editable=False, auto_now_add=True)
 
-    # Valores String vazia, Registro com duplicidade de IPTU, Registro com duplicidade de Endereço 
+    # Valores String vazia, Registro com duplicidade de IPTU, Registro com duplicidade de Endereço
     situacao_duplicidade = models.CharField("Situação Duplicidade", max_length=255, null=True, blank=True, default='')
     excluido = models.BooleanField(default=False)
 
@@ -222,8 +222,8 @@ class Imovel(FluxoImoveis):
             processo_sei=processo_sei,
             nome_da_unidade=nome_da_unidade
         )
-    
-    
+
+
 
     def as_dict(self):
         from .relatorio.constants import FLUXO
@@ -233,7 +233,11 @@ class Imovel(FluxoImoveis):
         log_cancelamento = self.logs.filter(status_evento=16).first()
         data_cancelamento = datetime.strftime(log_cancelamento.data_agendada, "%d/%m/%Y") if log_cancelamento else ''
         data_atualizacao_demanda = datetime.strftime(self.demandaimovel.data_atualizacao, "%d/%m/%Y") if self.demandaimovel.data_atualizacao else ''
-        diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.capitalize()
+        diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.split('/')
+        if len(diretoria_regional_educacao) > 1:
+            diretoria_regional_educacao = diretoria_regional_educacao[0].capitalize() + '/' + diretoria_regional_educacao[1].capitalize()
+        else:
+            diretoria_regional_educacao = diretoria_regional_educacao[0].capitalize()
 
         def logs_as_dict(logs):
             _logs = []
