@@ -915,14 +915,18 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             permission_classes=(IsAuthenticated,))
     def cancelar(self, request):
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
+        send_email = request.data.get('sendEmail', False)
         user = request.user
         data_agendada = datetime.datetime.now()
-        imovel.cancela(user=user, data_agendada=data_agendada)
-        data = imovel.as_dict()
-        template = "cancela_cadastro"
-        subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Protocolo Cancelado."
-        email = data['proponente_email']
-        task_send_email_to_usuario.delay(subject, template, data, email)
+        imovel.cancela(user=user, data_agendada=data_agendada, enviar_email=send_email)
+        
+        if send_email:
+            data = imovel.as_dict()
+            template = "cancela_cadastro"
+            subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Protocolo Cancelado."
+            email = data['proponente_email']
+            task_send_email_to_usuario.delay(subject, template, data, email)
+
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
