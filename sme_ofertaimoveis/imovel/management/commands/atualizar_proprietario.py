@@ -28,7 +28,6 @@ class Command(BaseCommand):
                 imovel = Imovel.objects.get(id=protocolo)
                 self.atualiza_proponente(imovel, sheet_ranges, i)
                 self.atualiza_proprietario(imovel, sheet_ranges, i)
-                imovel.save()
             except Exception as e:
                 print(f"Erro ao atualizar cadastro: {protocolo}")
                 print(f"Erro: {e}")
@@ -44,6 +43,7 @@ class Command(BaseCommand):
             imovel.proponente.nome = sheet_ranges.cell(row=i, column=5).value
             imovel.proponente.telefone = sheet_ranges.cell(row=i, column=6).value
             imovel.proponente.tipo_proponente = 1
+            imovel.proponente.save()
 
         except AttributeError:
             imovel.proponente = Proponente.objects.create(
@@ -53,6 +53,7 @@ class Command(BaseCommand):
                 telefone=sheet_ranges.cell(row=i, column=6).value,
                 tipo_proponente = 1
             )
+            imovel.proponente.save()
 
     def atualiza_proprietario(self, imovel, sheet_ranges, i):
         # Contato
@@ -61,6 +62,7 @@ class Command(BaseCommand):
             imovel.contato.email = sheet_ranges.cell(row=i, column=3).value
             imovel.contato.nome = sheet_ranges.cell(row=i, column=5).value
             imovel.contato.telefone = sheet_ranges.cell(row=i, column=6).value
+            imovel.contato.save()
 
         except AttributeError:
             imovel.contato = ContatoImovel.objects.create(
@@ -69,3 +71,4 @@ class Command(BaseCommand):
                 nome=sheet_ranges.cell(row=i, column=5).value,
                 telefone=sheet_ranges.cell(row=i, column=6).value,
             )
+            imovel.contato.save()
