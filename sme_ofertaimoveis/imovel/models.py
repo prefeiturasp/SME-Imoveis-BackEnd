@@ -233,11 +233,7 @@ class Imovel(FluxoImoveis):
         log_cancelamento = self.logs.filter(status_evento=16).first()
         data_cancelamento = datetime.strftime(log_cancelamento.data_agendada, "%d/%m/%Y") if log_cancelamento else ''
         data_atualizacao_demanda = datetime.strftime(self.demandaimovel.data_atualizacao, "%d/%m/%Y") if self.demandaimovel.data_atualizacao else ''
-        diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome.split('/')
-        if len(diretoria_regional_educacao) > 1:
-            diretoria_regional_educacao = diretoria_regional_educacao[0].capitalize() + '/' + diretoria_regional_educacao[1].capitalize()
-        else:
-            diretoria_regional_educacao = diretoria_regional_educacao[0].capitalize()
+        diretoria_regional_educacao = self.setor.distrito.subprefeitura.dre.first().nome
 
         def logs_as_dict(logs):
             _logs = []
