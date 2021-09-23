@@ -25,7 +25,6 @@ from rest_framework.views import APIView
 from ..models import Imovel, PlantaFoto, Proponente
 from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
-from ..services import atualiza_analise_previa
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 from django.db.models import Q
