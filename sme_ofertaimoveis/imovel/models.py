@@ -303,22 +303,22 @@ class Imovel(FluxoImoveis):
             LogFluxoStatus.FINALIZADO_APROVADO,
             LogFluxoStatus.FINALIZADO_REPROVADO]
 
-        for status in status_evento_list:   
+        for status in status_evento_list:
             log = LogFluxoStatus.objects.filter(
                 imovel=self, status_evento=status).first()
             if log:
                 log.justificativa = justificativa_finalizacao if justificativa_finalizacao else ""
                 log.save()
                 break
-    
-    def atualiza_log_enviado_comapre(self, justificativa):
-        log_enviado_comapre = LogFluxoStatus.objects.filter(
-            imovel=self, status_evento=LogFluxoStatus.ENVIADO_COMAPRE).first()
 
-        if log_enviado_comapre:
-            log_enviado_comapre.justificativa = justificativa if justificativa else ""
-            log_enviado_comapre.save()
-    
+    def atualiza_log_enviado_para_solicitacao_de_vistoria(self, justificativa):
+        log_enviado_para_solicitacao_de_vistoria = LogFluxoStatus.objects.filter(
+            imovel=self, status_evento=LogFluxoStatus.ENVIADO_PARA_SOLICITACAO_DE_VISTORIA).first()
+
+        if log_enviado_para_solicitacao_de_vistoria:
+            log_enviado_para_solicitacao_de_vistoria.justificativa = justificativa if justificativa else ""
+            log_enviado_para_solicitacao_de_vistoria.save()
+
     def atualiza_log_agendamento_vistoria(self, data_agendada):
         log_agendamento_vistoria = LogFluxoStatus.objects.filter(
             imovel=self, status_evento=LogFluxoStatus.AGENDAMENTO_DA_VISTORIA).first()
