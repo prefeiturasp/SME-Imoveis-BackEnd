@@ -8,7 +8,7 @@ FLUXO = [
     "usuario": None,
   },
   {
-    "titulo": "Solicitação COMAPRE",
+    "titulo": "Solicitação de vistoria",
     "status": "",
     "criado_em": "",
     "usuario": None,
