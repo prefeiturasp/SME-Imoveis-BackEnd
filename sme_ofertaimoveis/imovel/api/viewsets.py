@@ -50,7 +50,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             return ListaImoveisSeriliazer
 
     def _filtrar_relatorio_por_status(self, request):
-        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
+        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_PARA_SOLICITACAO_DE_VISTORIA',
                              'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
                              'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
                              'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
@@ -734,12 +734,12 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
 
     @action(detail=False,
             methods=['POST'],
-            url_path='imoveis/envia-comapre',
+            url_path='imoveis/envia-para-solicitacao-de-vistoria',
             permission_classes=(IsAuthenticated,))
-    def enviar_para_comapre(self, request):
+    def enviar_para_solicitacao_de_vistoria(self, request):
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         if request.query_params.get('edicao') == 'ok':
-            imovel.atualiza_log_enviado_comapre(request.query_params.get('justificativa'))
+            imovel.atualiza_log_enviado_para_solicitacao_de_vistoria(request.query_params.get('justificativa'))
         else:
             user = request.user
             if (request.query_params.get('enviar_email') == 'true'):
@@ -751,10 +751,10 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             if 'justificativa' in request.query_params:
                 justificativa=request.query_params.get('justificativa')
             imovel.sme_analisa_previamente(user=user)
-            imovel.envia_a_comapre(user=user, data_agendada=data_agendada, enviar_email=enviar_email, justificativa=justificativa)
+            imovel.envia_a_solicitacao_de_vistoria(user=user, data_agendada=data_agendada, enviar_email=enviar_email, justificativa=justificativa)
             if (enviar_email):
                 data = imovel.as_dict()
-                template = "envia_a_comapre"
+                template = "envia_a_solicitacao_de_vistoria"
                 subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Solicitação de vistoria."
                 email = data['proponente_email']
                 task_send_email_to_usuario.delay(subject, template, data, email)
@@ -937,7 +937,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         user = request.user
         data_agendada = datetime.datetime.now()
         imovel.cancela(user=user, data_agendada=data_agendada, enviar_email=send_email)
-        
+
         if send_email:
             data = imovel.as_dict()
             template = "cancela_cadastro"
@@ -1050,7 +1050,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             methods=['get'],
             url_path='imoveis/relatorio-por-status-xls')
     def relatorio_por_status_xls(self, request):
-        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_COMAPRE',
+        status_em_analise = ['AGUARDANDO_ANALISE_PREVIA_SME', 'ENVIADO_PARA_SOLICITACAO_DE_VISTORIA',
                              'AGENDAMENTO_DA_VISTORIA', 'AGUARDANDO_RELATORIO_DE_VISTORIA',
                              'AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO', 'SOLICITACAO_REALIZADA',
                              'RELATORIO_VISTORIA', 'LAUDO_VALOR_LOCATICIO']
