@@ -93,7 +93,7 @@ class Command(BaseCommand):
 
     def criar_logs_anteriores(self, dado, imovel, admin):
         imovel.sme_analisa_previamente(user=admin, enviar_email=False)
-        imovel.envia_a_comapre(user=admin, enviar_email=False)
+        imovel.envia_a_solicitacao_de_vistoria(user=admin, enviar_email=False)
         imovel.agenda_vistoria(user=admin, data_agendada=dado['Data da vistoria'], enviar_email=False)
         imovel.aguarda_relatorio_vistoria(user=admin, enviar_email=False)
         imovel.relatorio_vistoria(user=admin, enviar_email=False)
