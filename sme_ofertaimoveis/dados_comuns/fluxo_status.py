@@ -14,7 +14,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
     FINALIZADO_AREA_INSUFICIENTE = 'FINALIZADO_AREA_INSUFICIENTE'
     FINALIZADO_DEMANDA_INSUFICIENTE = 'FINALIZADO_DEMANDA_INSUFICIENTE'
     FINALIZADO_NAO_ATENDE_NECESSIDADES = 'FINALIZADO_NAO_ATENDE_NECESSIDADES'
-    ENVIADO_COMAPRE = 'ENVIADO_COMAPRE'
+    ENVIADO_PARA_SOLICITACAO_DE_VISTORIA = 'ENVIADO_PARA_SOLICITACAO_DE_VISTORIA'
     AGENDAMENTO_DA_VISTORIA = 'AGENDAMENTO_DA_VISTORIA'
     AGUARDANDO_RELATORIO_DE_VISTORIA = 'AGUARDANDO_RELATORIO_DE_VISTORIA'
     RELATORIO_VISTORIA = 'RELATORIO_VISTORIA'
@@ -34,7 +34,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
         (FINALIZADO_AREA_INSUFICIENTE, 'Finalizado - Área Insuficiente'),
         (FINALIZADO_DEMANDA_INSUFICIENTE, 'Finalizado - Demanda Insuficiente'),
         (FINALIZADO_NAO_ATENDE_NECESSIDADES, 'Finalizado - Não atende as necessidades da SME'),
-        (ENVIADO_COMAPRE, 'Enviado à COMAPRE'),
+        (ENVIADO_PARA_SOLICITACAO_DE_VISTORIA, 'Enviado para solicitação de vistoria'),
         (AGENDAMENTO_DA_VISTORIA, 'Agendamento da vistoria'),
         (AGUARDANDO_RELATORIO_DE_VISTORIA, 'Aguardando relatório de vistoria'),
         (RELATORIO_VISTORIA, 'Relatório da vistoria'),
@@ -54,8 +54,8 @@ class ImoveisWorkflow(xwf_models.Workflow):
         ('finaliza_area_insuficiente', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_AREA_INSUFICIENTE),
         ('finaliza_demanda_insuficiente', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_DEMANDA_INSUFICIENTE),
         ('finaliza_nao_atende_necessidades', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_NAO_ATENDE_NECESSIDADES),
-        ('envia_a_comapre', AGUARDANDO_ANALISE_PREVIA_SME, ENVIADO_COMAPRE),
-        ('agenda_vistoria', ENVIADO_COMAPRE, AGENDAMENTO_DA_VISTORIA),
+        ('envia_a_solicitacao_de_vistoria', AGUARDANDO_ANALISE_PREVIA_SME, ENVIADO_PARA_SOLICITACAO_DE_VISTORIA),
+        ('agenda_vistoria', ENVIADO_PARA_SOLICITACAO_DE_VISTORIA, AGENDAMENTO_DA_VISTORIA),
         ('aguarda_relatorio_vistoria', AGENDAMENTO_DA_VISTORIA, AGUARDANDO_RELATORIO_DE_VISTORIA),
         ('relatorio_vistoria', AGUARDANDO_RELATORIO_DE_VISTORIA, RELATORIO_VISTORIA),
         ('aguarda_laudo_valor_locaticio', RELATORIO_VISTORIA, AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO),
@@ -66,7 +66,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
         ('finaliza_aprovado', ENVIADO_DRE, FINALIZADO_APROVADO),
         ('finaliza_reprovado', VISTORIA_REPROVADA, FINALIZADO_REPROVADO),
         ('cancela', [ SOLICITACAO_REALIZADA, AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_AREA_INSUFICIENTE,
-                        FINALIZADO_DEMANDA_INSUFICIENTE, FINALIZADO_NAO_ATENDE_NECESSIDADES, ENVIADO_COMAPRE,
+                        FINALIZADO_DEMANDA_INSUFICIENTE, FINALIZADO_NAO_ATENDE_NECESSIDADES, ENVIADO_PARA_SOLICITACAO_DE_VISTORIA,
                         AGENDAMENTO_DA_VISTORIA, AGUARDANDO_RELATORIO_DE_VISTORIA, RELATORIO_VISTORIA,
                         AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, LAUDO_VALOR_LOCATICIO, VISTORIA_APROVADA,
                         VISTORIA_REPROVADA, ENVIADO_DRE, FINALIZADO_APROVADO,
@@ -116,10 +116,10 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False))
 
-    @xworkflows.after_transition('envia_a_comapre')
-    def _envia_a_comapre_hook(self, *args, **kwargs):
+    @xworkflows.after_transition('envia_a_solicitacao_de_vistoria')
+    def _envia_a_solicitacao_de_vistoria_hook(self, *args, **kwargs):
         user = kwargs['user']
-        self.salvar_log_transicao(status_evento=LogFluxoStatus.ENVIADO_COMAPRE,
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.ENVIADO_PARA_SOLICITACAO_DE_VISTORIA,
                                   usuario=user,
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False),
@@ -225,7 +225,7 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False),
                                   data_agendada=kwargs.get('data_agendada', None))
-                                  
+
     @xworkflows.after_transition('reativa')
     def _reativa_hook(self, *args, **kwargs):
         logs = self.logs.all()

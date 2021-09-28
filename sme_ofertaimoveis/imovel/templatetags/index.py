@@ -27,7 +27,7 @@ def fim_de_fluxo(logs):
 @register.filter  # noqa C901
 def class_css(log):
     classe_css = 'pending'
-    if log['status_evento_explicacao'] in ['SME analisou previamente', 'Enviado à COMAPRE', 'Agendamento da vistoria',
+    if log['status_evento_explicacao'] in ['SME analisou previamente', 'Enviado para solicitação de vistoria', 'Agendamento da vistoria',
                                         'Aguardando relatório de vistoria', 'Aguardando laudo de valor locatício',
                                         'Relatório da vistoria', 'Laudo de valor locatício', 'Vistoria aprovada',
                                         'Enviado à DRE', 'Finalizado - Aprovado']:
