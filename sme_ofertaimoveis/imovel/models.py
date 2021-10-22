@@ -287,6 +287,55 @@ class Imovel(FluxoImoveis):
             'nao_possui_iptu': self.nao_possui_iptu,
         }
 
+    def atualiza_analise_previa(self, justificativa_analise_previa=None, justificativa_finalizacao=None):
+        log_aguardando_analise = LogFluxoStatus.objects.filter(
+            imovel=self, status_evento=LogFluxoStatus.AGUARDANDO_ANALISE_PREVIA_SME).first()
+
+        if log_aguardando_analise:
+            log_aguardando_analise.justificativa = justificativa_analise_previa if justificativa_analise_previa else ""
+            log_aguardando_analise.save()
+
+        # tratando os logs de resultados.
+        status_evento_list = [
+            LogFluxoStatus.FINALIZADO_AREA_INSUFICIENTE,
+            LogFluxoStatus.FINALIZADO_DEMANDA_INSUFICIENTE,
+            LogFluxoStatus.FINALIZADO_NAO_ATENDE_NECESSIDADES,
+            LogFluxoStatus.FINALIZADO_APROVADO,
+            LogFluxoStatus.FINALIZADO_REPROVADO]
+
+        for status in status_evento_list:
+            log = LogFluxoStatus.objects.filter(
+                imovel=self, status_evento=status).first()
+            if log:
+                log.justificativa = justificativa_finalizacao if justificativa_finalizacao else ""
+                log.save()
+                break
+
+    def atualiza_log_enviado_para_solicitacao_de_vistoria(self, justificativa):
+        log_enviado_para_solicitacao_de_vistoria = LogFluxoStatus.objects.filter(
+            imovel=self, status_evento=LogFluxoStatus.ENVIADO_PARA_SOLICITACAO_DE_VISTORIA).first()
+
+        if log_enviado_para_solicitacao_de_vistoria:
+            log_enviado_para_solicitacao_de_vistoria.justificativa = justificativa if justificativa else ""
+            log_enviado_para_solicitacao_de_vistoria.save()
+
+    def atualiza_log_agendamento_vistoria(self, data_agendada):
+        log_agendamento_vistoria = LogFluxoStatus.objects.filter(
+            imovel=self, status_evento=LogFluxoStatus.AGENDAMENTO_DA_VISTORIA).first()
+
+        if log_agendamento_vistoria:
+            log_agendamento_vistoria.data_agendada = data_agendada
+            log_agendamento_vistoria.save()
+
+    def atualiza_log_envia_dre(self, processo_sei, nome_da_unidade):
+        log_envia_dre = LogFluxoStatus.objects.filter(
+            imovel=self, status_evento=LogFluxoStatus.ENVIADO_DRE).first()
+
+        if log_envia_dre:
+            log_envia_dre.processo_sei = processo_sei
+            log_envia_dre.nome_da_unidade = nome_da_unidade
+            log_envia_dre.save()
+
     class Meta:
         verbose_name = "Imovel"
         verbose_name_plural = "Imoveis"
