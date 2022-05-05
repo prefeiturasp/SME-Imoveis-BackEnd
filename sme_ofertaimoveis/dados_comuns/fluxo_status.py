@@ -12,7 +12,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
     SOLICITACAO_REALIZADA = 'SOLICITACAO_REALIZADA'
     AGUARDANDO_ANALISE_PREVIA_SME = 'AGUARDANDO_ANALISE_PREVIA_SME'
     FINALIZADO_AREA_INSUFICIENTE = 'FINALIZADO_AREA_INSUFICIENTE'
-    FINALIZADO_DEMANDA_INSUFICIENTE = 'FINALIZADO_DEMANDA_INSUFICIENTE'
+    DEMANDA_INSUFICIENTE = 'DEMANDA_INSUFICIENTE'
     FINALIZADO_NAO_ATENDE_NECESSIDADES = 'FINALIZADO_NAO_ATENDE_NECESSIDADES'
     ENVIADO_PARA_SOLICITACAO_DE_VISTORIA = 'ENVIADO_PARA_SOLICITACAO_DE_VISTORIA'
     AGENDAMENTO_DA_VISTORIA = 'AGENDAMENTO_DA_VISTORIA'
@@ -32,7 +32,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
         (SOLICITACAO_REALIZADA, 'Solicitação Realizada'),
         (AGUARDANDO_ANALISE_PREVIA_SME, 'SME analisou previamente'),
         (FINALIZADO_AREA_INSUFICIENTE, 'Finalizado - Área Insuficiente'),
-        (FINALIZADO_DEMANDA_INSUFICIENTE, 'Finalizado - Demanda Insuficiente'),
+        (DEMANDA_INSUFICIENTE, 'Demanda Insuficiente'),
         (FINALIZADO_NAO_ATENDE_NECESSIDADES, 'Finalizado - Não atende as necessidades da SME'),
         (ENVIADO_PARA_SOLICITACAO_DE_VISTORIA, 'Enviado para solicitação de vistoria'),
         (AGENDAMENTO_DA_VISTORIA, 'Agendamento da vistoria'),
@@ -52,7 +52,7 @@ class ImoveisWorkflow(xwf_models.Workflow):
     transitions = (
         ('sme_analisa_previamente', SOLICITACAO_REALIZADA, AGUARDANDO_ANALISE_PREVIA_SME),
         ('finaliza_area_insuficiente', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_AREA_INSUFICIENTE),
-        ('finaliza_demanda_insuficiente', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_DEMANDA_INSUFICIENTE),
+        ('demanda_insuficiente', AGUARDANDO_ANALISE_PREVIA_SME, DEMANDA_INSUFICIENTE),
         ('finaliza_nao_atende_necessidades', AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_NAO_ATENDE_NECESSIDADES),
         ('envia_a_solicitacao_de_vistoria', AGUARDANDO_ANALISE_PREVIA_SME, ENVIADO_PARA_SOLICITACAO_DE_VISTORIA),
         ('agenda_vistoria', ENVIADO_PARA_SOLICITACAO_DE_VISTORIA, AGENDAMENTO_DA_VISTORIA),
@@ -66,12 +66,12 @@ class ImoveisWorkflow(xwf_models.Workflow):
         ('finaliza_aprovado', ENVIADO_DRE, FINALIZADO_APROVADO),
         ('finaliza_reprovado', VISTORIA_REPROVADA, FINALIZADO_REPROVADO),
         ('cancela', [ SOLICITACAO_REALIZADA, AGUARDANDO_ANALISE_PREVIA_SME, FINALIZADO_AREA_INSUFICIENTE,
-                        FINALIZADO_DEMANDA_INSUFICIENTE, FINALIZADO_NAO_ATENDE_NECESSIDADES, ENVIADO_PARA_SOLICITACAO_DE_VISTORIA,
+                        DEMANDA_INSUFICIENTE, FINALIZADO_NAO_ATENDE_NECESSIDADES, ENVIADO_PARA_SOLICITACAO_DE_VISTORIA,
                         AGENDAMENTO_DA_VISTORIA, AGUARDANDO_RELATORIO_DE_VISTORIA, RELATORIO_VISTORIA,
                         AGUARDANDO_LAUDO_DE_VALOR_LOCATICIO, LAUDO_VALOR_LOCATICIO, VISTORIA_APROVADA,
                         VISTORIA_REPROVADA, ENVIADO_DRE, FINALIZADO_APROVADO,
                         FINALIZADO_REPROVADO, REATIVADO ], CANCELADO),
-        ('reativa', [ CANCELADO, FINALIZADO_AREA_INSUFICIENTE, FINALIZADO_DEMANDA_INSUFICIENTE,
+        ('reativa', [ CANCELADO, FINALIZADO_AREA_INSUFICIENTE, DEMANDA_INSUFICIENTE,
                         FINALIZADO_NAO_ATENDE_NECESSIDADES, FINALIZADO_REPROVADO ], REATIVADO)
     )
 
@@ -100,10 +100,10 @@ class FluxoImoveis(xwf_models.WorkflowEnabled, models.Model):
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False))
 
-    @xworkflows.after_transition('finaliza_demanda_insuficiente')
-    def _finaliza_demanda_insuficiente_hook(self, *args, **kwargs):
+    @xworkflows.after_transition('demanda_insuficiente')
+    def _demanda_insuficiente_hook(self, *args, **kwargs):
         user = kwargs['user']
-        self.salvar_log_transicao(status_evento=LogFluxoStatus.FINALIZADO_DEMANDA_INSUFICIENTE,
+        self.salvar_log_transicao(status_evento=LogFluxoStatus.DEMANDA_INSUFICIENTE,
                                   usuario=user,
                                   justificativa=kwargs.get('justificativa', ''),
                                   email_enviado=kwargs.get('enviar_email', False))
