@@ -34,7 +34,7 @@ def class_css(log):
         classe_css = 'active'
     elif log['status_evento_explicacao'] in ['Cancelado']:
         classe_css = 'cancelled'
-    elif log['status_evento_explicacao'] in ['Finalizado - Área Insuficiente', 'Finalizado - Demanda Insuficiente', 'Finalizado - Não atende as necessidades da SME',
+    elif log['status_evento_explicacao'] in ['Finalizado - Área Insuficiente', 'Demanda Insuficiente', 'Finalizado - Não atende as necessidades da SME',
                                           'Finalizado - Reprovado', 'Vistoria reprovada']:
         classe_css = 'disapproved'
     elif log['status_evento_explicacao'] in []:

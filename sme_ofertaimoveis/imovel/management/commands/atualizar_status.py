@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 imovel.finaliza_aprovado(user=admin, enviar_email=False)
             elif dado['Tipo Status'] == "Demanda Insuficiente":
                 imovel.sme_analisa_previamente(user=admin, enviar_email=False)
-                imovel.finaliza_demanda_insuficiente(user=admin, enviar_email=False)
+                imovel.demanda_insuficiente(user=admin, enviar_email=False)
             elif dado['Tipo Status'] == "Área insuficiente":
                 imovel.sme_analisa_previamente(user=admin, enviar_email=False)
                 imovel.finaliza_area_insuficiente(user=admin, enviar_email=False)

@@ -298,7 +298,7 @@ class Imovel(FluxoImoveis):
         # tratando os logs de resultados.
         status_evento_list = [
             LogFluxoStatus.FINALIZADO_AREA_INSUFICIENTE,
-            LogFluxoStatus.FINALIZADO_DEMANDA_INSUFICIENTE,
+            LogFluxoStatus.DEMANDA_INSUFICIENTE,
             LogFluxoStatus.FINALIZADO_NAO_ATENDE_NECESSIDADES,
             LogFluxoStatus.FINALIZADO_APROVADO,
             LogFluxoStatus.FINALIZADO_REPROVADO]
