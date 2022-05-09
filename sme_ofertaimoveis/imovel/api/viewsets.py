@@ -352,6 +352,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             queryset = queryset.filter(id=request.query_params.get('protocolo'))
         if 'endereco' in request.query_params:
             queryset = queryset.filter(Q(endereco__icontains=request.query_params.get('endereco')))
+        if 'numero_iptu' in request.query_params:
+            queryset = queryset.filter(Q(numero_iptu__icontains=request.query_params.get('numero_iptu')))
         if 'area' in request.query_params:
             area = request.query_params.get('area')
             if area == '1':
