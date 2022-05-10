@@ -798,7 +798,7 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
                     imovel.demanda_insuficiente(user=user, enviar_email=enviar_email)
                     if (enviar_email):
                         data = imovel.as_dict()
-                        template = "DEMANDA_INSUFICIENTE"
+                        template = "finalizado_demanda_insuficiente"
                         subject = f"Assunto: Cadastro de imóvel – Protocolo nº {data['protocolo']} – Demanda Insuficiente."
                         email = data['proponente_email']
                         task_send_email_to_usuario.delay(subject, template, data, email)
