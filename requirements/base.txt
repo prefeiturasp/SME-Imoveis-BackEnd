@@ -9,6 +9,7 @@ openpyxl==3.0.6
 django-xworkflows==1.0.0
 weasyprint==52.4
 fontawesome-free==5.15.3
+sentry-sdk==1.29.2
 
 # Django
 # ------------------------------------------------------------------------------
