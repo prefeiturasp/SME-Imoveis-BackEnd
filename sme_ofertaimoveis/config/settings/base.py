@@ -4,6 +4,8 @@ import datetime
 import os
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # (sme_ofertaimoveis/config/settings/base.py - 3 = sme_ofertaimoveis/)
 BASE_DIR = environ.Path(__file__) - 4
@@ -287,6 +289,10 @@ FILA_CRECHE_GRUPOS = (
     (28, "Mini grupo II"),
 )
 
+sentry_sdk.init(
+    dsn=env('SENTRY_URL'),
+    integrations=[DjangoIntegration()]
+)
 
 # LOGGING
 # ------------------------------------------------------------------------------
@@ -310,6 +316,15 @@ LOGGING = {
         }
     },
     "root": {"level": "INFO", "handlers": ["console"]},
+    'loggers': {
+        'sentry_sdk': {'level': 'ERROR', 'handlers': ['console'], 'propagate': False},
+        'imoveis': {
+            'level': 'DEBUG',
+            'handlers': [
+                'console'
+            ],
+        }
+    }
 }
 
 
