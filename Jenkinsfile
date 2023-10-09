@@ -6,9 +6,11 @@ pipeline {
       namespace = "${env.branchname == 'development' ? 'imoveis-dev' : env.branchname == 'homolog' ? 'imoveis-hom' : env.branchname == 'homolog-r2' ? 'imoveis-hom2' : 'sme-imoveis' }"
     }
   
-    agent {
-      node { label 'python-36' }
-    }
+    agent { kubernetes { 
+                  label 'python36'
+                  defaultContainer 'python36'
+                }
+              }
 
     options {
       buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
@@ -24,7 +26,13 @@ pipeline {
       
         stage('AnaliseCodigo') {
 	        when { branch 'homolog' }
+         agent { kubernetes { 
+                  label 'python36'
+                  defaultContainer 'builder'
+                }
+              }
           steps {
+          checkout scm
               withSonarQubeEnv('sonarqube-local'){
                 sh 'echo "[ INFO ] Iniciando analise Sonar..." && sonar-scanner \
                 -Dsonar.projectKey=SME-Imoveis-BackEnd \
@@ -34,8 +42,14 @@ pipeline {
         }
 
         stage('Build') {
-          when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release'; branch 'homolog';  } } 
+          when { anyOf { branch 'master'; branch 'main'; branch "story/*"; branch 'development'; branch 'release'; branch 'homolog';  } }
+          agent { kubernetes { 
+                  label 'builder'
+                  defaultContainer 'builder'
+                }
+              } 
           steps {
+            checkout scm
             script {
               imagename1 = "registry.sme.prefeitura.sp.gov.br/${env.branchname}/sme-imoveis-backend"
               dockerImage1 = docker.build(imagename1, "-f Dockerfile .")
@@ -48,7 +62,12 @@ pipeline {
         }
 	    
         stage('Deploy'){
-            when { anyOf {  branch 'master'; branch 'main'; branch 'development'; branch 'release'; branch 'homolog';  } }        
+            when { anyOf {  branch 'master'; branch 'main'; branch 'development'; branch 'release'; branch 'homolog';  } }
+            agent { kubernetes { 
+                  label 'builder'
+                  defaultContainer 'builder'
+                }
+              }        
             steps {
                 script{
                     if ( env.branchname == 'main' ||  env.branchname == 'master' ) {
