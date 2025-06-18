@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework.views import APIView
 
-from .permissions import AllowOnlyCreateUpdate
+from .permissions import AllowCreateUpdateOrRestAuthenticated
 from ..models import Imovel, PlantaFoto, Proponente
 from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
 from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
@@ -38,15 +38,9 @@ env = environ.Env()
 class CadastroImoveisViewSet(viewsets.ModelViewSet,
                              mixins.CreateModelMixin,
                              mixins.UpdateModelMixin):
-    permission_classes = (AllowOnlyCreateUpdate,)
+    permission_classes = (AllowCreateUpdateOrRestAuthenticated,)
     queryset = Imovel.objects.filter(excluido=False).all()
     serializer_class = ListaImoveisSeriliazer
-
-    def list(self, request, *args, **kwargs):
-        raise PermissionDenied("Listagem não permitida.")
-
-    def retrieve(self, request, *args, **kwargs):
-        raise PermissionDenied("Detalhamento não permitido.")
 
     def destroy(self, request, *args, **kwargs):
         raise PermissionDenied("Exclusão não permitida.")
