@@ -1,5 +1,14 @@
 from rest_framework.permissions import BasePermission
 
-class AllowOnlyCreateUpdate(BasePermission):
+class AllowCreateUpdateOrRestAuthenticated(BasePermission):
+    """
+    Permite:
+    - create, update e partial_update para qualquer um
+    - resto, apenas se for autenticado
+    - bloqueia destroy
+    """
     def has_permission(self, request, view):
-        return view.action in ['create', 'update', 'partial_update']
+        if view.action in ['create', 'update', 'partial_update']:
+            return True
+        else:
+            return request.user and request.user.is_authenticated
