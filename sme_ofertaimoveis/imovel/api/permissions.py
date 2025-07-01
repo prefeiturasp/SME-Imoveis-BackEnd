@@ -8,7 +8,8 @@ class AllowCreateUpdateOrRestAuthenticated(BasePermission):
     - bloqueia destroy
     """
     def has_permission(self, request, view):
-        if view.action in ['create', 'update', 'partial_update']:
+        print(view.action)
+        if view.action in ['create', 'update', 'partial_update', 'checa_iptu_ja_existe']:
             return True
         else:
             return request.user and request.user.is_authenticated
