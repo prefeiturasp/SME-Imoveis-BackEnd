@@ -26,7 +26,7 @@ from rest_framework.views import APIView
 from .permissions import AllowCreateUpdateOrRestAuthenticated
 from ..models import Imovel, PlantaFoto, Proponente
 from sme_ofertaimoveis.dados_comuns.models import DiretoriaRegional, Distrito, Setor
-from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, AnexoCreateSerializer, AnexoSerializer
+from .serializers import CadastroImovelSerializer, UpdateImovelSerializer, ListaImoveisSeriliazer, StatusImovelSerializer, AnexoCreateSerializer, AnexoSerializer
 from ..tasks import task_send_email_to_usuario, task_send_email_to_sme
 from ..utils import checa_digito_verificador_iptu
 from django.db.models import Q
@@ -50,6 +50,8 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
             return CadastroImovelSerializer
         elif self.action == 'partial_update':
             return UpdateImovelSerializer
+        elif self.action == 'status_imovel':
+            return StatusImovelSerializer
         else:
             return ListaImoveisSeriliazer
 
@@ -962,6 +964,15 @@ class CadastroImoveisViewSet(viewsets.ModelViewSet,
         imovel = Imovel.objects.get(id=request.query_params.get('imovel'))
         user = request.user
         imovel.reativa(user=user)
+        serializer = self.get_serializer(imovel, context={'request': request})
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=True,
+            methods=['get'],
+            url_path='status-imovel',
+            permission_classes=(AllowAny,))
+    def status_imovel(self, request, pk=None):
+        imovel = self.get_object()
         serializer = self.get_serializer(imovel, context={'request': request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
