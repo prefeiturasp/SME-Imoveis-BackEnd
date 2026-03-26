@@ -105,6 +105,54 @@ class DemandaImovelSerializer(ModelSerializer):
         exclude = ('uuid', 'imovel',)
 
 
+class StatusImovelSetorSerializer(serializers.ModelSerializer):
+    dre = serializers.SerializerMethodField()
+    distrito = serializers.SerializerMethodField()
+
+    def get_dre(self, obj):
+        dre = obj.distrito.subprefeitura.dre.first() if obj and obj.distrito and obj.distrito.subprefeitura else None
+        return {"nome": dre.nome} if dre else None
+
+    def get_distrito(self, obj):
+        return {"nome": obj.distrito.nome} if obj and obj.distrito else None
+
+    class Meta:
+        model = Setor
+        fields = ["codigo", "dre", "distrito"]
+
+
+class StatusImovelSerializer(serializers.ModelSerializer):
+    protocolo = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+    setor = StatusImovelSetorSerializer(required=False)
+
+    def get_status(self, obj):
+        return obj.get_status_display()
+
+    def get_protocolo(self, obj):
+        return obj.protocolo
+
+    class Meta:
+        model = Imovel
+        fields = [
+            "id",
+            "protocolo",
+            "status",
+            "endereco",
+            "numero",
+            "complemento",
+            "bairro",
+            "cep",
+            "cidade",
+            "uf",
+            "area_construida",
+            "numero_iptu",
+            "nao_possui_iptu",
+            "observacoes",
+            "setor",
+        ]
+
+
 class ListaImoveisSeriliazer(serializers.ModelSerializer):
     proponente = ProponenteSerializer()
     contato = ContatoSerializer()
